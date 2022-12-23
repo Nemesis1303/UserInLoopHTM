@@ -306,9 +306,9 @@ if __name__ == "__main__":
     
     # Get stopword lists
     stw_lsts = []
-    for entry in pathlib.Path("/workspaces/hierarchical-topic-models/data/stw_lists").iterdir():
+    for entry in pathlib.Path("/data/stw_lists").iterdir():
         # check if it is a file
-        if entry.as_posix().endswith("parquet"):
+        if entry.as_posix().endswith("txt"):
             stw_lsts.append(entry)
     
     logger.info(

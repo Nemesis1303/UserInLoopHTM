@@ -1,6 +1,6 @@
 colored==1.4.2
 dask==2022.7.0
-fastparquet==0.8.1
+#fastparquet==0.8.1
 ipdb==0.13.9
 ipython==8.0.1
 ipywidgets==7.6.5
