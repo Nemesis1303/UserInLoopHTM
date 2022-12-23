@@ -55,6 +55,7 @@ class nlpPipeline():
             self._logger = logging.getLogger('nlpPipeline')
         
         self._stopwords = self._loadSTW(stw_files)
+        self._loadACR()
             
         return
             
