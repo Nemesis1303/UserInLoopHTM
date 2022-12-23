@@ -35,7 +35,6 @@ class nlpPipeline():
     
     def __init__(self, 
                  stw_files: List[pathlib.Path], 
-                 corpus_df: dd.DataFrame, 
                  logger=None):
         """
         Initilization Method
@@ -45,10 +44,6 @@ class nlpPipeline():
         ----------
         stw_files: list of str
             List of paths to stopwords files
-        corpus_df: dd.DataFrame
-            Dataframe representation of the corpus to be preprocessed. 
-            It needs to contain (at least) the following columns:
-            - raw_text
         logger: Logger object
             To log object activity
         """
@@ -60,13 +55,6 @@ class nlpPipeline():
             self._logger = logging.getLogger('nlpPipeline')
         
         self._stopwords = self._loadSTW(stw_files)
-        
-        if "raw_text" not in corpus_df.columns:
-            self._logger.error(
-                f'-- -- Field raw_text not present in corpus df -- Stop')
-            sys.exit()
-        else:
-            self._corpus_df = corpus_df
             
         return
             
@@ -196,6 +184,9 @@ class nlpPipeline():
         nlp.disable_pipe('parser')
         nlp.disable_pipe('ner')
         
+        # Lemmatize text
+        corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline, meta=('lemmas', 'object'))
+        
         # Create corpus from tokenized lemmas
         corpus = corpus_df['lemmas'].values
         
@@ -306,17 +297,17 @@ if __name__ == "__main__":
     
     # Get stopword lists
     stw_lsts = []
-    for entry in pathlib.Path("/data/stw_lists").iterdir():
+    for entry in pathlib.Path("/home/lbartolome/hierarchical-topic-models/data/stw_lists").iterdir():
         # check if it is a file
         if entry.as_posix().endswith("txt"):
             stw_lsts.append(entry)
     
     logger.info(
                 f'-- -- NLP preprocessing starts...')
-    nlpPipeline = nlpPipeline(stw_files=stw_lsts, 
-                              corpus_df=corpus_df,
-                              logger=logger )
-
+    nlpPipeline = nlpPipeline(stw_files=stw_lsts,
+                              logger=logger)
+    
+    corpus_df = nlpPipeline.preproc(corpus_df)
             
     # Save new df in parquet file
     outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
