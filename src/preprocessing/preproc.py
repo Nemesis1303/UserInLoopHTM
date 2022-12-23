@@ -108,7 +108,7 @@ class nlpPipeline():
             text = regex.sub(rep,text)
         return text
 
-    def do_pipeline(self, nlp, rawtext) -> str:
+    def do_pipeline(self, rawtext) -> str:
         """
         Carries out NLP pipeline. In particular, the following steps:
         - Lemmatization according to POS
@@ -122,8 +122,6 @@ class nlpPipeline():
         
         Parameters
         ----------
-        nlp: spacy.lang.en.English
-            Spacy pipeline
         rawtext: str
             Text to preprocess
             
@@ -135,7 +133,7 @@ class nlpPipeline():
         
         valid_POS = set(['VERB', 'NOUN', 'ADJ', 'PROPN'])
 
-        doc = nlp(rawtext)
+        doc = self.nlp(rawtext)
         lemmatized = ' '.join([token.lemma_ for token in doc
                             if token.is_alpha
                             and token.pos_ in valid_POS
@@ -178,17 +176,17 @@ class nlpPipeline():
         """
         
         # Create nlp pipeline
-        nlp = spacy.load('en_core_web_lg')
+        self.nlp = spacy.load('en_core_web_lg')
 
         # Disable unnecessary components
-        nlp.disable_pipe('parser')
-        nlp.disable_pipe('ner')
+        self.nlp.disable_pipe('parser')
+        self.nlp.disable_pipe('ner')
         
         # Lemmatize text
         corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline, meta=('lemmas', 'object'))
         
         # Create corpus from tokenized lemmas
-        corpus = corpus_df['lemmas'].values
+        corpus = corpus_df['lemmas'].compute().values
         
         # Create Phrase model for n-grams detection
         phrase_model = Phrases(corpus, min_count=2, threshold=20, connector_words=ENGLISH_CONNECTOR_WORDS)
