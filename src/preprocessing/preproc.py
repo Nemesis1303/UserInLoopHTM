@@ -152,7 +152,7 @@ class nlpPipeline():
         tokenized2 = word_tokenize(lemmatized2) 
         # Convert to lowercase
         final_tokenized = [token.lower() for token in tokenized2] 
-        return final_tokenized
+        return ' '.join(el for el in final_tokenized)
 
 
     def preproc(self, corpus_df: dd.DataFrame) -> dd.DataFrame:
@@ -189,14 +189,22 @@ class nlpPipeline():
         # Create corpus from tokenized lemmas
         corpus = corpus_df['lemmas'].compute().values
         
+        # Split into words
+        corpus = [el.split() for el in corpus]
+        
         # Create Phrase model for n-grams detection
         phrase_model = Phrases(corpus, min_count=2, threshold=20, connector_words=ENGLISH_CONNECTOR_WORDS)
         
-        # Carry out n-grams substitution
+         # Carry out n-grams substitution
         corpus = [el for el in phrase_model[corpus]] 
 
+        corpus = [" ".join(el) for el in corpus]
+
+        def get_ngram(row):
+            return corpus.pop(0)
+
         # Save n-grams in new column in the dataFrame
-        corpus_df["lemmas_with_grams"] = pd.Series(corpus)
+        corpus_df["lemmas_with_grams"] =  corpus_df.apply(get_ngram, meta=('lemmas_with_grams', 'object'), axis=1)
         
         return corpus_df
             
@@ -238,14 +246,14 @@ if __name__ == "__main__":
         if args.source == "cordis":
             logger.info(
                 f'-- -- Reading from Cordis...')
-            raw_text_fld = "objective"
+            raw_text_fld = "summary"#objective
             title_fld = "title"
             
         df = pd.read_excel(source_path)
         corpus_df = dd.from_pandas(df, npartitions=3)
         
-        #corpus_df = corpus_df.sample(frac=0.1, replace=True, random_state=1)
-        corpus_df = corpus_df[["title", "objective"]]
+        corpus_df = corpus_df.sample(frac=0.001, replace=True, random_state=1)
+        corpus_df = corpus_df[[raw_text_fld, title_fld]]
         
         # Detect abstracts' language and filter out those non-English ones
         corpus_df['langue'] = corpus_df[raw_text_fld].apply(det, meta=('langue', 'object'))
@@ -297,6 +305,7 @@ if __name__ == "__main__":
     # Get stopword lists
     stw_lsts = []
     for entry in pathlib.Path("/home/lbartolome/hierarchical-topic-models/data/stw_lists").iterdir():
+        #/home/lbartolome/hierarchical-topic-models/data/stw_lists
         # check if it is a file
         if entry.as_posix().endswith("txt"):
             stw_lsts.append(entry)
@@ -307,6 +316,8 @@ if __name__ == "__main__":
                               logger=logger)
     
     corpus_df = nlpPipeline.preproc(corpus_df)
+    
+    print(corpus_df.compute())
             
     # Save new df in parquet file
     outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
@@ -315,11 +326,11 @@ if __name__ == "__main__":
 
     with ProgressBar():
         if args.nw > 0:
-            corpus_df.to_parquet(outFile, write_index=False, compute_kwargs={
+            corpus_df.to_parquet(outFile, write_index=False, schema="infer", compute_kwargs={
                 'scheduler': 'processes', 'num_workers': args.nw})
         else:
             # Use Dask default number of workers (i.e., number of cores)
-            corpus_df.to_parquet(outFile, write_index=False, compute_kwargs={
+            corpus_df.to_parquet(outFile, write_index=False, schema="infer", compute_kwargs={
                 'scheduler': 'processes'})
 
 
