@@ -196,7 +196,7 @@ class nlpPipeline():
         corpus = [el for el in phrase_model[corpus]] 
 
         # Save n-grams in new column in the dataFrame
-        corpus_df["lemmas_with_grams"] = corpus
+        corpus_df["lemmas_with_grams"] = pd.Series(corpus)
         
         return corpus_df
             
