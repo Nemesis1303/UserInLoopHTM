@@ -246,7 +246,7 @@ if __name__ == "__main__":
         if args.source == "cordis":
             logger.info(
                 f'-- -- Reading from Cordis...')
-            raw_text_fld = "summary"#objective
+            raw_text_fld = "objective"#objective
             title_fld = "title"
             
         df = pd.read_excel(source_path)
