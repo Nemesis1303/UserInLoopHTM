@@ -110,7 +110,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Preprocessing for TM')
     parser.add_argument('--nw', type=int, required=False, default=0,
                         help="Number of workers when preprocessing data with Dask. Use 0 to use Dask default")
-    arser.add_argument('--iter_', type=int, required=False, default=0,
+    parser.add_argument('--iter_', type=int, required=False, default=0,
                         help="Preprocessing number of this file.")
     args = parser.parse_args()
     main(args.nw, args.iter_)
