@@ -81,10 +81,13 @@ class EmbeddingsManager(object):
         path_parquet = Path(parquet_file)
 
         res = []
-        for entry in path_parquet.iterdir():
-            # check if it is a file
-            if entry.as_posix().endswith("parquet"):
-                res.append(entry)
+        if path_parquet.is_file():
+            res.append(path_parquet)
+        elif path_parquet.is_dir():
+            for entry in path_parquet.iterdir():
+                # check if it is a file
+                if entry.as_posix().endswith("parquet"):
+                    res.append(entry)
         
         process_entries = []
         for entry in parquet_new.iterdir():
