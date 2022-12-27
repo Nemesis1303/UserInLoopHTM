@@ -63,7 +63,7 @@ class EmbeddingsManager(object):
 
         return embeddings
 
-    def add_embeddins_to_parquet(self, parquet_file: Path, parquet_new: Path, embeddins_model: str, max_seq_length: int, source: str) -> Path:
+    def add_embeddins_to_parquet(self, parquet_file: Path, parquet_new: Path, embeddins_model: str, max_seq_length: int) -> Path:
         """Generates the embeddings for a set of files given in parquet format, and saves them in a new parquet file that containing the original data plus an additional column named 'embeddings'.
 
         Parameters
@@ -76,7 +76,6 @@ class EmbeddingsManager(object):
             Model to be used for generating the embeddings
         max_seq_length: int
             Context of the transformer model used for the embeddings generation
-        source: str
         """
 
         path_parquet = Path(parquet_file)
@@ -127,9 +126,6 @@ if __name__ == "__main__":
     parser.add_argument("--path_parquet", type=str, default=None,
                         required=True, metavar=("path_to_parquet"),
                         help="path to parquet file to caclulate embeddings of")
-    parser.add_argument("--source", type=str, default=None,
-                        required=True, metavar=("source"),
-                        help="Key of the source dataset for which the embeddings are being calculated, 'cordis', 'scholar', 'patents'.")
     parser.add_argument("--path_new", type=str, default=None,
                         required=True, metavar=("path_new"),
                         help="path to parquet folder to locate embeddings")

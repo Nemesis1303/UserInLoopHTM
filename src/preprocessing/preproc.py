@@ -265,7 +265,7 @@ if __name__ == "__main__":
         #corpus_df = dd.from_pandas(df, npartitions=3)
         
         #corpus_df = df.sample(frac=0.001, replace=True, random_state=1)
-        corpus_df = corpus_df[[raw_text_fld, title_fld]]
+        corpus_df = df[[raw_text_fld, title_fld]]
         
         # Detect abstracts' language and filter out those non-English ones
         #corpus_df['langue'] = corpus_df[raw_text_fld].apply(det, meta=('langue', 'object'))
