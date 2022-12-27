@@ -26,12 +26,12 @@ import pyarrow as pa
 from dask.diagnostics import ProgressBar
 from scipy import sparse
 from sklearn.preprocessing import normalize
-from src.topicmodeling.manageModels import TMmodel
-from src.topicmodeling.models.neural_models.contextualized_topic_models.ctm_network.ctm import (
+from manageModels import TMmodel
+from models.neural_models.contextualized_topic_models.ctm_network.ctm import (
     CombinedTM, ZeroShotTM)
-from src.topicmodeling.models.neural_models.contextualized_topic_models.utils.data_preparation import \
+from models.neural_models.contextualized_topic_models.utils.data_preparation import \
     prepare_ctm_dataset
-from src.topicmodeling.tm_utils import file_lines, pickler
+from tm_utils import file_lines, pickler
 
 
 class textPreproc(object):
