@@ -9,7 +9,7 @@ import sys
 import time
 import multiprocessing as mp
 import numpy as np
-from src.topicmodeling.topicmodeling import CTMTrainer, HierarchicalTMManager, MalletTrainer
+from code.topicmodeling.topicmodeling import CTMTrainer, HierarchicalTMManager, MalletTrainer
 
 ################### LOGGER #################
 logger = logging.getLogger()
