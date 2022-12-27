@@ -258,7 +258,7 @@ if __name__ == "__main__":
         if args.source == "cordis":
             logger.info(
                 f'-- -- Reading from Cordis...')
-            raw_text_fld = "summary"#objective
+            raw_text_fld = "objective"#summary
             title_fld = "title"
             
         df = pd.read_excel(source_path)
@@ -321,8 +321,9 @@ if __name__ == "__main__":
     
     # Get stopword lists
     stw_lsts = []
-    for entry in pathlib.Path("/workspaces/hierarchical-topic-models/data/stw_lists").iterdir():
-        #/home/lbartolome/hierarchical-topic-models/data/stw_lists
+    for entry in pathlib.Path("/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists").iterdir():
+        #/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists
+        #/workspaces/hierarchical-topic-models/data/stw_lists
         # check if it is a file
         if entry.as_posix().endswith("txt"):
             stw_lsts.append(entry)
