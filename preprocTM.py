@@ -14,7 +14,7 @@ import warnings
 from pathlib import Path
 from subprocess import check_output
 
-#sys.path.insert(0, Path(__file__).parent.parent.resolve().as_posix())
+sys.path.insert(0, Path(__file__).parent.parent.resolve().as_posix())
 warnings.filterwarnings(action="ignore")
 
 logger = logging.getLogger()
