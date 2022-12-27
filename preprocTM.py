@@ -61,7 +61,7 @@ def main(nw=0, iter_=0):
         {
             "parquet": parquetFile,
             "source": "Cordis",
-            "idfld": "objective",
+            "idfld": "projectID",
             "lemmasfld": [
             "lemmas_with_grams"
             ],

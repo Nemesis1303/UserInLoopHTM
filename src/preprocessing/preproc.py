@@ -258,6 +258,7 @@ if __name__ == "__main__":
         if args.source == "cordis":
             logger.info(
                 f'-- -- Reading from Cordis...')
+            id_fld = "projectID"
             raw_text_fld = "objective"#summary
             title_fld = "title"
             
@@ -265,7 +266,7 @@ if __name__ == "__main__":
         #corpus_df = dd.from_pandas(df, npartitions=3)
         
         #corpus_df = df.sample(frac=0.001, replace=True, random_state=1)
-        corpus_df = df[[raw_text_fld, title_fld]]
+        corpus_df = df[[id_fld, raw_text_fld, title_fld]]
         
         # Detect abstracts' language and filter out those non-English ones
         #corpus_df['langue'] = corpus_df[raw_text_fld].apply(det, meta=('langue', 'object'))
@@ -284,6 +285,7 @@ if __name__ == "__main__":
         if args.source == "scholar":
             logger.info(
                 f'-- -- Reading from Scholar...')
+            id_fld = ""
             raw_text_fld = "paperAbstract"
             title_fld = "title"
             
