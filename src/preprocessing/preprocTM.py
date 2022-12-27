@@ -93,7 +93,7 @@ def main(nw=0, iter_=0):
                     ensure_ascii=False, indent=2, default=str)
 
     # Execute command
-    cmd = f"python /export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/src/topicmodeling/topicmodeling.py --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}"
+    cmd = f"python src/topicmodeling/topicmodeling.py --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}"
     logger.info(f"Running command '{cmd}'")
     
     t_start = time.perf_counter()
