@@ -53,9 +53,9 @@ def main(nw=0, iter_=0):
     model_stats.mkdir(parents=True, exist_ok=True)
 
     # Save dataset json file
+    Dtset = "CORDIS"
     DtsetConfig = model_path.joinpath(Dtset+'.json')
     parquetFile = Path("/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/preproc_cordis_embeddings.parquet")
-    Dtset = "CORDIS"
     TrDtset = {
         "name": "Cordis",
         "Dtsets": [
