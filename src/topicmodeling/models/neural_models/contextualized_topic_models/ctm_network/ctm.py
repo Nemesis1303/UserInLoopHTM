@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from ...utils.early_stopping.pytorchtools  import EarlyStopping
 
-from code.topicmodeling.models.neural_models.contextualized_topic_models.ctm_network.decoding_network import DecoderNetwork
+from src.topicmodeling.models.neural_models.contextualized_topic_models.ctm_network.decoding_network import DecoderNetwork
 
 
 class CTM:
