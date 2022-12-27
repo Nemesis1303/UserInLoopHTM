@@ -143,4 +143,4 @@ if __name__ == "__main__":
     parquet_path = Path(args.path_parquet)
     parquet_new = Path(args.path_new)
     em.add_embeddins_to_parquet(
-        parquet_path, parquet_new, args.embeddings_model, args.max_sequence_length, args.source)
+        parquet_path, parquet_new, args.embeddings_model, args.max_sequence_length)
