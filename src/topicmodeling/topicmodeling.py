@@ -771,7 +771,7 @@ class MalletTrainer(Trainer):
 
         return
 
-    def fit(self, corpusFile):
+    def fit(self, corpusFile, modelFolder):
         """
         Training of Mallet Topic Model
 
@@ -804,6 +804,7 @@ class MalletTrainer(Trainer):
                     f'-- -- Provided corpus Path does not exist -- Stop')
                 sys.exit()
         """
+        
         # Output model folder and training file for the corpus
         if not corpusFile.is_file():
             self._logger.error(
@@ -812,7 +813,7 @@ class MalletTrainer(Trainer):
 
         modelFolder = corpusFile.parent.joinpath('modelFiles')
         modelFolder.mkdir()
-
+        
         #modelFolder = modelFolder.joinpath('modelFiles')
         #modelFolder.mkdir()
 
@@ -1038,7 +1039,7 @@ class CTMTrainer(Trainer):
 
         return tm
 
-    def fit(self, corpusFile, modelFolder, embeddingsFile=None):
+    def fit(self, corpusFile, embeddingsFile=None):
         """
         Training of CTM Topic Model
 
@@ -1055,10 +1056,10 @@ class CTMTrainer(Trainer):
                 f'-- -- Provided corpus Path does not exist -- Stop')
             sys.exit()
 
-        #modelFolder = corpusFile.parent.joinpath('modelFiles')
-        # modelFolder.mkdir()
-        modelFolder = modelFolder.joinpath('modelFiles')
+        modelFolder = corpusFile.parent.joinpath('modelFiles')
         modelFolder.mkdir()
+        #modelFolder = modelFolder.joinpath('modelFiles')
+        #modelFolder.mkdir()
 
         # Generating the corpus in the input format required by CTM
         self._logger.info('-- -- CTM Corpus Generation: BOW Dataset object')

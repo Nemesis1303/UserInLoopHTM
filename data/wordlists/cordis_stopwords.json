@@ -4,6 +4,7 @@
     "valid_for": "stopwords",
     "visibility": "Public",
     "wordlist": [
+      "data",
       "training",
       "European",
       "european",
@@ -28,13 +29,30 @@
       "process",
       "question",
       "answer",
-      "data",
       "clinical",
       "scientific",
       "science",
       "early_stage",
       "function",
-      "medical"
+      "medical",
+      "early_modern",
+      "assessment",
+      "tool",
+      "measurement",
+      "host",
+      "content",
+      "material",
+      "nano",
+      "sector",
+      "scientist",
+      "role",
+      "mechanism",
+      "local",
+      "global",
+      "machine",
+      "user",
+      "researchers_night"
+    
     ],
     "creation_date": "2022-06-08 21:06:15.685231"
   }

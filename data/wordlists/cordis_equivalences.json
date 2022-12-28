@@ -32,7 +32,14 @@
       "tumour:tumor",
       "therapeutic:therapy",
       "planetary:planet",
-      "medium:media"
+      "medium:media",
+      "computation:computing",
+      "felow:fellowship",
+      "sensory:sensor",
+      "monitor:monitoring",
+      "atmospheric:atmosphere",
+      "biological:biology",
+      "ev:electric_vehicles"
     ],
     "creation_date": "2022-12-28 00:11:05.783659"
   }
