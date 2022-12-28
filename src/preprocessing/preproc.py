@@ -1,5 +1,4 @@
 import pathlib
-import sys
 from typing import List
 import pandas as pd
 import re
@@ -10,9 +9,8 @@ import pandas as pd
 import contractions
 import spacy
 import argparse
-from langdetect import detect
 from tqdm import tqdm
-from gensim.models.phrases import Phrases, ENGLISH_CONNECTOR_WORDS
+from gensim.models.phrases import Phrases
 from acronyms import acronyms_list
 from preproc_utils import det
 import dask.dataframe as dd
@@ -285,10 +283,10 @@ if __name__ == "__main__":
         if args.source == "scholar":
             logger.info(
                 f'-- -- Reading from Scholar...')
-            id_fld = ""
+            id_fld = "id"
             raw_text_fld = "paperAbstract"
             title_fld = "title"
-            
+           
         res = []
         for entry in source_path.iterdir():
             # check if it is a file
@@ -298,7 +296,8 @@ if __name__ == "__main__":
         logger.info(
                 f'-- -- Reading of parquet files starts...')
         for idx, f in enumerate(tqdm(res)):
-            df = dd.read_parquet(f)
+            #df = dd.read_parquet(f)
+            df = pd.read_parquet(f)
             
             # Filter out abstracts with no text   
             df = df[df[raw_text_fld] != ""]
