@@ -771,7 +771,7 @@ class MalletTrainer(Trainer):
 
         return
 
-    def fit(self, corpusFile, modelFolder):
+    def fit(self, corpusFile):
         """
         Training of Mallet Topic Model
 
