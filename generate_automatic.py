@@ -49,7 +49,7 @@ training_params = {
     "num_epochs": 100,
     "num_samples": 20,
     "doc_topic_thr": 0.0,
-    "mallet_path": "/workspace/src/topicmodeling/models/mallet-2.0.8/bin/mallet",
+    "mallet_path": "/export/usuarios_ml4ds/jarenas/github/IntelComp/ITMT/topicmodeler/src/topicmodeling/mallet-2.0.8/bin/mallet",
     "thetas_thr": 0.003,
     "token_regexp": "[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{P}]*\\p{L}",
     "alpha": 5.0,
@@ -313,13 +313,13 @@ def train_automatic(path_corpus: str,
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_corpus', type=str,
-                        default="/workspace/data/training_data/corpus.parquet",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt",
                         help="Path to the training data.")
     parser.add_argument('--models_folder', type=str,
-                        default="/workspace/trial",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_htm",
                         help="Path where the models are going to be saved.")
     parser.add_argument('--trainer', type=str,
-                        default="ctm",
+                        default="mallet",
                         help="Name of the underlying topic modeling algorithm to be used: mallet|ctm")
     parser.add_argument('--iters', type=int,
                         default=1,
