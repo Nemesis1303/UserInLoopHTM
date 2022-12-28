@@ -1552,8 +1552,8 @@ if __name__ == "__main__":
                         else:
                             df["all_lemmas"] += " " + df[col]
                     df["source"] = DtSet["source"]
-                    df.rename(columns={idfld: "id"})
-                    sys.stdout.write(df.compute().head().to_string())
+                    df = df.rename(
+                        columns={idfld: "id"})
                     df = df[["id", "source", "all_lemmas"]]
 
                     # Concatenate dataframes
@@ -1572,7 +1572,8 @@ if __name__ == "__main__":
                     # We get full df containing the embeddings
                     for idx, DtSet in enumerate(trDtSet['Dtsets']):
                         df = dd.read_parquet(DtSet['parquet']).fillna("")
-                        df.rename(columns={idfld: "id"})
+                        df = df.rename(
+                            columns={idfld: "id"})
                         df = df[["id", "embeddings"]]
 
                         # Concatenate dataframes
