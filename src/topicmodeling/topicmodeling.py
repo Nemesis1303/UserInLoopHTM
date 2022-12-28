@@ -771,7 +771,7 @@ class MalletTrainer(Trainer):
 
         return
 
-    def fit(self, corpusFile, modelFolder):
+    def fit(self, corpusFile):
         """
         Training of Mallet Topic Model
 
@@ -783,6 +783,7 @@ class MalletTrainer(Trainer):
         """
 
         # Output model folder and training file for the corpus
+        """
         if corpusFile.as_posix().endswith("parquet"):
             print("is parquet")
             df = pd.read_parquet(corpusFile)
@@ -802,11 +803,18 @@ class MalletTrainer(Trainer):
                 self._logger.error(
                     f'-- -- Provided corpus Path does not exist -- Stop')
                 sys.exit()
+        """
+        # Output model folder and training file for the corpus
+        if not corpusFile.is_file():
+            self._logger.error(
+                f'-- -- Provided corpus Path does not exist -- Stop')
+            sys.exit()
 
-        #modelFolder = corpusFile.parent.joinpath('modelFiles')
-        #modelFolder.mkdir()
-        modelFolder = modelFolder.joinpath('modelFiles')
+        modelFolder = corpusFile.parent.joinpath('modelFiles')
         modelFolder.mkdir()
+
+        #modelFolder = modelFolder.joinpath('modelFiles')
+        #modelFolder.mkdir()
 
         ##################################################
         # Importing Data to mallet

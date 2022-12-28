@@ -1,15 +1,12 @@
 import argparse
-import datetime as DT
 import json
 import logging
-import os
 import pathlib
-import shutil
 import sys
 import time
 import multiprocessing as mp
-import numpy as np
-from src.topicmodeling.topicmodeling import CTMTrainer, HierarchicalTMManager, MalletTrainer
+from subprocess import check_output
+#from src.topicmodeling.topicmodeling import CTMTrainer, HierarchicalTMManager, MalletTrainer
 
 ################### LOGGER #################
 logger = logging.getLogger()
@@ -109,51 +106,6 @@ def get_model_config(trainer,
 
     return params
 
-
-def train_model(train_config,
-                corpusFile,
-                modelFolder,
-                embeddingsFile=None,
-                train_config_child=None,
-                train_config_father=None):
-    """Train a model based on train_config, using corpusFile and embeddingsFile"""
-    trainer = train_config["trainer"]
-    TMparam = train_config["TMparam"]
-
-    if trainer == 'ctm':
-        trainer_obj = CTMTrainer(**TMparam)
-    elif trainer == 'mallet':
-        trainer_obj = MalletTrainer(**TMparam)
-
-    if train_config['hierarchy-level'] == 1:
-
-        tMmodel_path = train_config_father.parent.joinpath('TMmodel')
-        if not os.path.isdir(tMmodel_path):
-            sys.exit(
-                'There must exist a valid TMmodel folder for the parent corpus')
-        # Create hierarhicalTMManager object
-        hierarchicalTMManager = HierarchicalTMManager()
-
-        # Create corpus
-        hierarchicalTMManager.create_submodel_tr_corpus(
-            tMmodel_path, train_config_father.as_posix(), train_config_child.as_posix())
-
-        if trainer == 'ctm':
-            corpusFile = train_config_child.parent.joinpath('corpus.parquet')
-            embeddingsFile = train_config_child.parent.joinpath(
-                'embeddings.npy')
-            trainer_obj.fit(corpusFile=corpusFile,
-                            modelFolder=modelFolder,
-                            embeddingsFile=embeddingsFile)
-        elif trainer == 'mallet':
-            corpusFile = train_config_child.parent.joinpath('corpus.txt')
-            trainer_obj.fit(corpusFile=corpusFile,
-                            modelFolder=modelFolder)
-
-    else:
-        trainer_obj.fit(corpusFile=corpusFile, modelFolder=modelFolder)
-
-
 def train_automatic(path_corpus: str,
                     models_folder: str,
                     trainer: str):
@@ -164,27 +116,7 @@ def train_automatic(path_corpus: str,
     if not corpusFile.is_dir() and not corpusFile.is_file:
         sys.exit(
             "The provided corpus file does not exist.")
-
-    # Generate root model
-    print("#############################")
-    print("Generating root model")
-
-    # Create folder for saving root model's outputs
-    model_path = pathlib.Path(models_folder).joinpath(
-        f"aux_model_{DT.datetime.now().strftime('%Y%m%d')}")
-
-    if model_path.exists():
-        # Remove current backup folder, if it exists
-        old_model_dir = pathlib.Path(str(model_path) + '_old/')
-        if old_model_dir.exists():
-            shutil.rmtree(old_model_dir)
-
-        # Copy current model folder to the backup folder.
-        shutil.move(model_path, old_model_dir)
-        print(f'-- -- Creating backup of existing model in {old_model_dir}')
-
-    model_path.mkdir(parents=True, exist_ok=True)
-
+        
     # Train root model
     train_config = get_model_config(
         trainer=trainer,
@@ -203,7 +135,14 @@ def train_automatic(path_corpus: str,
                   indent=2, default=str)
 
     t_start = time.perf_counter()
-    train_model(train_config, corpusFile, model_path)
+    #train_model(train_config, corpusFile, model_path)
+    cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+    print(cmd)
+    try:
+        logger.info(f'-- -- Running command {cmd}')
+        output = check_output(args=cmd, shell=True)
+    except:
+        logger.error('-- -- Command execution failed')
     t_end = time.perf_counter()
 
     t_total = t_end - t_start
