@@ -1552,7 +1552,8 @@ if __name__ == "__main__":
                         else:
                             df["all_lemmas"] += " " + df[col]
                     df["source"] = DtSet["source"]
-                    df = df[[idfld, "source", "all_lemmas"]]
+                    df.rename(columns={idfld: "id"})
+                    df = df[["id", "source", "all_lemmas"]]
 
                     # Concatenate dataframes
                     if idx == 0:
@@ -1570,7 +1571,8 @@ if __name__ == "__main__":
                     # We get full df containing the embeddings
                     for idx, DtSet in enumerate(trDtSet['Dtsets']):
                         df = dd.read_parquet(DtSet['parquet']).fillna("")
-                        df = df[[idfld, "embeddings"]]
+                        df.rename(columns={idfld: "id"})
+                        df = df[["id", "embeddings"]]
 
                         # Concatenate dataframes
                         if idx == 0:
@@ -1579,7 +1581,7 @@ if __name__ == "__main__":
                             eDF = dd.concat([trDF, df])
 
                     # We perform a left join to keep the embeddings of only those documents kept after preprocessing
-                    trDF = trDF.merge(eDF, how="left", on=[idfld])
+                    trDF = trDF.merge(eDF, how="left", on=["id"])
 
                 trDataFile = tPreproc.exportTrData(trDF=trDF,
                                                    dirpath=configFile.parent.resolve(),
