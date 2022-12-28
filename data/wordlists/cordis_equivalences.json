@@ -5,7 +5,6 @@
     "visibility": "Public",
     "wordlist": [
       "eu:european_union",
-      "European:european_union",
       "manufacturing:manufacture",
       "environmental:environment",
       "cultural:culture",
@@ -20,7 +19,21 @@
       "industrial:industry",
       "geometric:geometry",
       "algebraic:algebra",
-      "bacterial:bacteria"
+      "bacterial:bacteria",
+      "commercialization:commercial",
+      "sustainable:sustainability",
+      "economic:economy",
+      "regulate:regulation",
+      "agricultural:agriculture",
+      "farm:farming",
+      "politic:political",
+      "chemistry:chemical",
+      "catalytic:catalysis",
+      "mathematic:mathematical",
+      "tumour:tumor",
+      "therapeutic:therapy",
+      "planetary:planet",
+      "medium:media"
     ],
     "creation_date": "2022-12-28 00:11:05.783659"
   }
