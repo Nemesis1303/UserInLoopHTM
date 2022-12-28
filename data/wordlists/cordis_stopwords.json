@@ -1,0 +1,11 @@
+{
+    "name": "cordis_stopwords",
+    "description": "Hand picked stopwords for CORDIS",
+    "valid_for": "stopwords",
+    "visibility": "Public",
+    "wordlist": [
+      "training"
+    
+    ],
+    "creation_date": "2022-06-08 21:06:15.685231"
+  }

@@ -1,0 +1,26 @@
+{
+    "name": "cordis_equivalences",
+    "description": "Some equivalent terms for CORDIS",
+    "valid_for": "equivalences",
+    "visibility": "Public",
+    "wordlist": [
+      "eu:european_union",
+      "European:european_union",
+      "manufacturing:manufacture",
+      "environmental:environment",
+      "cultural:culture",
+      "historical:history",
+      "archaeological:archaeology",
+      "molecule:molecular",
+      "neuron:neural",
+      "ai:artificial_intelligence",
+      "computational:computing",
+      "statistical:statistics",
+      "migrant:migration",
+      "industrial:industry",
+      "geometric:geometry",
+      "algebraic:algebra",
+      "bacterial:bacteria"
+    ],
+    "creation_date": "2022-12-28 00:11:05.783659"
+  }

@@ -18,7 +18,7 @@ logger.addHandler(handler)
 
 ############### TRAINING PARAMS ############
 # Fixed params
-ntopics = 30
+ntopics = 50
 training_params = {
     "activation": "softplus",
     "alpha": 5.0,
