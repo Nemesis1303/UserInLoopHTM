@@ -128,12 +128,10 @@ def train_automatic(path_corpus: str,
     
     configFile = corpusFile.parent.joinpath("trainconfig.json")
     if configFile.is_file():
-        with configFile.open('r', encoding='utf8') as fin:
+        with configFile.open('rw', encoding='utf8') as fin:
             train_config_txt = json.load(fin)
             train_config_txt["TMparam"] = train_config["TMparam"]
-            json.dump(train_config_txt, fin, ensure_ascii=False,
-                  indent=2, default=str)
-
+    
     t_start = time.perf_counter()
     #train_model(train_config, corpusFile, model_path)
     cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
