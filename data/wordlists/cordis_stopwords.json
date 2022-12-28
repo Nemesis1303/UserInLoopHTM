@@ -6,8 +6,9 @@
     "wordlist": [
       "training",
       "European",
-      "european_union",
+      "european",
       "europe",
+      "eu",
       "year",
       "phase",
       "period",
@@ -34,7 +35,6 @@
       "early_stage",
       "function",
       "medical"
-    
     ],
     "creation_date": "2022-06-08 21:06:15.685231"
   }

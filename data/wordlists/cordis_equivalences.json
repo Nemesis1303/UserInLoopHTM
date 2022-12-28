@@ -4,7 +4,6 @@
     "valid_for": "equivalences",
     "visibility": "Public",
     "wordlist": [
-      "eu:european_union",
       "manufacturing:manufacture",
       "environmental:environment",
       "cultural:culture",
