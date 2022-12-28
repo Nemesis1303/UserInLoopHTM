@@ -1553,7 +1553,7 @@ if __name__ == "__main__":
                             df["all_lemmas"] += " " + df[col]
                     df["source"] = DtSet["source"]
                     df.rename(columns={idfld: "id"})
-                    print(df.columns)
+                    sys.stdout.write(df.columns)
                     df = df[["id", "source", "all_lemmas"]]
 
                     # Concatenate dataframes
