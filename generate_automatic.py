@@ -140,7 +140,7 @@ def train_automatic(path_corpus: str,
             sys.exit(
                 "The provided corpus file does not exist.")
         dest = shutil.copy(corpusFile, model_path)
-        print(f'-- -- Corpus file copied in {dest.as_posix()}')
+        print(f'-- -- Corpus file copied in {dest}')
     
 
         # Generate root model
