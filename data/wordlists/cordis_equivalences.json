@@ -46,7 +46,9 @@
       "gene:genetic",
       "evolutionary:evolution",
       "nmr:nuclear_magnetic_resonance",
-      "catalyst:catalysis"
+      "catalyst:catalysis",
+      "deoxyribonucleic_acid:DNA",
+      "pd:parkinsons_disease"
     ],
     "creation_date": "2022-12-28 00:11:05.783659"
   }
