@@ -250,7 +250,7 @@ def train_automatic(path_corpus: str,
 
                     else:
                         print("Generating submodel with HTM-DS")
-                        for thr in np.arange(0.1, 0.8, 0.1):
+                        for thr in np.arange(0.1, 1, 0.1):
                             # Create folder for saving node's outputs
                             thr_f = "{:.1f}".format(thr)
                             model_path = pathlib.Path(model_path_parent).joinpath(
