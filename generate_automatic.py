@@ -180,6 +180,7 @@ def train_automatic(path_corpus: str,
 
         # Save father's config file
         configFile_parent = configFile
+        model_path_parent = model_path
 
         # Train submodels
         num_topics_sub = [6, 8, 10]
@@ -191,7 +192,7 @@ def train_automatic(path_corpus: str,
                         print("Generating submodel with HTM-WS")
 
                         # Create folder for saving node's outputs
-                        model_path = pathlib.Path(models_folder).joinpath(
+                        model_path = pathlib.Path(model_path_parent).joinpath(
                             f"submodel_{version}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}")
 
                         if model_path.exists():
@@ -252,7 +253,7 @@ def train_automatic(path_corpus: str,
                         for thr in np.arange(0.1, 0.8, 0.1):
                             # Create folder for saving node's outputs
                             thr_f = "{:.1f}".format(thr)
-                            model_path = pathlib.Path(models_folder).joinpath(
+                            model_path = pathlib.Path(model_path_parent).joinpath(
                                 f"submodel_{version}_thr_{thr_f}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}")
 
                             if model_path.exists():

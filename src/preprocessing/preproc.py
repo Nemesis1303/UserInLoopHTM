@@ -143,8 +143,12 @@ class nlpPipeline():
         for lemma in lemmatized.split(' '):
             # Change acronyms by their meaning
             text = self._replace(lemma,self._acr_list) 
-            # Expand contractions 
-            text2 = contractions.fix(text) 
+            # Expand contractions
+            try:
+                text2 = contractions.fix(text) 
+            except:
+                logger.info(f"this is the text that makes the error: {text2}")
+                text2 = text        
             lemmatized2 = lemmatized2 + ' ' + text2
         # To build the dictionary afterwards
         tokenized2 = word_tokenize(lemmatized2) 
@@ -298,21 +302,18 @@ if __name__ == "__main__":
         #for idx, f in enumerate(tqdm(res)):
             #df = dd.read_parquet(f)
         df = pd.read_parquet(source_path)
+        df = df.sample(frac=0.0001, replace=True, random_state=1)
         
         logger.info(
                 f'-- -- Reading of parquet files completed...')
         
-        # Filter out abstracts with no text   
-        df = df[df[raw_text_fld] != ""]
+        # Filter out abstracts with no text
         corpus_df = df[[id_fld, raw_text_fld, title_fld]]
         
         # Detect abstracts' language and filter out those non-English ones
         #df['langue'] = df[raw_text_fld].apply(det, meta=('langue', 'object'))
         corpus_df['langue'] = corpus_df[raw_text_fld].apply(det)
         corpus_df = corpus_df[corpus_df['langue'] == 'en']
-        
-        # Filter out abstracts with no text   
-        corpus_df = corpus_df[corpus_df[raw_text_fld] != ""]
         
         # Concatenate title + abstract/summary
         #df["raw_text"] = df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
