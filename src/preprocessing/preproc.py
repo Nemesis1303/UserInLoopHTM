@@ -290,7 +290,7 @@ if __name__ == "__main__":
         #for idx, f in enumerate(tqdm(res)):
             #df = dd.read_parquet(f)
         df = pd.read_parquet(source_path)
-        df = df.sample(frac=0.00001, replace=True, random_state=1)
+        #df = df.sample(frac=0.00001, replace=True, random_state=1)
         
         logger.info(
                 f'-- -- Reading of parquet files completed...')
