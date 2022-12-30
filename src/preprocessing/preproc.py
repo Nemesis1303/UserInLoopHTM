@@ -196,7 +196,7 @@ class nlpPipeline():
         # Carry out n-grams substitution
         corpus = [el for el in phrase_model[corpus]] 
 
-        corpus2 = [" ".join(el) for el in corpus2]
+        corpus2 = [" ".join(el) for el in corpus]
 
         print(len(corpus2))
         #print(len(corpus_df.compute()))
