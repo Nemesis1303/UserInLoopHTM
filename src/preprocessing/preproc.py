@@ -130,31 +130,27 @@ class nlpPipeline():
             List of tokens (strings) with the preprocessed text
         """
         
+        # Change acronyms by their meaning
+        text = self._replace(rawtext, self._acr_list) 
+        # Expand contractions
+        try:
+            text2 = contractions.fix(text) 
+        except:
+            logger.info(f"this is the text that makes the error: {text}")
+        
         valid_POS = set(['VERB', 'NOUN', 'ADJ', 'PROPN'])
 
-        doc = self.nlp(rawtext)
-        lemmatized = ' '.join([token.lemma_ for token in doc
+        doc = self.nlp(text2)
+        lemmatized = [token.lemma_ for token in doc
                             if token.is_alpha
                             and token.pos_ in valid_POS
                             and not token.is_stop
-                            and token.lemma_ not in self._stw_list])
+                            and token.lemma_ not in self._stw_list]
         
-        lemmatized2 = ''
-        for lemma in lemmatized.split(' '):
-            # Change acronyms by their meaning
-            text = self._replace(lemma,self._acr_list) 
-            # Expand contractions
-            try:
-                text2 = contractions.fix(text) 
-            except:
-                logger.info(f"this is the text that makes the error: {text2}")
-                text2 = text        
-            lemmatized2 = lemmatized2 + ' ' + text2
-        # To build the dictionary afterwards
-        tokenized2 = word_tokenize(lemmatized2) 
         # Convert to lowercase
-        final_tokenized = [token.lower() for token in tokenized2] 
-        return ' '.join(el for el in final_tokenized)
+        final_tokenized = [token.lower() for token in lemmatized] 
+        
+        return final_tokenized
 
 
     def preproc(self, corpus_df: dd.DataFrame) -> dd.DataFrame:
@@ -189,32 +185,24 @@ class nlpPipeline():
         #corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline, meta=('lemmas', 'object'))
         corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline)
         
-        # Create corpus from tokenized lemmas
-        #dbag = corpus_df['lemmas'].to_dask_array().compute()
-        #dbag_list = list(dbag)
-        #print(dbag)
-        #print(len(dbag_list))
-        
-        #corpus = corpus_df['lemmas'].compute().values
+        # Create corpus from tokenized lemmas        
         corpus = corpus_df['lemmas'].values
         print(len(corpus))
         print(len(corpus_df))
-
-        corpus2 = [el.split() for el in corpus]
         
         # Create Phrase model for n-grams detection
-        phrase_model = Phrases(corpus2, min_count=2, threshold=20)
+        phrase_model = Phrases(corpus, min_count=2, threshold=20)
         
         # Carry out n-grams substitution
-        corpus2 = [el for el in phrase_model[corpus2]] 
+        corpus = [el for el in phrase_model[corpus]] 
 
-        corpus3 = [" ".join(el) for el in corpus2]
+        corpus2 = [" ".join(el) for el in corpus2]
 
-        print(len(corpus3))
+        print(len(corpus2))
         #print(len(corpus_df.compute()))
 
         def get_ngram(row):
-            return corpus3.pop(0)
+            return corpus2.pop(0)
 
         # Save n-grams in new column in the dataFrame
         #corpus_df["lemmas_with_grams"] =  corpus_df.apply(get_ngram, meta=('lemmas_with_grams', 'object'), axis=1)
@@ -302,7 +290,7 @@ if __name__ == "__main__":
         #for idx, f in enumerate(tqdm(res)):
             #df = dd.read_parquet(f)
         df = pd.read_parquet(source_path)
-        #df = df.sample(frac=0.0001, replace=True, random_state=1)
+        df = df.sample(frac=0.00001, replace=True, random_state=1)
         
         logger.info(
                 f'-- -- Reading of parquet files completed...')
