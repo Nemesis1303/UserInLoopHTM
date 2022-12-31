@@ -137,6 +137,7 @@ class nlpPipeline():
             text2 = contractions.fix(text) 
         except:
             logger.info(f"this is the text that makes the error: {text}")
+            text2 = text
         
         valid_POS = set(['VERB', 'NOUN', 'ADJ', 'PROPN'])
 
