@@ -299,14 +299,14 @@ if __name__ == "__main__":
         # Filter out abstracts with no text
         corpus_df = df[[id_fld, raw_text_fld, title_fld]]
         
-        # Detect abstracts' language and filter out those non-English ones
-        #df['langue'] = df[raw_text_fld].apply(det, meta=('langue', 'object'))
-        corpus_df['langue'] = corpus_df[raw_text_fld].apply(det)
-        corpus_df = corpus_df[corpus_df['langue'] == 'en']
-        
         # Concatenate title + abstract/summary
         #df["raw_text"] = df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
         corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1)
+        
+        # Detect abstracts' language and filter out those non-English ones
+        #df['langue'] = df[raw_text_fld].apply(det, meta=('langue', 'object'))
+        corpus_df['langue'] = corpus_df["raw_text"].apply(det)
+        corpus_df = corpus_df[corpus_df['langue'] == 'en']
             
         # Concatenate dataframes
         #if idx == 0:
