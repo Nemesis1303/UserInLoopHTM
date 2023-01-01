@@ -1664,7 +1664,6 @@ if __name__ == "__main__":
                         topic_prior_variance=train_config['TMparam']['topic_prior_variance'],
                         num_data_loader_workers=train_config['TMparam']['num_data_loader_workers'],
                         thetas_thr=train_config['TMparam']['thetas_thr'],
-                        sbert_model_to_load=train_config['TMparam']['sbert_model_to_load'],
                         labels=train_config['TMparam']['labels'])
 
                     # Train the CTM topic model with the specified corpus
