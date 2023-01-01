@@ -80,7 +80,7 @@ def get_model_config(trainer,
                   "token_regexp"]
     elif trainer == 'ctm':
 
-        fields = ["n_components",
+        fields = ["ntopics",
                   "thetas_thr",
                   "labels",
                   "model_type",
