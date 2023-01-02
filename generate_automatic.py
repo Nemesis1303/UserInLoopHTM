@@ -142,7 +142,7 @@ def train_automatic(path_corpus: str,
             
         if corpusFile.is_dir():
             print(f'-- -- Copying corpus.parquet.')
-            dest = shutil.copytree(corpusFile, model_path)
+            dest = shutil.copytree(corpusFile, model_path.joinpath("corpus.parquet"))
         else:
             dest = shutil.copy(corpusFile, model_path)
         print(f'-- -- Corpus file copied in {dest}')
