@@ -140,7 +140,8 @@ def train_automatic(path_corpus: str,
             sys.exit(
                 "The provided corpus file does not exist.")
         if corpusFile.is_dir():
-            dest = shutil.move(corpusFile, corpusFile)
+            print(f'-- -- Copying corpus.parquet.')
+            dest = shutil.copytree(corpusFile, corpusFile)
         else:
             dest = shutil.copy(corpusFile, corpusFile)
         print(f'-- -- Corpus file copied in {dest}')
