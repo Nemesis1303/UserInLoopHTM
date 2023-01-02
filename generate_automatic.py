@@ -139,7 +139,10 @@ def train_automatic(path_corpus: str,
         if not corpusFile.is_dir() and not corpusFile.is_file:
             sys.exit(
                 "The provided corpus file does not exist.")
-        dest = shutil.copy(corpusFile, model_path)
+        if corpusFile.is_dir():
+            dest = shutil.move(corpusFile, corpusFile)
+        else:
+            dest = shutil.copy(corpusFile, corpusFile)
         print(f'-- -- Corpus file copied in {dest}')
     
 
