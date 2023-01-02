@@ -139,13 +139,13 @@ def train_automatic(path_corpus: str,
         if not corpusFile.is_dir() and not corpusFile.is_file:
             sys.exit(
                 "The provided corpus file does not exist.")
+            
         if corpusFile.is_dir():
             print(f'-- -- Copying corpus.parquet.')
-            dest = shutil.copytree(corpusFile, corpusFile)
+            dest = shutil.copytree(corpusFile, model_path)
         else:
-            dest = shutil.copy(corpusFile, corpusFile)
+            dest = shutil.copy(corpusFile, model_path)
         print(f'-- -- Corpus file copied in {dest}')
-    
 
         # Generate root model
         print("#############################")
