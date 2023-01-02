@@ -26,7 +26,7 @@ logger.addHandler(handler)
 def main(nw=0, iter_=0):
     
     # Create folder structure
-    models = Path("/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc")
+    models = Path("/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc_ctm")
     models.mkdir(parents=True, exist_ok=True)
 
     Preproc = {
@@ -81,7 +81,7 @@ def main(nw=0, iter_=0):
         "name": Dtset,
         "description": "",
         "visibility": "Public",
-        "trainer": "mallet",
+        "trainer": "ctm",
         "TrDtSet": DtsetConfig.resolve().as_posix(),
         "Preproc": Preproc,
         "TMparam": {},
