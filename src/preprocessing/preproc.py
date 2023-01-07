@@ -52,7 +52,7 @@ class nlpPipeline():
             logging.basicConfig(level='INFO')
             self._logger = logging.getLogger('nlpPipeline')
         
-        self._stopwords = self._loadSTW(stw_files)
+        self._loadSTW(stw_files)
         self._loadACR()
             
         return
@@ -194,7 +194,7 @@ class nlpPipeline():
         # Create Phrase model for n-grams detection
         phrase_model = Phrases(corpus, min_count=2, threshold=20)
         
-        # Carry out n-grams substitution
+        # Carry out n-grams substitutionx
         corpus = [el for el in phrase_model[corpus]] 
 
         corpus2 = [" ".join(el) for el in corpus]
@@ -244,6 +244,15 @@ if __name__ == "__main__":
     source_path = pathlib.Path(args.source_path)
     destination_path = pathlib.Path(args.destination_path)
     
+    # Get stopword lists
+    stw_lsts = []
+    for entry in pathlib.Path("/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists").iterdir():
+        #/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists
+        #/workspaces/hierarchical-topic-models/data/stw_lists
+        # check if it is a file
+        if entry.as_posix().endswith("txt"):
+            stw_lsts.append(entry)
+    
     # Create corpus_df
     if args.source_type == "xlsx":
         if args.source == "cordis":
@@ -272,6 +281,21 @@ if __name__ == "__main__":
         #corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
         corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1)
         
+        logger.info(
+                    f'-- -- NLP preprocessing starts...')
+        nlpPipeline = nlpPipeline(stw_files=stw_lsts,
+                                logger=logger)
+        
+        corpus_df = nlpPipeline.preproc(corpus_df)
+        
+        print(corpus_df)
+                
+        # Save new df in parquet file
+        outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
+        if outFile.is_file():
+            outFile.unlink()
+        corpus_df.to_parquet(outFile.as_posix())
+        
     elif args.source_type == "parquet":
         if args.source == "scholar":
             logger.info(
@@ -280,63 +304,49 @@ if __name__ == "__main__":
             raw_text_fld = "paperAbstract"
             title_fld = "title"
            
-        #res = []
-        #for entry in source_path.iterdir():
-        #    # check if it is a file
-        #    if entry.as_posix().endswith("parquet"):
-        #        res.append(entry)
+        res = []
+        for entry in source_path.iterdir():
+            # check if it is a file
+            if entry.as_posix().endswith("parquet"):
+                res.append(entry)
+        print(len(res))
         
         logger.info(
                 f'-- -- Reading of parquet files starts...')
-        #for idx, f in enumerate(tqdm(res)):
-            #df = dd.read_parquet(f)
-        df = pd.read_parquet(source_path)
-        #df = df.sample(frac=0.00001, replace=True, random_state=1)
+        for idx, f in enumerate(tqdm(res)):
+            df = pd.read_parquet(f)
         
-        logger.info(
-                f'-- -- Reading of parquet files completed...')
-        
-        # Filter out abstracts with no text
-        corpus_df = df[[id_fld, raw_text_fld, title_fld]]
-        
-        # Concatenate title + abstract/summary
-        #df["raw_text"] = df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
-        corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1)
-        
-        # Detect abstracts' language and filter out those non-English ones
-        #df['langue'] = df[raw_text_fld].apply(det, meta=('langue', 'object'))
-        corpus_df['langue'] = corpus_df["raw_text"].apply(det)
-        corpus_df = corpus_df[corpus_df['langue'] == 'en']
+            logger.info(
+                    f'-- -- Reading of parquet files completed...')
             
-        # Concatenate dataframes
-        #if idx == 0:
-        #    corpus_df = df
-        #else:
-        #    corpus_df = dd.concat([corpus_df, df])
-    
-    # Get stopword lists
-    stw_lsts = []
-    for entry in pathlib.Path("/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists").iterdir():
-        #/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists
-        #/workspaces/hierarchical-topic-models/data/stw_lists
-        # check if it is a file
-        if entry.as_posix().endswith("txt"):
-            stw_lsts.append(entry)
-    
-    logger.info(
-                f'-- -- NLP preprocessing starts...')
-    nlpPipeline = nlpPipeline(stw_files=stw_lsts,
-                              logger=logger)
-    
-    corpus_df = nlpPipeline.preproc(corpus_df)
-    
-    print(corpus_df)
+            # Filter out abstracts with no text
+            corpus_df = df[[id_fld, raw_text_fld, title_fld]]
             
-    # Save new df in parquet file
-    outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
-    if outFile.is_file():
-        outFile.unlink()
-    corpus_df.to_parquet(outFile.as_posix())
+            # Concatenate title + abstract/summary
+            #df["raw_text"] = df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
+            corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1)
+            
+            # Detect abstracts' language and filter out those non-English ones
+            #df['langue'] = df[raw_text_fld].apply(det, meta=('langue', 'object'))
+            corpus_df['langue'] = corpus_df["raw_text"].apply(det)
+            corpus_df = corpus_df[corpus_df['langue'] == 'en']
+            
+            logger.info(
+                        f'-- -- NLP preprocessing starts...')
+            nlpPipeline = nlpPipeline(stw_files=stw_lsts,
+                                    logger=logger)
+            
+            corpus_df = nlpPipeline.preproc(corpus_df)
+            
+            print(corpus_df)
+                    
+            # Save new df in parquet file
+            outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
+            new_name = "parquet_part_" + str(idx) + ".parquet"
+            outFile_current_parquet = outFile.joinpath(new_name)
+            if outFile_current_parquet.is_file():
+                outFile_current_parquet.unlink()
+            corpus_df.to_parquet(outFile_current_parquet.as_posix())
     
     """
     with ProgressBar():
