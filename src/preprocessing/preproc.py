@@ -253,6 +253,9 @@ if __name__ == "__main__":
         if entry.as_posix().endswith("txt"):
             stw_lsts.append(entry)
     
+    nlpPipeline = nlpPipeline(stw_files=stw_lsts,
+                                logger=logger)
+    
     # Create corpus_df
     if args.source_type == "xlsx":
         if args.source == "cordis":
@@ -283,8 +286,6 @@ if __name__ == "__main__":
         
         logger.info(
                     f'-- -- NLP preprocessing starts...')
-        nlpPipeline = nlpPipeline(stw_files=stw_lsts,
-                                logger=logger)
         
         corpus_df = nlpPipeline.preproc(corpus_df)
         
@@ -333,8 +334,6 @@ if __name__ == "__main__":
             
             logger.info(
                         f'-- -- NLP preprocessing starts...')
-            nlpPipeline = nlpPipeline(stw_files=stw_lsts,
-                                    logger=logger)
             
             corpus_df = nlpPipeline.preproc(corpus_df)
             
