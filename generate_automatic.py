@@ -112,9 +112,11 @@ def get_model_config(trainer,
 def train_automatic(path_corpus: str,
                     models_folder: str,
                     trainer: str,
-                    iters: int):
+                    iters: int,
+                    start: int):
     
     for iter_ in range(iters):
+        iter_ += start
         logger.info(f'-- -- Running iter {iter_}')
         
         # Create folder for saving HTM (root models and its descendents)
@@ -329,12 +331,16 @@ def main():
     parser.add_argument('--iters', type=int,
                         default=1,
                         help="Number of iteration to create htms from the same corpus")
+    parser.add_argument('--start', type=int,
+                        default=0,
+                        help="Iter number to start the naming of the root models.")
     args = parser.parse_args()
 
     train_automatic(path_corpus=args.path_corpus,
                     models_folder=args.models_folder,
                     trainer=args.trainer,
-                    iters=args.iters)
+                    iters=args.iters,
+                    start=args.start)
 
 
 if __name__ == "__main__":
