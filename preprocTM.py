@@ -26,7 +26,7 @@ logger.addHandler(handler)
 def main(nw=0, iter_=0):
     
     # Create folder structure
-    models = Path("/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc_ctm")
+    models = Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm")
     models.mkdir(parents=True, exist_ok=True)
 
     Preproc = {
@@ -52,16 +52,16 @@ def main(nw=0, iter_=0):
     model_stats.mkdir(parents=True, exist_ok=True)
 
     # Save dataset json file
-    Dtset = "CORDIS"
+    Dtset = "S2CS"
     DtsetConfig = model_path.joinpath(Dtset+'.json')
-    parquetFile = Path("/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/preproc_cordis_embeddings.parquet")
+    parquetFile = Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/preproc_scholar_embeddings.parquet")
     TrDtset = {
-        "name": "Cordis",
+        "name": "S2CS",
         "Dtsets": [
         {
             "parquet": parquetFile,
-            "source": "Cordis",
-            "idfld": "projectID",
+            "source": "S2CS",
+            "idfld": "id",
             "lemmasfld": [
             "lemmas_with_grams"
             ],
