@@ -93,7 +93,7 @@ def main(nw=0, iter_=0, spark=True):
 
     # Execute command
     if spark:
-        script_spark = "/export/usuarios_ml4ds/lbartolome/spark/script-spark/script-spark"
+        script_spark = "/export/usuarios_ml4ds/lbartolome/spark/script-spark"
         token_spark = "/export/usuarios_ml4ds/lbartolome/spark/tokencluster.json"
         script_path = './src/topicmodeling/topicmodeling.py'
         machines = 10
