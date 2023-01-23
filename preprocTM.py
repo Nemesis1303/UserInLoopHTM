@@ -100,7 +100,7 @@ def main(nw=0, iter_=0, spark=True):
         cores = 5
         options = '"--spark --preproc --config ' + configFile.resolve().as_posix() + '"'
         cmd = script_spark + ' -C ' + token_spark + \
-            ' -c ' + cores + ' -N ' + machines + ' -S ' + script_path + ' -P ' + options
+            ' -c ' + str(cores) + ' -N ' + str(machines) + ' -S ' + script_path + ' -P ' + options
         print(cmd)
         try:
             logger.info(f'-- -- Running command {cmd}')
