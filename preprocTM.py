@@ -23,7 +23,7 @@ handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 
-def main(nw=0, iter_=0):
+def main(nw=0, iter_=0, spark=True):
     
     # Create folder structure
     models = Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm")
@@ -92,8 +92,36 @@ def main(nw=0, iter_=0):
                     ensure_ascii=False, indent=2, default=str)
 
     # Execute command
-    cmd = f"python src/topicmodeling/topicmodeling.py --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}"
-    logger.info(f"Running command '{cmd}'")
+    if spark:
+        script_spark = "/export/usuarios_ml4ds/lbartolome/spark/script-spark/script-spark"
+        token_spark = "/export/usuarios_ml4ds/lbartolome/spark/tokencluster.json"
+        script_path = './src/topicmodeling/topicmodeling.py'
+        machines = 10
+        cores = 5
+        options = '"--spark --preproc --config ' + configFile.resolve().as_posix() + '"'
+        cmd = script_spark + ' -C ' + token_spark + \
+            ' -c ' + cores + ' -N ' + machines + ' -S ' + script_path + ' -P ' + options
+        print(cmd)
+        try:
+            logger.info(f'-- -- Running command {cmd}')
+            output = check_output(args=cmd, shell=True)
+        except:
+            logger.error('-- -- Execution of script failed')
+    else:
+        # Run command for corpus preprocessing using gensim
+        # Preprocessing will be accelerated with Dask using the number of
+        # workers indicated in the configuration file for the project
+        cmd = f'python src/topicmodeling/topicmodeling.py --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}'
+        print(cmd)
+        
+        try:
+            logger.info(f'-- -- Running command {cmd}')
+            output = check_output(args=cmd, shell=True)
+        except:
+            logger.error('-- -- Command execution failed')
+        
+    #cmd = f"python src/topicmodeling/topicmodeling.py --preproc --config #{configFile.resolve().as_posix()} --nw {str(nw)}"
+    #logger.info(f"Running command '{cmd}'")
     
     t_start = time.perf_counter()
     check_output(args=cmd, shell=True)
@@ -112,5 +140,7 @@ if __name__ == "__main__":
                         help="Number of workers when preprocessing data with Dask. Use 0 to use Dask default")
     parser.add_argument('--iter_', type=int, required=False, default=0,
                         help="Preprocessing number of this file.")
+    parser.add_argument('--spark', type=int, required=False, default=True,
+                    help="Whether to use spark or Dash.")
     args = parser.parse_args()
-    main(args.nw, args.iter_)
+    main(args.nw, args.iter_, args.spark)
