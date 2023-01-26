@@ -1514,6 +1514,7 @@ if __name__ == "__main__":
                 tPreproc.saveCntVecModel(configFile.parent.resolve())
 
                 # If the trainer is CTM, we also need the embeddings
+                '''
                 if train_config['trainer'] == "ctm":
                     # We get full df containing the embeddings
                     for idx, DtSet in enumerate(trDtSet['Dtsets']):
@@ -1527,6 +1528,7 @@ if __name__ == "__main__":
                     # TODO: Check that this is done properly in Spark
                     trDF = (trDF.join(eDF, trDF.id == eDF.id, "left")
                             .drop(df.id))
+                '''
 
                 # For sparkLDA, we need also a corpus.txt file only for coherence calculation
                 if train_config['trainer'] == 'sparkLDA':
