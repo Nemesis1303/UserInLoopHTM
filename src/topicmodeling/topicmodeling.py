@@ -452,6 +452,14 @@ class textPreproc(object):
                             'scheduler': 'processes'})
 
         else:
+            # User defined function to recover the text corresponding to BOW
+            def back2text(bow):
+                text = ""
+                for idx, tf in zip(bow.indices, bow.values):
+                    text += int(tf) * (vocabulary[idx] + ' ')
+                return text.strip()
+            back2textUDF = F.udf(lambda z: back2text(z))
+                
             # Spark dataframe
             if tmTrainer == "mallet":
                 # We need to convert the bow back to text, and save text file
@@ -459,14 +467,6 @@ class textPreproc(object):
                 outFile = dirpath.joinpath('corpus.txt')
                 vocabulary = self._cntVecModel.vocabulary
                 spark.sparkContext.broadcast(vocabulary)
-
-                # User defined function to recover the text corresponding to BOW
-                def back2text(bow):
-                    text = ""
-                    for idx, tf in zip(bow.indices, bow.values):
-                        text += int(tf) * (vocabulary[idx] + ' ')
-                    return text.strip()
-                back2textUDF = F.udf(lambda z: back2text(z))
 
                 malletDF = (trDF.withColumn("bow_text", back2textUDF(F.col("bow")))
                             .withColumn("2mallet", F.concat_ws(" 0 ", "id", "bow_text"))
