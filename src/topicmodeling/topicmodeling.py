@@ -499,6 +499,9 @@ class textPreproc(object):
                 outFile = dirpath.joinpath('corpus.parquet')
                 lemas_raw_df = (trDF.withColumn("bow_text", back2textUDF(
                     F.col("bow"))).select("id", "bow_text", "embeddings"))
+                print("***************************")
+                print("LLEGA AQUÍ")
+                print("***************************")
                 lemas_raw_df.write.parquet(
                     f"file://{outFile.as_posix()}", mode="overwrite")
 
@@ -1475,12 +1478,10 @@ if __name__ == "__main__":
             also the necessary objects for preprocessing objects during inference
             """
 
-            tPreproc = textPreproc(stw_files=train_config['Preproc']['stopwords'],
-                                   eq_files=train_config['Preproc']['equivalences'],
-                                   min_lemas=train_config['Preproc']['min_lemas'],
-                                   no_below=train_config['Preproc']['no_below'],
-                                   no_above=train_config['Preproc']['no_above'],
-                                   keep_n=train_config['Preproc']['keep_n'])
+            tPreproc = textPreproc(
+                stw_files=train_config['Preproc']['stopwords'],
+                eq_files=train_config['Preproc']['equivalences'],min_lemas=train_config['Preproc']['min_lemas'],no_below=train_config['Preproc']['no_below'],no_above=train_config['Preproc']['no_above'],
+                keep_n=train_config['Preproc']['keep_n'])
 
             # Create a Dataframe with all training data
             trDtFile = Path(train_config['TrDtSet'])
@@ -1534,9 +1535,12 @@ if __name__ == "__main__":
                                           dirpath=configFile.parent.resolve(),
                                           tmTrainer='mallet')
 
-                trDataFile = tPreproc.exportTrData(trDF=trDF,
-                                                   dirpath=configFile.parent.resolve(),
-                                                   tmTrainer=train_config['trainer'])
+                sys.stdout.write("Va a llamar al exportTrData")
+
+                trDataFile = tPreproc.exportTrData(
+                    trDF=trDF,
+                    dirpath=configFile.parent.resolve(),
+                    tmTrainer=train_config['trainer'])
                 sys.stdout.write(trDataFile.as_posix())
 
             else:
@@ -1594,10 +1598,11 @@ if __name__ == "__main__":
                 #     # We perform a left join to keep the embeddings of only those documents kept after preprocessing
                 #     trDF = trDF.merge(eDF, how="left", on=["id"])
 
-                trDataFile = tPreproc.exportTrData(trDF=trDF,
-                                                   dirpath=configFile.parent.resolve(),
-                                                   tmTrainer=train_config['trainer'],
-                                                   nw=args.nw)
+                trDataFile = tPreproc.exportTrData(
+                    trDF=trDF,
+                    dirpath=configFile.parent.resolve(),
+                    tmTrainer=train_config['trainer'],
+                    nw=args.nw)
                 sys.stdout.write(trDataFile.as_posix())
 
         else:
