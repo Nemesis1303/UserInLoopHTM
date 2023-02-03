@@ -473,9 +473,7 @@ class textPreproc(object):
                             .select("2mallet")
                             )
                 # Save as text file
-                # Ideally everything should get written to one text file directly from Spark
-                # but this is failing repeatedly, so I avoid coalescing in Spark and
-                # instead concatenate all files after creation
+                # Ideally everything should get written to one text file directly from Spark but this is failing repeatedly, so I avoid coalescing in Spark and instead concatenate all files after creation
                 tempFolder = dirpath.joinpath('tempFolder')
                 #malletDF.coalesce(1).write.format("text").option("header", "false").save(f"file://{tempFolder.as_posix()}")
                 malletDF.write.format("text").option("header", "false").save(
@@ -1502,7 +1500,7 @@ if __name__ == "__main__":
                         df.withColumn("all_lemmas", F.concat_ws(
                             ' ', *DtSet['lemmasfld']))
                           .withColumn("source", F.lit(DtSet["source"]))
-                          .select("id", "source", "all_lemmas")
+                          .select("id", "source", "all_lemmas", "embeddings")
                     )
                     if idx == 0:
                         trDF = df
