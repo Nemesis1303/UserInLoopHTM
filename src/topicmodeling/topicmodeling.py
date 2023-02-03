@@ -1576,23 +1576,23 @@ if __name__ == "__main__":
                 trDF = tPreproc.preprocBOW(trDF, nw=args.nw)
                 tPreproc.saveGensimDict(configFile.parent.resolve())
 
-                # If the trainer is CTM, we also need the embeddings
-                if train_config['trainer'] == "ctm":
-                    # We get full df containing the embeddings
-                    for idx, DtSet in enumerate(trDtSet['Dtsets']):
-                        df = dd.read_parquet(DtSet['parquet']).fillna("")
-                        df = df.rename(
-                            columns={idfld: "id"})
-                        df = df[["id", "embeddings"]]
+                # # If the trainer is CTM, we also need the embeddings
+                # if train_config['trainer'] == "ctm":
+                #     # We get full df containing the embeddings
+                #     for idx, DtSet in enumerate(trDtSet['Dtsets']):
+                #         df = dd.read_parquet(DtSet['parquet']).fillna("")
+                #         df = df.rename(
+                #             columns={idfld: "id"})
+                #         df = df[["id", "embeddings"]]
 
-                        # Concatenate dataframes
-                        if idx == 0:
-                            eDF = df
-                        else:
-                            eDF = dd.concat([trDF, df])
+                #         # Concatenate dataframes
+                #         if idx == 0:
+                #             eDF = df
+                #         else:
+                #             eDF = dd.concat([trDF, df])
 
-                    # We perform a left join to keep the embeddings of only those documents kept after preprocessing
-                    trDF = trDF.merge(eDF, how="left", on=["id"])
+                #     # We perform a left join to keep the embeddings of only those documents kept after preprocessing
+                #     trDF = trDF.merge(eDF, how="left", on=["id"])
 
                 trDataFile = tPreproc.exportTrData(trDF=trDF,
                                                    dirpath=configFile.parent.resolve(),
