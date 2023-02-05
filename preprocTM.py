@@ -26,7 +26,7 @@ logger.addHandler(handler)
 def main(nw=0, iter_=0, spark=True):
     
     # Create folder structure
-    models = Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm")
+    models = Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet")
     models.mkdir(parents=True, exist_ok=True)
 
     Preproc = {
@@ -79,7 +79,7 @@ def main(nw=0, iter_=0, spark=True):
         "name": Dtset,
         "description": "",
         "visibility": "Public",
-        "trainer": "ctm",
+        "trainer": "mallet",
         "TrDtSet": DtsetConfig.resolve().as_posix(),
         "Preproc": Preproc,
         "TMparam": {},
