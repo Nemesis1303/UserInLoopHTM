@@ -38,6 +38,7 @@ def main(nw=0, iter_=0, spark=True):
           "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/english_generic.json",
           "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2_stopwords.json",
           "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2CS_stopwords.json",
+          "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/cordis_stopwords.json",
         ],
         "equivalences": [
           "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2_equivalences.json",
