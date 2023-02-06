@@ -346,4 +346,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm 
+#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm --iters 5
+
+#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm --iters 5 --start 5
