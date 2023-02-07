@@ -346,6 +346,10 @@ def main():
 if __name__ == "__main__":
     main()
 
-#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm --iters 5
+#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm --iters 2 --start 0 --> hator05
 
-#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm --iters 5 --start 5
+#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm --iters 2 --start 2 --> hator00
+
+#-----
+
+#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm/iter_0/corpus.parquet --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm_ctm --iters 5 --start 0 --> kumo
