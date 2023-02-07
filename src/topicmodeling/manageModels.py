@@ -552,12 +552,14 @@ class TMmodel(object):
         else:
             cohrs_aux = []
             for metric in metrics:
-                self._logger.warning(
+                self._logger.info(
                     f"Calculating coherence {metric}.")
                 if metric in ["c_npmi", "u_mass", "c_v", "c_uci"]:
                     cm = CoherenceModel(topics=tpc_descriptions_, texts=corpus,
                                         dictionary=dictionary, coherence=metric, topn=n_words)
-                    cohrs_aux += cm.get_coherence_per_topic()
+                    aux = cm.get_coherence_per_topic()
+                    cohrs_aux.extend(aux)
+                    self._logger.info(cohrs_aux)
                 else:
                     self.logger.error(
                         '-- -- -- Coherence metric provided is not available.')
