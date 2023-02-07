@@ -51,7 +51,7 @@ training_params = {
     "token_regexp": "[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{P}]*\\p{L}",
     "alpha": 5.0,
     "num_threads": 4,
-    "num_iterations": 1000,
+    "num_iterations": 500,
 }
 ############################################
 
