@@ -302,7 +302,7 @@ class TMmodel(object):
         self._ndocs_active = np.array((self._thetas != 0).sum(0).tolist()[0])
         self._tpc_descriptions = [el[1]
                                   for el in self.get_tpc_word_descriptions()]
-        self.calculate_topic_coherence(metric="c_v")
+        self.calculate_topic_coherence()#cohrs_aux
         self._tpc_labels = [el[1] for el in self.get_tpc_labels(labels)]
 
         # We are ready to save all variables in the model
@@ -509,7 +509,7 @@ class TMmodel(object):
             self._topic_entropy = np.load(
                 self._TMfolder.joinpath('topic_entropy.npy'))
 
-    def calculate_topic_coherence(self, metric="c_v", n_words=15):
+    def calculate_topic_coherence(self, metrics=["c_v","c_npmi"], n_words=15):
 
         # Load topic information
         if self._tpc_descriptions is None:
@@ -550,13 +550,16 @@ class TMmodel(object):
             self.logger.error(
                 '-- -- -- Coherence calculation failed: The number of words per topic must be equal to n_words.')
         else:
-            if metric in ["c_npmi", "u_mass", "c_v", "c_uci"]:
-                cm = CoherenceModel(topics=tpc_descriptions_, texts=corpus,
-                                    dictionary=dictionary, coherence=metric, topn=n_words)
-                self._topic_coherence = cm.get_coherence_per_topic()
-            else:
-                self.logger.error(
-                    '-- -- -- Coherence metric provided is not available.')
+            cohrs_aux = []
+            for metric in metrics:
+                if metric in ["c_npmi", "u_mass", "c_v", "c_uci"]:
+                    cm = CoherenceModel(topics=tpc_descriptions_, texts=corpus,
+                                        dictionary=dictionary, coherence=metric, topn=n_words)
+                    cohrs_aux += cm.get_coherence_per_topic()
+                else:
+                    self.logger.error(
+                        '-- -- -- Coherence metric provided is not available.')
+            self._topic_coherence = cohrs_aux
 
     def _load_topic_coherence(self):
         if self._topic_coherence is None:
