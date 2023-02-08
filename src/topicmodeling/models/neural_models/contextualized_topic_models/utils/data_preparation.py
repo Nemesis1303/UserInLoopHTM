@@ -126,8 +126,10 @@ def prepare_ctm_dataset(corpus, unpreprocessed_corpus=None, custom_embeddings=No
     docs_train_conv = [" ".join(docs_train[i])
                        for i in np.arange(len(docs_train))]
 
+    print("LLEGA HASTA AQUÍ UNO")
     # Learn the vocabulary dictionary, train_bow = document-term matrix.
     train_bow = cv.fit_transform(docs_train_conv)
+    print("LLEGA HASTA AQUÍ DOS")
 
     # Array mapping from feature integer indices to feature name.
     idx2token = cv.get_feature_names_out()
