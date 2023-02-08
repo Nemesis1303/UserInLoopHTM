@@ -369,6 +369,11 @@ class TMmodel(object):
         #self._modify_pyldavis_html(self._TMfolder.as_posix())
 
         return
+    
+    def _save_cohr(self):
+        
+        np.save(self._TMfolder.joinpath(
+            'topic_coherence.npy'), self._topic_coherence)
 
     def _modify_pyldavis_html(self, model_dir):
         """
@@ -944,6 +949,22 @@ class TMmodel(object):
         except:
             return 0
 
+    def recalculate_cohrs(self):
+        
+        self.load_tpc_descriptions()
+        
+        try:
+            self.calculate_topic_coherence()
+            
+            self._save_cohr()
+
+            self._logger.info(
+                '-- -- Topics cohrence recalculation successful. All variables saved to file')
+            return 1
+        except:
+            self._logger.info(
+                '-- -- Topics cohrence recalculation  an error. Operation failed')
+            return 0
 
 ##############################################################################
 #                                  MAIN                                      #

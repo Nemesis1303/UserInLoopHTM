@@ -77,7 +77,7 @@ def get_model_config(trainer,
                   "token_regexp"]
     elif trainer == 'ctm':
 
-        fields = ["n_components",
+        fields = ["ntopics",
                   "thetas_thr",
                   "labels",
                   "model_type",
@@ -170,3 +170,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm/iter_0/corpus.parquet --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm --trainer ctm
