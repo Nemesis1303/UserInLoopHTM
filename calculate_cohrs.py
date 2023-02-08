@@ -64,7 +64,7 @@ for el in df.iter.unique():
             not_finished.append(entry)
 df = pd.concat(concats)
 
-for path_model in tqdm(df.path.unique()):
+for path_model in df.path.unique():
     path_tm_model = path_model.joinpath('TMmodel')
     tm = TMmodel(path_tm_model)
     tm.recalculate_cohrs()
