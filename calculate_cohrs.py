@@ -65,6 +65,7 @@ for el in df.iter.unique():
 df = pd.concat(concats)
 
 for path_model in df.path.unique():
+    print(path_model.as_posix())
     path_tm_model = path_model.joinpath('TMmodel')
     tm = TMmodel(path_tm_model)
     tm.recalculate_cohrs()
