@@ -103,6 +103,8 @@ def prepare_ctm_dataset(corpus, unpreprocessed_corpus=None, custom_embeddings=No
     if custom_embeddings is None and unpreprocessed_corpus is None:
         raise TypeError(
             "Custom embeddings or an unpreprocessed corpus to generate the embeddings from must be provided")
+    
+    import pdb; pdb.set_trace()
 
     # Create embeddings from text if no custom embeddings are provided
     if custom_embeddings is None:
