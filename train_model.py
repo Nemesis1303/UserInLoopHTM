@@ -162,7 +162,7 @@ def main():
                         default="mallet",
                         help="Name of the underlying topic modeling algorithm to be used: mallet|ctm")
     args = parser.parse_args()
-
+    import pdb; pdb.set_trace()
     train_automatic(path_corpus=args.path_corpus,
                     models_folder=args.models_folder,
                     trainer=args.trainer)

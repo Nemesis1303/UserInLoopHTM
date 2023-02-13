@@ -963,9 +963,11 @@ class CTMTrainer(Trainer):
         logger: Logger object
             To log object activity
         """
-
+       
+        #import pdb; pdb.set_trace()
+        #print("HOLA")
+        #pdb.set_trace()
         super().__init__(logger)
-
         self._n_components = n_components
         self._model_type = model_type
         self._ctm_model_type = ctm_model_type
@@ -1065,22 +1067,35 @@ class CTMTrainer(Trainer):
 
         # Generating the corpus in the input format required by CTM
         self._logger.info('-- -- CTM Corpus Generation: BOW Dataset object')
-        df = pd.read_parquet(corpusFile)
-        print(df.head)
-        if "fieldsOfStudy" in list(df.columns.values):
-            df = df[df['fieldsOfStudy'] == "computer_science"]
-        df_lemas = df[["bow_text"]].values.tolist()
+        #import pdb; pdb.set_trace()
+        self._logger.info('-- -- Reading parquet')
+        import dask.dataframe as dd
+        #df = pd.read_parquet(corpusFile)
+        ddf = dd.read_parquet(corpusFile, engine="pyarrow")
+        self._logger.info('-- -- Parquet read')
+        self._logger.info(ddf.columns)
+        #import pdb; pdb.set_trace()
+        #df = ddf.compute()
+        #pdb.set_trace()
+        #print(df.head)
+        #if "fieldsOfStudy" in list(df.columns.values):
+        #    df = df[df['fieldsOfStudy'] == "computer_science"]
+        self._logger.info('-- -- Computing BOW')
+        df_lemas = ddf[["bow_text"]].compute().values.tolist()
+        self._logger.info('-- -- BOW computed')
         df_lemas = [doc[0].split() for doc in df_lemas]
         self._corpus = [el for el in df_lemas]
 
         if embeddingsFile is None:
             if not "embeddings" in list(df.columns.values):
-                df_raw = df[["all_rawtext"]].values.tolist()
+                df_raw = ddf[["all_rawtext"]].compute().values.tolist()
                 df_raw = [doc[0].split() for doc in df_raw]
                 self._unpreprocessed_corpus = [el for el in df_raw]
                 self._embeddings = None
             else:
-                self._embeddings = df.embeddings.values
+                self._logger.info('-- -- Computing embeddings')
+                self._embeddings = ddf["embeddings"].compute().values
+                self._logger.info('-- -- Embeddings computed')
                 self._unpreprocessed_corpus = None
         else:
             if not embeddingsFile.is_file():
