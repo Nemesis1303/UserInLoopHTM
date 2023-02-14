@@ -17,6 +17,7 @@ from subprocess import check_output
 import sys
 from abc import abstractmethod
 from pathlib import Path
+import tqdm
 
 import dask.dataframe as dd
 import matplotlib.pyplot as plt
@@ -1062,16 +1063,32 @@ class CTMTrainer(Trainer):
 
         modelFolder = corpusFile.parent.joinpath('modelFiles')
         modelFolder.mkdir()
-        #modelFolder = modelFolder.joinpath('modelFiles')
-        #modelFolder.mkdir()
 
+        # Creating auxiliary files to store information read from parquet files to reduce computational complexity
+        self._logger.info(
+            '-- -- Saving lemmas and embeddings in auxiliary files')
+        lemas_all = []
+        embeddings_all = []
+        for parquet_part in tqdm(corpusFile.glob('*.parquet')):
+            ddf_part = dd.read_parquet(parquet_part, engine="pyarrow")
+            lemas_all += ddf_part[["bow_text"]].compute().values.tolist()
+            embeddings_all += ddf_part["embeddings"].compute().values.tolist()
+            import pdb; pdb.set_trace()
+        self._corpus = [el for el in lemas_all]
+        self._unpreprocessed_corpus = None
+        self._embeddings = embeddings_all
+        pdb.set_trace()
+            
+        
+        '''
         # Generating the corpus in the input format required by CTM
         self._logger.info('-- -- CTM Corpus Generation: BOW Dataset object')
         #import pdb; pdb.set_trace()
         self._logger.info('-- -- Reading parquet')
-        import dask.dataframe as dd
+      
         #df = pd.read_parquet(corpusFile)
         ddf = dd.read_parquet(corpusFile, engine="pyarrow")
+        # @TODO: 
         self._logger.info('-- -- Parquet read')
         self._logger.info(ddf.columns)
         #import pdb; pdb.set_trace()
@@ -1104,7 +1121,8 @@ class CTMTrainer(Trainer):
                 sys.exit()
             self._embeddings = np.load(embeddingsFile, allow_pickle=True)
             self._unpreprocessed_corpus = None
-
+        '''
+        
         # Generate the corpus in the input format required by CTM
         self._train_dts, self._val_dts, self._input_size, self._id2token, self._qt, self._embeddings_train, _, self._docs_train = \
             prepare_ctm_dataset(corpus=self._corpus,
