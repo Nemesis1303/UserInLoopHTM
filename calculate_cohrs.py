@@ -8,7 +8,7 @@ from src.topicmodeling.manageModels import TMmodel
 
 path_models_ctm = pathlib.Path("/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_htm_ctm")
 path_models_mallet = pathlib.Path("/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_htm")
-path_models = path_models_mallet
+path_models = path_models_ctm
 
 dfs = []
 for entry in path_models.iterdir():
