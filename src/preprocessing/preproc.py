@@ -2,23 +2,20 @@ import pathlib
 from typing import List
 import pandas as pd
 import re
-import nltk
-nltk.download('punkt')
-from nltk.tokenize import word_tokenize
 import pandas as pd
 import contractions
 import spacy
 import argparse
 from tqdm import tqdm
 from gensim.models.phrases import Phrases
-from acronyms import acronyms_list
-from preproc_utils import det
 import dask.dataframe as dd
 from dask.diagnostics import ProgressBar
+from acronyms import acronyms_list
+from preproc_utils import det
 import logging
 from preproc_utils import check_nltk_packages
 
-#!python3 -m spacy download en_core_web_lg
+#!python3 -m spacy download en_core_web_sm
 #!python3 -m spacy download xx_sent_ud_sm
 #!pip install --upgrade spacy_langdetect
 
@@ -59,7 +56,7 @@ class nlpPipeline():
             
     def _loadSTW(self, stw_files: List[pathlib.Path]):
         """
-        Loads all stopwords as list from all files provided in the argument
+        Loads stopwords as list from files provided in the argument
 
         Parameters
         ----------
@@ -106,6 +103,23 @@ class nlpPipeline():
             regex = re.compile(raw)
             text = regex.sub(rep,text)
         return text
+    
+    def _remove_non_latin(self, text) -> str:
+        """
+        Auxiliary function to remove non-latin characters in strings
+        
+        Parameters
+        ----------
+        text: str
+            Text in which the non-latin characters are going to be replaced
+            
+        Returns
+        -------
+        text: str
+            Replaced text
+        """
+        
+        return re.sub(r'[^\p{Latin}]', u'', text)
 
     def do_pipeline(self, rawtext) -> str:
         """
@@ -131,12 +145,14 @@ class nlpPipeline():
         """
         
         # Change acronyms by their meaning
-        text = self._replace(rawtext, self._acr_list) 
+        text = self._replace(rawtext, self._acr_list)
+        # Remove non-latin characters
+        #text = self._remove_non_latin(text)
         # Expand contractions
         try:
             text2 = contractions.fix(text) 
         except:
-            logger.info(f"this is the text that makes the error: {text}")
+            self._logger.info(f"this is the text that makes the error: {text}")
             text2 = text
         
         valid_POS = set(['VERB', 'NOUN', 'ADJ', 'PROPN'])
@@ -175,28 +191,41 @@ class nlpPipeline():
             - lemmas_with_grams
         """
         
-        # Create nlp pipeline
-        self.nlp = spacy.load('en_core_web_lg')
-
-        # Disable unnecessary components
+        # Create nlp pipeline and disable unncessary components
+        #self.nlp = spacy.load('en_core_web_lg')
+        self.nlp = spacy.load('en_core_web_sm')
         self.nlp.disable_pipe('parser')
         self.nlp.disable_pipe('ner')
         
         # Lemmatize text
-        #corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline, meta=('lemmas', 'object'))
-        corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline)
+        self._logger.info(
+            "-- INFO: Lemmatizing text")
+        corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline,     meta=('lemmas', 'object'))
+        #corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline)
         
         # Create corpus from tokenized lemmas        
-        corpus = corpus_df['lemmas'].values
-        print(len(corpus))
-        print(len(corpus_df))
+        self._logger.info(
+            "-- INFO: Creating corpus from lemmatized text for n-grams detection")
+        with ProgressBar():
+            DFlemmas = corpus_df[['lemmas']]
+            # Use Dask default (i.e., number of available cores)
+            DFlemmas = DFlemmas.compute(scheduler='processes')
+            
+        corpus = DFlemmas['lemmas'].values.tolist()    
+        
+        #corpus = corpus_df['lemmas'].values
+        #print(len(corpus))
+        #print(len(corpus_df))
         
         # Create Phrase model for n-grams detection
+        self._logger.info(
+            "-- INFO: Creating Phrase model for n-grams detection")
         phrase_model = Phrases(corpus, min_count=2, threshold=20)
         
         # Carry out n-grams substitutionx
+        self._logger.info(
+            "-- INFO: Carrying out n-grams substitution")
         corpus = [el for el in phrase_model[corpus]] 
-
         corpus2 = [" ".join(el) for el in corpus]
 
         print(len(corpus2))
@@ -206,8 +235,12 @@ class nlpPipeline():
             return corpus2.pop(0)
 
         # Save n-grams in new column in the dataFrame
-        #corpus_df["lemmas_with_grams"] =  corpus_df.apply(get_ngram, meta=('lemmas_with_grams', 'object'), axis=1)
-        corpus_df["lemmas_with_grams"] =  corpus_df.apply(get_ngram, axis=1)
+        self._logger.info(
+            "-- INFO: Saving n-grams in new column in the dataFrame")
+        corpus_df["lemmas_with_grams"] =  corpus_df.apply(get_ngram, meta=('lemmas_with_grams', 'object'), axis=1)
+        #corpus_df["lemmas_with_grams"] =  corpus_df.apply(get_ngram, axis=1)
+        
+        corpus_df = corpus_df.drop(columns=['lemmas'])  
         
         return corpus_df
                 
@@ -246,7 +279,7 @@ if __name__ == "__main__":
     
     # Get stopword lists
     stw_lsts = []
-    for entry in pathlib.Path("/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists").iterdir():
+    for entry in pathlib.Path("data/stw_lists").iterdir():
         #/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists
         #/workspaces/hierarchical-topic-models/data/stw_lists
         # check if it is a file
@@ -256,24 +289,30 @@ if __name__ == "__main__":
     nlpPipeline = nlpPipeline(stw_files=stw_lsts,
                                 logger=logger)
     
+    #import pdb
+    #pdb.set_trace()
+    
     # Create corpus_df
     if args.source_type == "xlsx":
         if args.source == "cordis":
             logger.info(
                 f'-- -- Reading from Cordis...')
             id_fld = "projectID"
-            raw_text_fld = "objective"#summary
+            raw_text_fld = "summary" #objective
             title_fld = "title"
             
         df = pd.read_excel(source_path)
-        #corpus_df = dd.from_pandas(df, npartitions=3)
+        df = dd.from_pandas(df, npartitions=3)
         
-        #corpus_df = df.sample(frac=0.001, replace=True, random_state=1)
+        print("corpus read")
+        corpus_df = df.sample(frac=0.001, replace=True, random_state=1)
+        #import pdb
+        #pdb.set_trace()
         corpus_df = df[[id_fld, raw_text_fld, title_fld]]
         
         # Detect abstracts' language and filter out those non-English ones
-        #corpus_df['langue'] = corpus_df[raw_text_fld].apply(det, meta=('langue', 'object'))
-        corpus_df['langue'] = corpus_df[raw_text_fld].apply(det)
+        corpus_df['langue'] = corpus_df[raw_text_fld].apply(det, meta=('langue', 'object'))
+        #corpus_df['langue'] = corpus_df[raw_text_fld].apply(det)
         
         corpus_df = corpus_df[corpus_df['langue'] == 'en']
         
@@ -281,8 +320,8 @@ if __name__ == "__main__":
         corpus_df = corpus_df[corpus_df[raw_text_fld] != ""]
         
         # Concatenate title + abstract/summary
-        #corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
-        corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1)
+        corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
+        #corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1)
         
         logger.info(
                     f'-- -- NLP preprocessing starts...')
@@ -295,7 +334,21 @@ if __name__ == "__main__":
         outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
         if outFile.is_file():
             outFile.unlink()
-        corpus_df.to_parquet(outFile.as_posix())
+        #corpus_df.to_parquet(outFile.as_posix())
+        
+        logger.info(
+                    f'-- --COLUMNS')
+        print(corpus_df.columns)
+    
+        
+        with ProgressBar():
+            if args.nw > 0:
+                corpus_df.to_parquet(outFile, write_index=False, schema="infer", compute_kwargs={
+                    'scheduler': 'processes', 'num_workers': args.nw})
+            else:
+                # Use Dask default number of workers (i.e., number of cores)
+                corpus_df.to_parquet(outFile, write_index=False, schema="infer", compute_kwargs={
+                    'scheduler': 'processes'})
         
     elif args.source_type == "parquet":
         if args.source == "scholar":
