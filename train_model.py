@@ -173,3 +173,5 @@ if __name__ == "__main__":
 
 
 #--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm/iter_0/corpus.parquet --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm --trainer ctm
+
+#/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/cordis_612.parquet

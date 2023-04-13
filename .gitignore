@@ -130,5 +130,8 @@ dmypy.json
 
 /data/preproc
 /data/projects.xlsx
+data/CORDIS.parquet
+data/preproc_cordis.parquet
 
 /trial
+

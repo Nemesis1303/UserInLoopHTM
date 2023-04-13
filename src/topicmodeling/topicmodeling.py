@@ -1073,11 +1073,9 @@ class CTMTrainer(Trainer):
             ddf_part = dd.read_parquet(parquet_part, engine="pyarrow")
             lemas_all += ddf_part[["bow_text"]].compute().values.tolist()
             embeddings_all += ddf_part["embeddings"].compute().values.tolist()
-            import pdb; pdb.set_trace()
         self._corpus = [el for el in lemas_all]
         self._unpreprocessed_corpus = None
         self._embeddings = embeddings_all
-        pdb.set_trace()
             
         
         '''

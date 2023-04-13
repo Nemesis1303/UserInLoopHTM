@@ -103,10 +103,7 @@ def prepare_ctm_dataset(corpus, unpreprocessed_corpus=None, custom_embeddings=No
     if custom_embeddings is None and unpreprocessed_corpus is None:
         raise TypeError(
             "Custom embeddings or an unpreprocessed corpus to generate the embeddings from must be provided")
-    
-    import pdb; pdb.set_trace()
-    a = 5
-    pdb.set_trace()
+        
     # Create embeddings from text if no custom embeddings are provided
     if custom_embeddings is None:
         docs_conv = [" ".join(unpreprocessed_corpus[i])
@@ -128,11 +125,9 @@ def prepare_ctm_dataset(corpus, unpreprocessed_corpus=None, custom_embeddings=No
     #######################################
     docs_train_conv = [" ".join(docs_train[i])
                        for i in np.arange(len(docs_train))]
-
-    print("LLEGA HASTA AQUÍ UNO")
+    
     # Learn the vocabulary dictionary, train_bow = document-term matrix.
     train_bow = cv.fit_transform(docs_train_conv)
-    print("LLEGA HASTA AQUÍ DOS")
 
     # Array mapping from feature integer indices to feature name.
     idx2token = cv.get_feature_names_out()

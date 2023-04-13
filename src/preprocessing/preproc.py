@@ -1,3 +1,4 @@
+import json
 import pathlib
 from typing import List
 import pandas as pd
@@ -15,7 +16,9 @@ from preproc_utils import det
 import logging
 from preproc_utils import check_nltk_packages
 
-#!python3 -m spacy download en_core_web_sm
+
+# TO BE EXECUTED ONLY ONCE
+#!python3 -m spacy download spacy_model (where spacy_model is one of en_core_web_sm | en_core_web_md | en_core_web_lg )
 #!python3 -m spacy download xx_sent_ud_sm
 #!pip install --upgrade spacy_langdetect
 
@@ -51,6 +54,7 @@ class nlpPipeline():
         
         self._loadSTW(stw_files)
         self._loadACR()
+        self._nlp = spacy.load('en_core_web_sm', exclude=['parser', 'ner'])
             
         return
             
@@ -64,10 +68,8 @@ class nlpPipeline():
             List of paths to stopwords files
         """
         
-        stw_list = []
-        for stw_file in stw_files:
-            stw_df = pd.read_csv(stw_file, names=['stopwords'], header=None, skiprows=3)
-            stw_list.extend(list(stw_df['stopwords']))
+        stw_list = [pd.read_csv(stw_file, names=['stopwords'], header=None, skiprows=3) for stw_file in stw_files]
+        stw_list = [stopword for stw_df in stw_list for stopword in stw_df['stopwords']]
         self._stw_list = list(dict.fromkeys(stw_list)) # remove duplicates
         self._logger.info(f"Stopwords list created with {len(stw_list)} items.")
 
@@ -103,27 +105,10 @@ class nlpPipeline():
             regex = re.compile(raw)
             text = regex.sub(rep,text)
         return text
-    
-    def _remove_non_latin(self, text) -> str:
-        """
-        Auxiliary function to remove non-latin characters in strings
-        
-        Parameters
-        ----------
-        text: str
-            Text in which the non-latin characters are going to be replaced
-            
-        Returns
-        -------
-        text: str
-            Replaced text
-        """
-        
-        return re.sub(r'[^\p{Latin}]', u'', text)
 
     def do_pipeline(self, rawtext) -> str:
         """
-        Carries out NLP pipeline. In particular, the following steps:
+        Implements the preprocessing pipeline, by carrying out:
         - Lemmatization according to POS
         - Removal of non-alphanumerical tokens
         - Removal of basic English stopwords and additional ones provided       
@@ -146,18 +131,16 @@ class nlpPipeline():
         
         # Change acronyms by their meaning
         text = self._replace(rawtext, self._acr_list)
-        # Remove non-latin characters
-        #text = self._remove_non_latin(text)
+      
         # Expand contractions
         try:
-            text2 = contractions.fix(text) 
+            text = contractions.fix(text) 
         except:
-            self._logger.info(f"this is the text that makes the error: {text}")
-            text2 = text
+            text = text # this is only for SS
         
         valid_POS = set(['VERB', 'NOUN', 'ADJ', 'PROPN'])
 
-        doc = self.nlp(text2)
+        doc = self._nlp(text)
         lemmatized = [token.lemma_ for token in doc
                             if token.is_alpha
                             and token.pos_ in valid_POS
@@ -168,7 +151,6 @@ class nlpPipeline():
         final_tokenized = [token.lower() for token in lemmatized] 
         
         return final_tokenized
-
 
     def preproc(self, corpus_df: dd.DataFrame) -> dd.DataFrame:
         """
@@ -191,56 +173,40 @@ class nlpPipeline():
             - lemmas_with_grams
         """
         
-        # Create nlp pipeline and disable unncessary components
-        #self.nlp = spacy.load('en_core_web_lg')
-        self.nlp = spacy.load('en_core_web_sm')
-        self.nlp.disable_pipe('parser')
-        self.nlp.disable_pipe('ner')
-        
         # Lemmatize text
-        self._logger.info(
-            "-- INFO: Lemmatizing text")
-        corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline,     meta=('lemmas', 'object'))
-        #corpus_df['lemmas'] = corpus_df["raw_text"].apply(self.do_pipeline)
+        self._logger.info("-- INFO: Lemmatizing text")        
+        lemmas = corpus_df["raw_text"].apply(self.do_pipeline, 
+                                            meta=('lemmas', 'object'))
+        # this does the same but with batch preprocessing
+        #def apply_pipeline_to_partition(partition):
+        #    return partition['raw_text'].apply(self.do_pipeline)
+        #lemmas = corpus_df.map_partitions(apply_pipeline_to_partition, meta=('lemmas', 'object'))
         
-        # Create corpus from tokenized lemmas        
+        # Create corpus from tokenized lemmas
         self._logger.info(
-            "-- INFO: Creating corpus from lemmatized text for n-grams detection")
+            "-- INFO: Creating corpus from lemmas for n-grams detection")
         with ProgressBar():
-            DFlemmas = corpus_df[['lemmas']]
-            # Use Dask default (i.e., number of available cores)
-            DFlemmas = DFlemmas.compute(scheduler='processes')
-            
-        corpus = DFlemmas['lemmas'].values.tolist()    
-        
-        #corpus = corpus_df['lemmas'].values
-        #print(len(corpus))
-        #print(len(corpus_df))
-        
+            lemmas = lemmas.compute(scheduler='processes')   
+        corpus = lemmas.values.tolist()
+
         # Create Phrase model for n-grams detection
-        self._logger.info(
-            "-- INFO: Creating Phrase model for n-grams detection")
+        self._logger.info("-- INFO: Creating Phrase model")
         phrase_model = Phrases(corpus, min_count=2, threshold=20)
-        
-        # Carry out n-grams substitutionx
-        self._logger.info(
-            "-- INFO: Carrying out n-grams substitution")
-        corpus = [el for el in phrase_model[corpus]] 
-        corpus2 = [" ".join(el) for el in corpus]
 
-        print(len(corpus2))
-        #print(len(corpus_df.compute()))
-
-        def get_ngram(row):
-            return corpus2.pop(0)
+        # Carry out n-grams substitution
+        self._logger.info("-- INFO: Carrying out n-grams substitution")
+        corpus = (phrase_model[doc] for doc in corpus)
+        corpus = list((" ".join(doc) for doc in corpus))
 
         # Save n-grams in new column in the dataFrame
         self._logger.info(
             "-- INFO: Saving n-grams in new column in the dataFrame")
+        def get_ngram(row):
+            return corpus.pop(0)
         corpus_df["lemmas_with_grams"] =  corpus_df.apply(get_ngram, meta=('lemmas_with_grams', 'object'), axis=1)
-        #corpus_df["lemmas_with_grams"] =  corpus_df.apply(get_ngram, axis=1)
-        
-        corpus_df = corpus_df.drop(columns=['lemmas'])  
+        #corpus_df["lemmas_with_grams"] =  corpus_df.apply(lambda row: corpus[row.name], meta=('lemmas_with_grams', 'object'), axis=1)
+        #import pdb; pdb.set_trace()
+        #corpus_df["lemmas_with_grams"] =  corpus_df.apply(corpus.pop(0), meta=('lemmas_with_grams', 'object'), axis=1)
         
         return corpus_df
                 
@@ -249,17 +215,17 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Scripts for Embeddings Service")
-    parser.add_argument("--source_path", type=str, default=None,
-                        required=True, metavar=("path_to_parquet"),
+    parser.add_argument("--source_path", type=str, default="/Users/lbartolome/Documents/GitHub/hierarchical-topic-models/data/CORDIS.parquet",
+                        required=False, metavar=("path_to_parquet"),
                         help="Path to file with source file/s")
-    parser.add_argument("--source_type", type=str, default=None,
-                        required=True, metavar=("source_type"),
+    parser.add_argument("--source_type", type=str, default='parquet',
+                        required=False, metavar=("source_type"),
                         help="Type of file in which the source is contained")
-    parser.add_argument("--source", type=str, default=None,
-                        required=True, metavar=("source_type"),
+    parser.add_argument("--source", type=str, default='cordis',
+                        required=False, metavar=("source_type"),
                         help="Name of the dataset to be preprocessed (e.g., cordis)")
-    parser.add_argument("--destination_path", type=str, default=None,
-                        required=True, metavar=("destination_path"),
+    parser.add_argument("--destination_path", type=str, default='/Users/lbartolome/Documents/GitHub/hierarchical-topic-models/data',
+                        required=False, metavar=("destination_path"),
                         help="Path to save the new preprocessed files")
     parser.add_argument("--nw", type=int, default=0,
                     required=False, help="Number of workers to use with Dask")
@@ -270,137 +236,71 @@ if __name__ == "__main__":
     
     logger.info(
                 f'-- -- Installing necessary packages...')
-    check_nltk_packages()
+    #check_nltk_packages()
     
     args = parser.parse_args()
-    
     source_path = pathlib.Path(args.source_path)
     destination_path = pathlib.Path(args.destination_path)
     
     # Get stopword lists
     stw_lsts = []
-    for entry in pathlib.Path("data/stw_lists").iterdir():
-        #/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/stw_lists
-        #/workspaces/hierarchical-topic-models/data/stw_lists
+    for entry in pathlib.Path("stw_lists").iterdir():
         # check if it is a file
         if entry.as_posix().endswith("txt"):
             stw_lsts.append(entry)
     
-    nlpPipeline = nlpPipeline(stw_files=stw_lsts,
-                                logger=logger)
+    nlpPipeline = nlpPipeline(stw_files=stw_lsts, logger=logger)
     
-    #import pdb
-    #pdb.set_trace()
+    with open('config.json') as f:
+        field_mappings = json.load(f)
+
+    if args.source in field_mappings:
+        mapping = field_mappings[args.source]
+        logger.info(f"Reading from {args.source}...")
+        id_fld = mapping["id"]
+        raw_text_fld = mapping["raw_text"]
+        title_fld = mapping["title"]
+    else:
+        logger.error(f"Unknown source: {args.source}")
+            
+    readers = {
+        "xlsx": lambda path: dd.from_pandas(pd.read_excel(path), npartitions=10).fillna(""),
+        "parquet": lambda path: dd.read_parquet(path).fillna("")
+    }
+
+    if args.source_type in readers:
+        reader = readers[args.source_type]
+        df = reader(source_path)
+    else:
+        logger.error(f"Unsupported source type: {args.source_type}")
+        
+    corpus_df = df.sample(frac=0.00001, replace=True, random_state=1)
+    corpus_df = df[[id_fld, raw_text_fld, title_fld]]
+        
+    # Detect abstracts' language and filter out those non-English ones
+    corpus_df = \
+        corpus_df[corpus_df[raw_text_fld].apply(
+            det,
+            meta=('langue', 'object')) == 'en']
+
+    # Concatenate title + abstract/summary
+    corpus_df["raw_text"] = \
+        corpus_df[[title_fld, raw_text_fld]].apply(
+            " ".join, axis=1, meta=('raw_text', 'object'))
+    # Filter out rows with no raw_text
+    corpus_df = corpus_df.dropna(subset=["raw_text"], how="any")
     
-    # Create corpus_df
-    if args.source_type == "xlsx":
-        if args.source == "cordis":
-            logger.info(
-                f'-- -- Reading from Cordis...')
-            id_fld = "projectID"
-            raw_text_fld = "summary" #objective
-            title_fld = "title"
-            
-        df = pd.read_excel(source_path)
-        df = dd.from_pandas(df, npartitions=3)
-        
-        print("corpus read")
-        corpus_df = df.sample(frac=0.001, replace=True, random_state=1)
-        #import pdb
-        #pdb.set_trace()
-        corpus_df = df[[id_fld, raw_text_fld, title_fld]]
-        
-        # Detect abstracts' language and filter out those non-English ones
-        corpus_df['langue'] = corpus_df[raw_text_fld].apply(det, meta=('langue', 'object'))
-        #corpus_df['langue'] = corpus_df[raw_text_fld].apply(det)
-        
-        corpus_df = corpus_df[corpus_df['langue'] == 'en']
-        
-        # Filter out abstracts with no text   
-        corpus_df = corpus_df[corpus_df[raw_text_fld] != ""]
-        
-        # Concatenate title + abstract/summary
-        corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
-        #corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1)
-        
-        logger.info(
-                    f'-- -- NLP preprocessing starts...')
-        
-        corpus_df = nlpPipeline.preproc(corpus_df)
-        
-        print(corpus_df)
-                
-        # Save new df in parquet file
-        outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
-        if outFile.is_file():
-            outFile.unlink()
-        #corpus_df.to_parquet(outFile.as_posix())
-        
-        logger.info(
-                    f'-- --COLUMNS')
-        print(corpus_df.columns)
-    
-        
-        with ProgressBar():
-            if args.nw > 0:
-                corpus_df.to_parquet(outFile, write_index=False, schema="infer", compute_kwargs={
-                    'scheduler': 'processes', 'num_workers': args.nw})
-            else:
-                # Use Dask default number of workers (i.e., number of cores)
-                corpus_df.to_parquet(outFile, write_index=False, schema="infer", compute_kwargs={
-                    'scheduler': 'processes'})
-        
-    elif args.source_type == "parquet":
-        if args.source == "scholar":
-            logger.info(
-                f'-- -- Reading from Scholar...')
-            id_fld = "id"
-            raw_text_fld = "paperAbstract"
-            title_fld = "title"
-           
-        res = []
-        for entry in source_path.iterdir():
-            # check if it is a file
-            if entry.as_posix().endswith("parquet"):
-                res.append(entry)
-        print(len(res))
-        
-        logger.info(
-                f'-- -- Reading of parquet files starts...')
-        for idx, f in enumerate(tqdm(res)):
-            df = pd.read_parquet(f)
-        
-            logger.info(
-                    f'-- -- Reading of parquet files completed...')
-            
-            # Filter out abstracts with no text
-            corpus_df = df[[id_fld, raw_text_fld, title_fld]]
-            
-            # Concatenate title + abstract/summary
-            #df["raw_text"] = df[[title_fld, raw_text_fld]].apply(" ".join, axis=1, meta=('raw_text', 'object'))
-            corpus_df["raw_text"] = corpus_df[[title_fld, raw_text_fld]].apply(" ".join, axis=1)
-            
-            # Detect abstracts' language and filter out those non-English ones
-            #df['langue'] = df[raw_text_fld].apply(det, meta=('langue', 'object'))
-            corpus_df['langue'] = corpus_df["raw_text"].apply(det)
-            corpus_df = corpus_df[corpus_df['langue'] == 'en']
-            
-            logger.info(
-                        f'-- -- NLP preprocessing starts...')
-            
-            corpus_df = nlpPipeline.preproc(corpus_df)
-            
-            print(corpus_df)
+    logger.info(f'-- -- NLP preprocessing starts...')
+    import time
+    start_time = time.time()
+    corpus_df = nlpPipeline.preproc(corpus_df)
+    print("--- %s seconds ---" % (time.time() - start_time))
                     
-            # Save new df in parquet file
-            outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
-            new_name = "parquet_part_" + str(idx) + ".parquet"
-            outFile_current_parquet = outFile.joinpath(new_name)
-            if outFile_current_parquet.is_file():
-                outFile_current_parquet.unlink()
-            corpus_df.to_parquet(outFile_current_parquet.as_posix())
+    # Save new df in parquet file
+    outFile = destination_path.joinpath("preproc_" + args.source + ".parquet")
+    if outFile.is_file():
+        outFile.unlink()
     
-    """
     with ProgressBar():
         if args.nw > 0:
             corpus_df.to_parquet(outFile, write_index=False, schema="infer", compute_kwargs={
@@ -409,7 +309,4 @@ if __name__ == "__main__":
             # Use Dask default number of workers (i.e., number of cores)
             corpus_df.to_parquet(outFile, write_index=False, schema="infer", compute_kwargs={
                 'scheduler': 'processes'})
-    """
-
-
-    
+            
