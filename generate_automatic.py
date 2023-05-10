@@ -352,4 +352,4 @@ if __name__ == "__main__":
 
 #-----
 
-#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm/iter_0/corpus.parquet --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm_ctm --iters 5 --start 0 --> kumo
+#--path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm/iter_0/corpus.parquet --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm_ctm --trainer ctm --iters 5 --start 0 --> kumo

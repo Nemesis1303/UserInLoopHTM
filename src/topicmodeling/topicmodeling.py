@@ -1599,7 +1599,7 @@ if __name__ == "__main__":
                     df["source"] = DtSet["source"]
                     df = df.rename(
                         columns={idfld: "id"})
-                    df = df[["id", "source", "all_lemmas"]]
+                    df = df[["id", "source", "all_lemmas", "embeddings"]]
 
                     # Concatenate dataframes
                     if idx == 0:
