@@ -10,7 +10,7 @@ import shutil
 import sys
 import warnings
 from pathlib import Path
-
+import pandas as pd
 import numpy as np
 import scipy.sparse as sparse
 
@@ -891,6 +891,31 @@ class TMmodel(object):
             self._logger.info(
                 '-- -- Topics merging generated an error. Operation failed')
             return 0
+    
+    def to_dataframe(self):
+        self._load_alphas()
+        self._load_betas()
+        self._load_thetas()
+        self._load_betas_ds()
+        self._load_topic_entropy()
+        self._load_topic_coherence()
+        self.load_tpc_descriptions()
+        self.load_tpc_labels()
+        self._load_ndocs_active()
+        self._load_vocab()
+        self._load_vocab_dicts()
+
+        data = {
+            "betas": [self._betas],
+            "alphas": [self._alphas],
+            "topic_entropy": [self._topic_entropy],
+            "topic_coherence": [self._topic_coherence],
+            "ndocs_active": [self._ndocs_active],
+            "tpc_descriptions": [self._tpc_descriptions],
+            "tpc_labels": [self._tpc_labels],
+        }
+        df = pd.DataFrame(data)
+        return df, self._vocab_id2w
 
     def sortTopics(self):
         """This is a costly operation, almost everything

@@ -380,7 +380,7 @@ class textPreproc(object):
                 lemmasstr: str
                     Clean text including only the lemmas in the dictionary
                 """
-                #bow = self._GensimDict.doc2bow(tokens)
+                # bow = self._GensimDict.doc2bow(tokens)
                 # return ''.join([el[1] * (self._GensimDict[el[0]]+ ' ') for el in bow])
                 return ' '.join([el for el in tokens if el in vocabulary])
 
@@ -397,7 +397,7 @@ class textPreproc(object):
                     str, meta=('id', 'str')) + " 0 " + trDF['cleantext']
 
                 with ProgressBar():
-                    #trDF = trDF.persist(scheduler='processes')
+                    # trDF = trDF.persist(scheduler='processes')
                     DFmallet = trDF[['2mallet']]
                     if nw > 0:
                         DFmallet.to_csv(outFile, index=False, header=False, single_file=True,
@@ -453,10 +453,10 @@ class textPreproc(object):
                             'scheduler': 'processes'})
 
         else:
-            
+
             vocabulary = self._cntVecModel.vocabulary
             spark.sparkContext.broadcast(vocabulary)
-            
+
             # User defined function to recover the text corresponding to BOW
             def back2text(bow):
                 text = ""
@@ -464,7 +464,7 @@ class textPreproc(object):
                     text += int(tf) * (vocabulary[idx] + ' ')
                 return text.strip()
             back2textUDF = F.udf(lambda z: back2text(z))
-                
+
             # Spark dataframe
             if tmTrainer == "mallet":
                 # We need to convert the bow back to text, and save text file
@@ -477,7 +477,7 @@ class textPreproc(object):
                 # Save as text file
                 # Ideally everything should get written to one text file directly from Spark but this is failing repeatedly, so I avoid coalescing in Spark and instead concatenate all files after creation
                 tempFolder = dirpath.joinpath('tempFolder')
-                #malletDF.coalesce(1).write.format("text").option("header", "false").save(f"file://{tempFolder.as_posix()}")
+                # malletDF.coalesce(1).write.format("text").option("header", "false").save(f"file://{tempFolder.as_posix()}")
                 malletDF.write.format("text").option("header", "false").save(
                     f"file://{tempFolder.as_posix()}")
                 # Concatenate all text files
@@ -807,7 +807,7 @@ class MalletTrainer(Trainer):
                     f'-- -- Provided corpus Path does not exist -- Stop')
                 sys.exit()
         """
-        
+
         # Output model folder and training file for the corpus
         if not corpusFile.is_file():
             self._logger.error(
@@ -816,9 +816,9 @@ class MalletTrainer(Trainer):
 
         modelFolder = corpusFile.parent.joinpath('modelFiles')
         modelFolder.mkdir()
-        
-        #modelFolder = modelFolder.joinpath('modelFiles')
-        #modelFolder.mkdir()
+
+        # modelFolder = modelFolder.joinpath('modelFiles')
+        # modelFolder.mkdir()
 
         ##################################################
         # Importing Data to mallet
@@ -964,10 +964,10 @@ class CTMTrainer(Trainer):
         logger: Logger object
             To log object activity
         """
-       
-        #import pdb; pdb.set_trace()
-        #print("HOLA")
-        #pdb.set_trace()
+
+        # import pdb; pdb.set_trace()
+        # print("HOLA")
+        # pdb.set_trace()
         super().__init__(logger)
         self._n_components = n_components
         self._model_type = model_type
@@ -1067,60 +1067,15 @@ class CTMTrainer(Trainer):
         # Creating auxiliary files to store information read from parquet files to reduce computational complexity
         self._logger.info(
             '-- -- Saving lemmas and embeddings in auxiliary files')
-        lemas_all = []
-        embeddings_all = []
-        for parquet_part in tqdm(corpusFile.glob('*.parquet')):
-            ddf_part = dd.read_parquet(parquet_part, engine="pyarrow")
-            lemas_all += ddf_part[["bow_text"]].compute().values.tolist()
-            embeddings_all += ddf_part["embeddings"].compute().values.tolist()
-        self._corpus = [el for el in lemas_all]
+        ddf_part = dd.read_parquet(corpusFile)
+        self._logger.info("ddf read, starting compute")
+        with ProgressBar():
+            lemas_all = ddf_part[["bow_text"]].compute().values.tolist()
+            embeddings_all = ddf_part["embeddings"].compute().values.tolist()
+        self._corpus = lemas_all  # [el for el in lemas_all]
         self._unpreprocessed_corpus = None
         self._embeddings = embeddings_all
-            
-        
-        '''
-        # Generating the corpus in the input format required by CTM
-        self._logger.info('-- -- CTM Corpus Generation: BOW Dataset object')
-        #import pdb; pdb.set_trace()
-        self._logger.info('-- -- Reading parquet')
-      
-        #df = pd.read_parquet(corpusFile)
-        ddf = dd.read_parquet(corpusFile, engine="pyarrow")
-        # @TODO: 
-        self._logger.info('-- -- Parquet read')
-        self._logger.info(ddf.columns)
-        #import pdb; pdb.set_trace()
-        #df = ddf.compute()
-        #pdb.set_trace()
-        #print(df.head)
-        #if "fieldsOfStudy" in list(df.columns.values):
-        #    df = df[df['fieldsOfStudy'] == "computer_science"]
-        self._logger.info('-- -- Computing BOW')
-        df_lemas = ddf[["bow_text"]].compute().values.tolist()
-        self._logger.info('-- -- BOW computed')
-        df_lemas = [doc[0].split() for doc in df_lemas]
-        self._corpus = [el for el in df_lemas]
 
-        if embeddingsFile is None:
-            if not "embeddings" in list(df.columns.values):
-                df_raw = ddf[["all_rawtext"]].compute().values.tolist()
-                df_raw = [doc[0].split() for doc in df_raw]
-                self._unpreprocessed_corpus = [el for el in df_raw]
-                self._embeddings = None
-            else:
-                self._logger.info('-- -- Computing embeddings')
-                self._embeddings = ddf["embeddings"].compute().values
-                self._logger.info('-- -- Embeddings computed')
-                self._unpreprocessed_corpus = None
-        else:
-            if not embeddingsFile.is_file():
-                self._logger.error(
-                    f'-- -- Provided embeddings Path does not exist -- Stop')
-                sys.exit()
-            self._embeddings = np.load(embeddingsFile, allow_pickle=True)
-            self._unpreprocessed_corpus = None
-        '''
-        
         # Generate the corpus in the input format required by CTM
         self._train_dts, self._val_dts, self._input_size, self._id2token, self._qt, self._embeddings_train, _, self._docs_train = \
             prepare_ctm_dataset(corpus=self._corpus,
@@ -1512,7 +1467,8 @@ if __name__ == "__main__":
 
             tPreproc = textPreproc(
                 stw_files=train_config['Preproc']['stopwords'],
-                eq_files=train_config['Preproc']['equivalences'],min_lemas=train_config['Preproc']['min_lemas'],no_below=train_config['Preproc']['no_below'],no_above=train_config['Preproc']['no_above'],
+                eq_files=train_config['Preproc']['equivalences'], min_lemas=train_config['Preproc'][
+                    'min_lemas'], no_below=train_config['Preproc']['no_below'], no_above=train_config['Preproc']['no_above'],
                 keep_n=train_config['Preproc']['keep_n'])
 
             # Create a Dataframe with all training data
@@ -1607,7 +1563,7 @@ if __name__ == "__main__":
                     else:
                         trDF = dd.concat([trDF, df])
 
-                #trDF = trDF.drop_duplicates(subset=["id"], ignore_index=True)
+                # trDF = trDF.drop_duplicates(subset=["id"], ignore_index=True)
                 # We preprocess the data and save the Gensim Model used to obtain the BoW
                 trDF = tPreproc.preprocBOW(trDF, nw=args.nw)
                 tPreproc.saveGensimDict(configFile.parent.resolve())

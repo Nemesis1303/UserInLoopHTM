@@ -1,6 +1,5 @@
 colored==1.4.2
 dask==2022.7.0
-#fastparquet==0.8.1
 ipdb==0.13.9
 ipython==8.0.1
 ipywidgets==7.6.5
@@ -21,5 +20,4 @@ sphinx-rtd-theme==1.0.0
 tqdm==4.62.3
 contractions~=0.1.73
 spacy~=3.4.4
-#gensim~=4.2.0
 
