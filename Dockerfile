@@ -18,6 +18,15 @@ RUN pip3 install --upgrade pip
 
 RUN apt install python3-dev -y
 
+RUN cd "$(dirname $(which python3))" \
+    && ln -s idle3 idle \
+    && ln -s pydoc3 pydoc \
+    && ln -s python3 python \ 
+    && ln -s python3-config python-config
+
+COPY requirements.txt requirements.txt
+RUN python3 -m pip install -r requirements.txt 
+
 ENV TZ=Europe/Madrid
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -36,10 +45,3 @@ RUN apt-get update && \
 # Setup JAVA_HOME -- useful for docker commandline
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 RUN export JAVA_HOME
-
-VOLUME /trial
-
-COPY . /workspace
-
-RUN python3 -m pip install -r /workspace/requirements.txt 
-

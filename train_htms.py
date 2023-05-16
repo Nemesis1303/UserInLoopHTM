@@ -24,9 +24,7 @@ logger.addHandler(handler)
 ntopics = 10
 training_params = {
     "activation": "softplus",
-    "alpha": 5.0,
     "batch_size": 64,
-    "doc_topic_thr": 0.0,
     "dropout": 0.2,
     "hidden_sizes": (50, 50),
     "labels": "",

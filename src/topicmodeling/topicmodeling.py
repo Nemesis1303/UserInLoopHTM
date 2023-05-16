@@ -786,29 +786,6 @@ class MalletTrainer(Trainer):
         """
 
         # Output model folder and training file for the corpus
-        """
-        if corpusFile.as_posix().endswith("parquet"):
-            print("is parquet")
-            df = pd.read_parquet(corpusFile)
-            print(df.head)
-            if "fieldsOfStudy" in list(df.columns.values):
-                df = df[df['fieldsOfStudy'] == "computer_science"]
-            df_lemas = df[["bow_text"]].values.tolist()
-            corpus_file = modelFolder.joinpath('corpus.txt')
-            with open(corpus_file, 'w', encoding='utf-8') as fout:
-                id = 0
-                for el in df_lemas:
-                    fout.write(str(id) + ' 0 ' + ' '.join(el) + '\n')
-                    id += 1
-            corpusFile = corpus_file
-        else:
-            if not corpusFile.is_file():
-                self._logger.error(
-                    f'-- -- Provided corpus Path does not exist -- Stop')
-                sys.exit()
-        """
-
-        # Output model folder and training file for the corpus
         if not corpusFile.is_file():
             self._logger.error(
                 f'-- -- Provided corpus Path does not exist -- Stop')
@@ -816,9 +793,6 @@ class MalletTrainer(Trainer):
 
         modelFolder = corpusFile.parent.joinpath('modelFiles')
         modelFolder.mkdir()
-
-        # modelFolder = modelFolder.joinpath('modelFiles')
-        # modelFolder.mkdir()
 
         ##################################################
         # Importing Data to mallet
@@ -867,10 +841,6 @@ class MalletTrainer(Trainer):
                        modelFolder.joinpath('topickeys.txt').resolve().as_posix() + '\n')
             fout.write('inferencer-filename = ' +
                        modelFolder.joinpath('inferencer.mallet').resolve().as_posix() + '\n')
-            # fout.write('output-model = ' + \
-            #    self._outputFolder.joinpath('mallet_output').joinpath('modelo.bin').as_posix() + '\n')
-            # fout.write('topic-word-weights-file = ' + \
-            #    self._outputFolder.joinpath('mallet_output').joinpath('topic-word-weights.txt').as_posix() + '\n')
 
         cmd = str(self._mallet_path) + \
             ' train-topics --config ' + str(configMallet)
@@ -905,13 +875,30 @@ class CTMTrainer(Trainer):
 
     """
 
-    def __init__(self, n_components=10, ctm_model_type='CombinedTM', model_type='prodLDA',
-                 hidden_sizes=(100, 100), activation='softplus', dropout=0.2,
-                 learn_priors=True, batch_size=64, lr=2e-3, momentum=0.99, solver='adam',
-                 num_epochs=100, num_samples=10, reduce_on_plateau=False, topic_prior_mean=0.0,
-                 topic_prior_variance=None, num_data_loader_workers=0, label_size=0,
-                 loss_weights=None, thetas_thr=0.003, sbert_model_to_load='paraphrase-distilroberta-base-v1',
-                 labels=None, logger=None):
+    def __init__(self,
+                 n_components=10,
+                 ctm_model_type='CombinedTM',
+                 model_type='prodLDA',
+                 hidden_sizes=(100, 100),
+                 activation='softplus',
+                 dropout_in=0.2,
+                 dropout_out=0.2,
+                 learn_priors=True,
+                 batch_size=64,
+                 lr=2e-3,
+                 momentum=0.99,
+                 solver='adam',
+                 num_epochs=100,
+                 num_samples=10,
+                 reduce_on_plateau=False,
+                 topic_prior_mean=0.0,
+                 topic_prior_variance=None, 
+                 num_data_loader_workers=0,
+                 label_size=0,
+                 loss_weights=None,
+                 thetas_thr=0.003, sbert_model_to_load='paraphrase-distilroberta-base-v1',
+                 labels=None,
+                 logger=None):
         """
         Initilization Method
 
@@ -927,8 +914,10 @@ class CTMTrainer(Trainer):
             Size of the hidden layer
         activation : string (default='softplus')
             Activation function to be used, chosen from 'softplus', 'relu', 'sigmoid', 'leakyrelu', 'rrelu', 'elu', 'selu' or 'tanh'
-        dropout : float (default=0.2)
-            Percent of neurons to drop out.
+        dropout_in : float (default=0.2)
+            Percent of neurons to drop out at the encoder.
+        dropout_out : float (default=0.2)
+            Percent of neurons to drop out at the decoder.
         learn_priors : bool, (default=True)
             If true, priors are made learnable parameters
         batch_size : int (default=64)
@@ -965,16 +954,14 @@ class CTMTrainer(Trainer):
             To log object activity
         """
 
-        # import pdb; pdb.set_trace()
-        # print("HOLA")
-        # pdb.set_trace()
         super().__init__(logger)
         self._n_components = n_components
         self._model_type = model_type
         self._ctm_model_type = ctm_model_type
         self._hidden_sizes = hidden_sizes
         self._activation = activation
-        self._dropout = dropout
+        self._dropout_in = dropout_in
+        self._dropout_out = dropout_out
         self._learn_priors = learn_priors
         self._batch_size = batch_size
         self._lr = lr
@@ -1103,7 +1090,8 @@ class CTMTrainer(Trainer):
                 model_type=self._model_type,
                 hidden_sizes=self._hidden_sizes,
                 activation=self._activation,
-                dropout=self._dropout,
+                dropout_in=self._dropout_in,
+                dropout_out=self._dropout_out,
                 learn_priors=self._learn_priors,
                 batch_size=self._batch_size,
                 lr=self._lr,
@@ -1120,7 +1108,8 @@ class CTMTrainer(Trainer):
                 model_type=self._model_type,
                 hidden_sizes=self._hidden_sizes,
                 activation=self._activation,
-                dropout=self._dropout,
+                dropout_in=self._dropout_in,
+                dropout_out=self._dropout_out,
                 learn_priors=self._learn_priors,
                 batch_size=self._batch_size,
                 lr=self._lr,
@@ -1638,13 +1627,21 @@ if __name__ == "__main__":
                 elif train_config['trainer'] == 'ctm':
 
                     # Create a CTMTrainer object with the parameters specified in the configuration file
+                    if 'dropout_in' in train_config.keys() and 'dropout_out' in train_config.keys():
+                        dropout_in_ = train_config['TMparam']['dropout_in']
+                        dropout_out_ = train_config['TMparam']['dropout_out']
+                    elif 'dropout' in train_config.keys():
+                        dropout_in_ = dropout_out_ = train_config['TMparam']['dropout']
+                    else: 
+                        dropout_in_ = dropout_out_ = 0.2
                     CTMr = CTMTrainer(
                         n_components=train_config['TMparam']['ntopics'],
                         model_type=train_config['TMparam']['model_type'],
                         hidden_sizes=tuple(
                             train_config['TMparam']['hidden_sizes']),
                         activation=train_config['TMparam']['activation'],
-                        dropout=train_config['TMparam']['dropout'],
+                        dropout_in=dropout_in_,
+                        dropout_out=dropout_out_,
                         learn_priors=train_config['TMparam']['learn_priors'],
                         batch_size=train_config['TMparam']['batch_size'],
                         lr=train_config['TMparam']['lr'],

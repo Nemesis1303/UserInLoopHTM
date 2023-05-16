@@ -52,7 +52,8 @@ class CTM:
         model_type="prodLDA",
         hidden_sizes=(100, 100),
         activation="softplus",
-        dropout=0.2,
+        dropout_in=0.2,
+        dropout_out=0.2,
         learn_priors=True,
         batch_size=64,
         lr=2e-3,
@@ -88,7 +89,8 @@ class CTM:
             "softplus",
             "relu",
         ], "activation must be 'softplus' or 'relu'."
-        assert dropout >= 0, "dropout must be >= 0."
+        assert dropout_in >= 0, "dropout must be >= 0."
+        assert dropout_out >= 0, "dropout must be >= 0."
         assert isinstance(learn_priors, bool), "learn_priors must be boolean."
         assert (
             isinstance(batch_size, int) and batch_size > 0
@@ -111,7 +113,8 @@ class CTM:
         self.model_type = model_type
         self.hidden_sizes = hidden_sizes
         self.activation = activation
-        self.dropout = dropout
+        self.dropout_in = dropout_in
+        self.dropout_out = dropout_out
         self.learn_priors = learn_priors
         self.batch_size = batch_size
         self.lr = lr
@@ -136,7 +139,8 @@ class CTM:
             model_type,
             hidden_sizes,
             activation,
-            dropout,
+            dropout_in,
+            dropout_out,
             learn_priors,
             label_size=label_size,
         )
@@ -324,7 +328,7 @@ class CTM:
                     self.model_type,
                     self.hidden_sizes,
                     self.activation,
-                    self.dropout,
+                    self.dropout_in,
                     self.learn_priors,
                     self.lr,
                     self.momentum,
@@ -636,7 +640,7 @@ class CTM:
             self.model_type,
             self.hidden_sizes,
             self.activation,
-            self.dropout,
+            self.dropout_in,
             self.lr,
             self.momentum,
             self.reduce_on_plateau,

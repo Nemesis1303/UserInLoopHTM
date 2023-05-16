@@ -4,17 +4,16 @@ Carries out specific preprocessing for TM.
 
 import argparse
 import datetime as DT
-import multiprocessing as mp
-import logging
 import json
-# import shutil
+import logging
+import multiprocessing as mp
 import sys
 import time
 import warnings
 from pathlib import Path
 from subprocess import check_output
 
-sys.path.insert(0, Path(__file__).parent.parent.resolve().as_posix())
+sys.path.append('../')
 warnings.filterwarnings(action="ignore")
 
 logger = logging.getLogger()
@@ -23,10 +22,13 @@ handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 
+
 def main(nw=0, iter_=0, spark=True):
-    
+
     # Create folder structure
-    models = Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet")#Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm")#
+    # Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm")#
+    models = Path(
+        "/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet")
     models.mkdir(parents=True, exist_ok=True)
 
     Preproc = {
@@ -35,17 +37,17 @@ def main(nw=0, iter_=0, spark=True):
         "no_above": 0.4,
         "keep_n": 100000,
         "stopwords": [
-          "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/english_generic.json",
-          "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2_stopwords.json",
-          "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2CS_stopwords.json",
-          "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/cordis_stopwords.json",
+            "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/english_generic.json",
+            "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2_stopwords.json",
+            "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2CS_stopwords.json",
+            "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/cordis_stopwords.json",
         ],
         "equivalences": [
-          "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2_equivalences.json",
-          "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2CS_equivalences.json",
+            "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2_equivalences.json",
+            "/export/usuarios_ml4ds/lbartolome/hierarchical-topic-models/data/wordlists/S2CS_equivalences.json",
         ]
     }
-    
+
     # Create model folder
     model_path = models.joinpath("iter_" + str(iter_))
     model_path.mkdir(parents=True, exist_ok=True)
@@ -55,24 +57,25 @@ def main(nw=0, iter_=0, spark=True):
     # Save dataset json file
     Dtset = "S2CS"
     DtsetConfig = model_path.joinpath(Dtset+'.json')
-    parquetFile = Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/preproc_scholar_embeddings.parquet")
+    parquetFile = Path(
+        "/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/preproc_scholar_embeddings.parquet")
     TrDtset = {
         "name": "S2CS",
         "Dtsets": [
-        {
-            "parquet": parquetFile,
-            "source": "S2CS",
-            "idfld": "id",
-            "lemmasfld": [
-            "lemmas_with_grams"
-            ],
-        "filter": ""
-        }
+            {
+                "parquet": parquetFile,
+                "source": "S2CS",
+                "idfld": "id",
+                "lemmasfld": [
+                    "lemmas_with_grams"
+                ],
+                "filter": ""
+            }
         ]
     }
     with DtsetConfig.open('w', encoding='utf-8') as outfile:
         json.dump(TrDtset, outfile,
-                    ensure_ascii=False, indent=2, default=str)
+                  ensure_ascii=False, indent=2, default=str)
 
     # Save configuration file
     configFile = model_path.joinpath("trainconfig.json")
@@ -90,7 +93,7 @@ def main(nw=0, iter_=0, spark=True):
     }
     with configFile.open('w', encoding='utf-8') as outfile:
         json.dump(train_config, outfile,
-                    ensure_ascii=False, indent=2, default=str)
+                  ensure_ascii=False, indent=2, default=str)
 
     # Execute command
     if spark:
@@ -101,7 +104,8 @@ def main(nw=0, iter_=0, spark=True):
         cores = 5
         options = '"--spark --preproc --config ' + configFile.resolve().as_posix() + '"'
         cmd = script_spark + ' -C ' + token_spark + \
-            ' -c ' + str(cores) + ' -N ' + str(machines) + ' -S ' + script_path + ' -P ' + options
+            ' -c ' + str(cores) + ' -N ' + str(machines) + \
+            ' -S ' + script_path + ' -P ' + options
         print(cmd)
         try:
             logger.info(f'-- -- Running command {cmd}')
@@ -114,25 +118,26 @@ def main(nw=0, iter_=0, spark=True):
         # workers indicated in the configuration file for the project
         cmd = f'python src/topicmodeling/topicmodeling.py --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}'
         print(cmd)
-        
+
         try:
             logger.info(f'-- -- Running command {cmd}')
             output = check_output(args=cmd, shell=True)
         except:
             logger.error('-- -- Command execution failed')
-        
-    #cmd = f"python src/topicmodeling/topicmodeling.py --preproc --config #{configFile.resolve().as_posix()} --nw {str(nw)}"
-    #logger.info(f"Running command '{cmd}'")
-    
+
+    # cmd = f"python src/topicmodeling/topicmodeling.py --preproc --config #{configFile.resolve().as_posix()} --nw {str(nw)}"
+    # logger.info(f"Running command '{cmd}'")
+
     t_start = time.perf_counter()
     check_output(args=cmd, shell=True)
     t_end = time.perf_counter()
     t_total = t_end - t_start
-        
+
     logger.info(f"Total time --> {t_total}")
     print("\n")
     print("-" * 100)
     print("\n")
+
 
 if __name__ == "__main__":
 
@@ -142,6 +147,6 @@ if __name__ == "__main__":
     parser.add_argument('--iter_', type=int, required=False, default=0,
                         help="Preprocessing number of this file.")
     parser.add_argument('--spark', type=int, required=False, default=True,
-                    help="Whether to use spark or Dash.")
+                        help="Whether to use spark or Dash.")
     args = parser.parse_args()
     main(args.nw, args.iter_, args.spark)
