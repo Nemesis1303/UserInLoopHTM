@@ -210,7 +210,7 @@ class TMmodel(object):
         with self._TMfolder.joinpath("pyLDAvis.html").open("w") as f:
             pyLDAvis.save_html(vis_data, f)
         # TODO: Check substituting by "pyLDAvis.prepared_data_to_html"
-        self._modify_pyldavis_html(self._TMfolder.as_posix())
+        #self._modify_pyldavis_html(self._TMfolder.as_posix())
 
         # Get coordinates of topics in the pyLDAvis visualization
         vis_data_dict = vis_data.to_dict()
