@@ -1,11 +1,14 @@
+import argparse
+import json
 import shutil
+import sys
 import warnings
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import scipy.sparse as sparse
 from sparse_dot_topn import awesome_cossim_topn
-import pandas as pd
 
 
 class TMmodel(object):
@@ -36,6 +39,7 @@ class TMmodel(object):
     _edits = None  # Store all editions made to the model
     _ntopics = None
     _betas_ds = None
+    _coords = None
     _topic_entropy = None
     _topic_coherence = None
     _ndocs_active = None
@@ -45,6 +49,7 @@ class TMmodel(object):
     _vocab_id2w = None
     _vocab = None
     _size_vocab = None
+    _sims = None
 
     def __init__(self, TMfolder, logger=None):
         """Class initializer
@@ -134,6 +139,7 @@ class TMmodel(object):
                                   for el in self.get_tpc_word_descriptions()]
         self.calculate_topic_coherence()  # cohrs_aux
         self._tpc_labels = [el[1] for el in self.get_tpc_labels(labels)]
+        self._calculate_sims()
 
         # We are ready to save all variables in the model
         self._save_all()
@@ -154,6 +160,7 @@ class TMmodel(object):
         np.save(self._TMfolder.joinpath('alphas.npy'), self._alphas)
         np.save(self._TMfolder.joinpath('betas.npy'), self._betas)
         sparse.save_npz(self._TMfolder.joinpath('thetas.npz'), self._thetas)
+        sparse.save_npz(self._TMfolder.joinpath('distances.npz'), self._sims)
 
         with self._TMfolder.joinpath('edits.txt').open('w', encoding='utf8') as fout:
             fout.write('\n'.join(self._edits))
@@ -203,13 +210,13 @@ class TMmodel(object):
         with self._TMfolder.joinpath("pyLDAvis.html").open("w") as f:
             pyLDAvis.save_html(vis_data, f)
         # TODO: Check substituting by "pyLDAvis.prepared_data_to_html"
-        # self._modify_pyldavis_html(self._TMfolder.as_posix())
+        self._modify_pyldavis_html(self._TMfolder.as_posix())
 
         # Get coordinates of topics in the pyLDAvis visualization
         vis_data_dict = vis_data.to_dict()
         self._coords = list(
             zip(*[vis_data_dict['mdsDat']['x'], vis_data_dict['mdsDat']['y']]))
-        
+
         with self._TMfolder.joinpath('tpc_coords.txt').open('w', encoding='utf8') as fout:
             for item in self._coords:
                 fout.write(str(item) + "\n")
@@ -293,7 +300,7 @@ class TMmodel(object):
                 self._TMfolder.joinpath('thetas.npz'))
             self._ntopics = self._thetas.shape[1]
             # self._ndocs_active = np.array((self._thetas != 0).sum(0).tolist()[0])
-                        
+
     def _load_ndocs_active(self):
         if self._ndocs_active is None:
             self._ndocs_active = np.load(
@@ -433,14 +440,14 @@ class TMmodel(object):
         if self._topic_coherence is None:
             self._topic_coherence = np.load(
                 self._TMfolder.joinpath('topic_coherence.npy'))
-    
+
     def _calculate_sims(self, topn=50, lb=0):
         if self._thetas is None:
             self._load_thetas()
         thetas_sqrt = np.sqrt(self._thetas)
         thetas_col = thetas_sqrt.T
         self._sims = awesome_cossim_topn(thetas_sqrt, thetas_col, topn, lb)
-            
+
     def _load_sims(self):
         if self._sims is None:
             self._sims = sparse.load_npz(
@@ -572,12 +579,14 @@ class TMmodel(object):
         if self._tpc_labels is None:
             with self._TMfolder.joinpath('tpc_labels.txt').open('r', encoding='utf8') as fin:
                 self._tpc_labels = [el.strip() for el in fin.readlines()]
-                
+
     def load_tpc_coords(self):
         if self._coords is None:
             with self._TMfolder.joinpath('tpc_coords.txt').open('r', encoding='utf8') as fin:
                 # read the data from the file and convert it back to a list of tuples
-                data = [tuple(map(float, line.strip()[1:-1].split(', '))) for line in fin]
+                self._coords = \
+                    [tuple(map(float, line.strip()[1:-1].split(', ')))
+                        for line in fin]
 
     def get_alphas(self):
         self._load_alphas()
@@ -772,6 +781,7 @@ class TMmodel(object):
             self.calculate_topic_coherence()
             self._edits.append('f ' + ' '.join([str(el) for el in tpcs]))
             # We are ready to save all variables in the model
+            self._calculate_sims()
             self._save_all()
 
             self._logger.info(
