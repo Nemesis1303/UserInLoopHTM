@@ -26,9 +26,8 @@ logger.addHandler(handler)
 def main(nw=0, iter_=0, spark=True):
 
     # Create folder structure
-    # Path("/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm")#
     models = Path(
-        "/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet")
+        "/export/usuarios_ml4ds/lbartolome/Datasets/Cancer/models_preproc_cancer")
     models.mkdir(parents=True, exist_ok=True)
 
     Preproc = {
@@ -52,22 +51,22 @@ def main(nw=0, iter_=0, spark=True):
     model_path = models.joinpath("iter_" + str(iter_))
     model_path.mkdir(parents=True, exist_ok=True)
     model_stats = model_path.joinpath("stats")
-    model_stats.mkdir(parents=True, exist_ok=True)
+    model_stats.mkdir(parents=True, exist_ok=True)  
 
     # Save dataset json file
     Dtset = "S2CS"
     DtsetConfig = model_path.joinpath(Dtset+'.json')
     parquetFile = Path(
-        "/export/usuarios_ml4ds/lbartolome/Datasets/S2CS/preproc_scholar_embeddings.parquet")
+        "/export/clusterdata/jarenas/Datasets/semanticscholar/20230418/parquet/papers_Cancer_NLP.parquet")
     TrDtset = {
         "name": "S2CS",
         "Dtsets": [
             {
                 "parquet": parquetFile,
                 "source": "S2CS",
-                "idfld": "id",
+                "idfld": "corpusid",
                 "lemmasfld": [
-                    "lemmas_with_grams"
+                    "lemmas"
                 ],
                 "filter": ""
             }
