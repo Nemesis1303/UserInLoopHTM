@@ -7,6 +7,7 @@ import datetime as DT
 import json
 import logging
 import multiprocessing as mp
+import os
 import sys
 import time
 import warnings
@@ -94,6 +95,10 @@ def main(nw=0, iter_=0, spark=True):
         json.dump(train_config, outfile,
                   ensure_ascii=False, indent=2, default=str)
 
+    path_topic_modeler = \
+        os.path.dirname(os.path.dirname(os.getcwd()))
+    topicmodeling_path = os.path.join(path_topic_modeler, 'UserInLoopHTM', 'src', 'topicmodeling', 'topicmodeling.py')
+    
     # Execute command
     if spark:
         script_spark = "/export/usuarios_ml4ds/lbartolome/spark/script-spark"
@@ -115,7 +120,7 @@ def main(nw=0, iter_=0, spark=True):
         # Run command for corpus preprocessing using gensim
         # Preprocessing will be accelerated with Dask using the number of
         # workers indicated in the configuration file for the project
-        cmd = f'python src/topicmodeling/topicmodeling.py --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}'
+        cmd = f'python {topicmodeling_path} --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}'
         print(cmd)
 
         try:
