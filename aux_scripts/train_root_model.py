@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import multiprocessing as mp
+import os
 import pathlib
 import sys
 import time
@@ -17,7 +18,7 @@ logger.addHandler(handler)
 
 ############### TRAINING PARAMS ############
 # Fixed params
-ntopics = 5
+ntopics = 50
 training_params = {
     "activation": "softplus",
     "alpha": 5.0,
@@ -137,7 +138,12 @@ def train_automatic(path_corpus: str,
 
     t_start = time.perf_counter()
     # train_model(train_config, corpusFile, model_path)
-    cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+    
+    path_topic_modeler = \
+        os.path.dirname(os.path.dirname(os.getcwd()))
+    topicmodeling_path = os.path.join(path_topic_modeler, 'UserInLoopHTM', 'src', 'topicmodeling', 'topicmodeling.py')
+    
+    cmd = f'python {topicmodeling_path} --train --config {configFile.as_posix()}'
     print(cmd)
     try:
         logger.info(f'-- -- Running command {cmd}')
@@ -153,17 +159,15 @@ def train_automatic(path_corpus: str,
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_corpus', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/Cancer/models_preproc_cancer/iter_0/corpus.txt",
                         help="Path to the training data.")
     parser.add_argument('--models_folder', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/Cancer/models_preproc_cancer/iter_0",
                         help="Path where the models are going to be saved.")
     parser.add_argument('--trainer', type=str,
                         default="mallet",
                         help="Name of the underlying topic modeling algorithm to be used: mallet|ctm")
     args = parser.parse_args()
-    import pdb
-    pdb.set_trace()
     train_automatic(path_corpus=args.path_corpus,
                     models_folder=args.models_folder,
                     trainer=args.trainer)
