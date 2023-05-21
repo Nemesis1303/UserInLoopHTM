@@ -149,7 +149,7 @@ if __name__ == "__main__":
                         help="Number of workers when preprocessing data with Dask. Use 0 to use Dask default")
     parser.add_argument('--iter_', type=int, required=False, default=0,
                         help="Preprocessing number of this file.")
-    parser.add_argument('--spark', type=int, required=False, default=True,
+    parser.add_argument('--spark', type=int, required=False, default=False,
                         help="Whether to use spark or Dash.")
     args = parser.parse_args()
     main(args.nw, args.iter_, args.spark)
