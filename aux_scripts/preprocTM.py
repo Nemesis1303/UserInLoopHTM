@@ -103,13 +103,12 @@ def main(nw=0, iter_=0, spark=True):
     if spark:
         script_spark = "/export/usuarios_ml4ds/lbartolome/spark/script-spark"
         token_spark = "/export/usuarios_ml4ds/lbartolome/spark/tokencluster.json"
-        script_path = './src/topicmodeling/topicmodeling.py'
         machines = 10
         cores = 5
         options = '"--spark --preproc --config ' + configFile.resolve().as_posix() + '"'
         cmd = script_spark + ' -C ' + token_spark + \
             ' -c ' + str(cores) + ' -N ' + str(machines) + \
-            ' -S ' + script_path + ' -P ' + options
+            ' -S ' + topicmodeling_path + ' -P ' + options
         print(cmd)
         try:
             logger.info(f'-- -- Running command {cmd}')
