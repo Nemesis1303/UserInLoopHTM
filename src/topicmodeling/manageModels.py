@@ -139,7 +139,7 @@ class TMmodel(object):
                                   for el in self.get_tpc_word_descriptions()]
         self.calculate_topic_coherence()  # cohrs_aux
         self._tpc_labels = [el[1] for el in self.get_tpc_labels(labels)]
-        self._calculate_sims()
+        #self._calculate_sims()
 
         # We are ready to save all variables in the model
         self._save_all()
