@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import scipy.sparse as sparse
-from sparse_dot_topn import awesome_cossim_topn
+#from sparse_dot_topn import awesome_cossim_topn
 
 
 class TMmodel(object):
@@ -441,12 +441,12 @@ class TMmodel(object):
             self._topic_coherence = np.load(
                 self._TMfolder.joinpath('topic_coherence.npy'))
 
-    def _calculate_sims(self, topn=50, lb=0):
-        if self._thetas is None:
-            self._load_thetas()
-        thetas_sqrt = np.sqrt(self._thetas)
-        thetas_col = thetas_sqrt.T
-        self._sims = awesome_cossim_topn(thetas_sqrt, thetas_col, topn, lb)
+    # def _calculate_sims(self, topn=50, lb=0):
+    #     if self._thetas is None:
+    #         self._load_thetas()
+    #     thetas_sqrt = np.sqrt(self._thetas)
+    #     thetas_col = thetas_sqrt.T
+    #     self._sims = awesome_cossim_topn(thetas_sqrt, thetas_col, topn, lb)
 
     def _load_sims(self):
         if self._sims is None:
@@ -781,7 +781,7 @@ class TMmodel(object):
             self.calculate_topic_coherence()
             self._edits.append('f ' + ' '.join([str(el) for el in tpcs]))
             # We are ready to save all variables in the model
-            self._calculate_sims()
+            #self._calculate_sims()
             self._save_all()
 
             self._logger.info(
