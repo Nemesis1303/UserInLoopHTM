@@ -104,6 +104,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv2
 env/
 venv/
 ENV/
@@ -129,3 +130,5 @@ dmypy.json
 .pyre/
 
 data
+
+mallet-2.0.8
