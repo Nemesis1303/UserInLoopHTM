@@ -464,8 +464,8 @@ class Dataset:
         df = pd.read_parquet(path_to_parquet)
 
         # get corpus
-        df['lemmas'] = df['lemmas'].apply(lambda x: x.split())
-        df['lemmas_len'] = df['lemmas'].apply(lambda x: len(x))
+        df['lemmas'] = df['bow_text'].apply(lambda x: x.split())
+        df['lemmas_len'] = df['bow_text'].apply(lambda x: len(x))
 
         # get vocab
         # Flatten the list of lists into a single list
