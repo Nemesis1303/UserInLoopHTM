@@ -28,7 +28,7 @@ def main(nw=0, iter_=0, spark=True):
 
     # Create folder structure
     models = Path(
-        "/export/usuarios_ml4ds/lbartolome/Datasets/Cancer/models_preproc_cancer")
+        "/export/usuarios_ml4ds/lbartolome/Datasets/Cancer/models_preproc_cancer_ctm")
     models.mkdir(parents=True, exist_ok=True)
 
     Preproc = {
@@ -60,7 +60,7 @@ def main(nw=0, iter_=0, spark=True):
     Dtset = "S2CS"
     DtsetConfig = model_path.joinpath(Dtset+'.json')
     parquetFile = Path(
-        "/export/clusterdata/jarenas/Datasets/semanticscholar/20230418/parquet/papers_Cancer_NLP.parquet")
+        "/export/clusterdata/jarenas/Datasets/semanticscholar/20230418/parquet/papers_Cancer_NLP_embeddings.parquet")
     TrDtset = {
         "name": "S2CS",
         "Dtsets": [
@@ -85,7 +85,7 @@ def main(nw=0, iter_=0, spark=True):
         "name": Dtset,
         "description": "",
         "visibility": "Public",
-        "trainer": "mallet",
+        "trainer": "ctm",
         "TrDtSet": DtsetConfig.resolve().as_posix(),
         "Preproc": Preproc,
         "TMparam": {},

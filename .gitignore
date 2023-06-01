@@ -132,3 +132,8 @@ dmypy.json
 data
 
 mallet-2.0.8
+
+aux_scripts/evaluateNN/_test.pkl
+aux_scripts/evaluateNN/_train.pkl
+aux_scripts/evaluateNN/_val.pkl
+aux_scripts/evaluateNN/checkpoint.pt
