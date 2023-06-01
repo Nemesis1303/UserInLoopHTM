@@ -162,8 +162,10 @@ class TMmodel(object):
         sparse.save_npz(self._TMfolder.joinpath('thetas.npz'), self._thetas)
         #sparse.save_npz(self._TMfolder.joinpath('distances.npz'), self._sims)
 
+        self._logger.info("THETAS GUARDADAS")
         with self._TMfolder.joinpath('edits.txt').open('w', encoding='utf8') as fout:
             fout.write('\n'.join(self._edits))
+        self._logger.info("EDITS GUARDADAS")
         np.save(self._TMfolder.joinpath('betas_ds.npy'), self._betas_ds)
         np.save(self._TMfolder.joinpath(
             'topic_entropy.npy'), self._topic_entropy)
@@ -176,6 +178,7 @@ class TMmodel(object):
         with self._TMfolder.joinpath('tpc_labels.txt').open('w', encoding='utf8') as fout:
             fout.write('\n'.join(self._tpc_labels))
 
+        self._logger.info("STARTING PYLDAVIS")
         # Generate also pyLDAvisualization
         # pyLDAvis currently raises some Deprecation warnings
         with warnings.catch_warnings():
@@ -211,6 +214,8 @@ class TMmodel(object):
             pyLDAvis.save_html(vis_data, f)
         # TODO: Check substituting by "pyLDAvis.prepared_data_to_html"
         #self._modify_pyldavis_html(self._TMfolder.as_posix())
+        
+        self._logger.info("PYLDAVIS GUARDADO")
 
         # Get coordinates of topics in the pyLDAvis visualization
         vis_data_dict = vis_data.to_dict()
