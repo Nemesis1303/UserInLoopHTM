@@ -1,6 +1,3 @@
 [submodule "src/NLPipe"]
 	path = src/NLPipe
 	url = https://github.com/Nemesis1303/NLPipe.git
-[submodule "aux_scripts/evaluateNN/OCTIS"]
-	path = aux_scripts/evaluateNN/OCTIS
-	url = https://github.com/MIND-Lab/OCTIS.git
