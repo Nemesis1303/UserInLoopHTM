@@ -69,10 +69,10 @@ def main():
                         default="/Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/output_nlppipe/cordis_octis_data",
                         help="Path where OCTIS data will be saved.")
     parser.add_argument('--optimization_runs', type=int,
-                        default=150,
+                        default=10,
                         help="Number of optimization runs.")
     parser.add_argument('--model_runs', type=int,
-                        default=10,
+                        default=1,
                         help="Number of model runs.")
     args = parser.parse_args()
 
