@@ -442,7 +442,7 @@ class textPreproc(object):
                     schema = pa.schema([
                         ('id', pa.int64()),
                         ('bow_text', pa.string()),
-                        ('embeddings', pa.list_(pa.float64()))
+                        ('embeddings', pa.string())
                     ])
                     if nw > 0:
                         DFparquet.to_parquet(outFile, write_index=False, schema=schema, compute_kwargs={
@@ -1544,7 +1544,7 @@ if __name__ == "__main__":
                     df["source"] = DtSet["source"]
                     df = df.rename(
                         columns={idfld: "id"})
-                    df = df[["id", "source", "all_lemmas"]]#, "embeddings"
+                    df = df[["id", "source", "all_lemmas", "embeddings"]]#, "embeddings"
 
                     # Concatenate dataframes
                     if idx == 0:
