@@ -169,7 +169,7 @@ def train_automatic(path_corpus: str,
                       indent=2, default=str)
 
         t_start = time.perf_counter()
-        cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+        cmd = f'python /export/usuarios_ml4ds/lbartolome/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
         print(cmd)
         try:
             logger.info(f'-- -- Running command {cmd}')
@@ -233,7 +233,7 @@ def train_automatic(path_corpus: str,
                         t_start = time.perf_counter()
 
                         # Create submodel training corpus
-                        cmd = f'python src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
+                        cmd = f'python /export/usuarios_ml4ds/lbartolome/UserInLoopHTM/src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
                         print(cmd)
                         try:
                             logger.info(f'-- -- Running command {cmd}')
@@ -242,7 +242,7 @@ def train_automatic(path_corpus: str,
                             logger.error('-- -- Command execution failed')
 
                         # Train submodel
-                        cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+                        cmd = f'python /export/usuarios_ml4ds/lbartolome/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
                         print(cmd)
                         try:
                             logger.info(f'-- -- Running command {cmd}')
@@ -304,7 +304,7 @@ def train_automatic(path_corpus: str,
                                 logger.error('-- -- Command execution failed')
 
                             # Train submodel
-                            cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+                            cmd = f'python /export/usuarios_ml4ds/lbartolome/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
                             print(cmd)
                             try:
                                 logger.info(f'-- -- Running command {cmd}')
