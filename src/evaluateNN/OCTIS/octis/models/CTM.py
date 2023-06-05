@@ -225,7 +225,7 @@ class CTM(AbstractModel):
         else:
             b_train = train_emb
 
-        train_data = dataset.CTMDataset(x_train.toarray(), b_train, idx2token)
+        train_data = dataset.CTMDataset(x_train, b_train, idx2token)
         input_size = len(idx2token.keys())
 
         if test is not None and validation is not None:
@@ -234,7 +234,7 @@ class CTM(AbstractModel):
                 b_test = CTM.load_bert_data(bert_test_path, test, bert_model)
             else:
                 b_test = test_emb
-            test_data = dataset.CTMDataset(x_test.toarray(), b_test, idx2token)
+            test_data = dataset.CTMDataset(x_test, b_test, idx2token)
 
             x_valid = vec.transform(validation)
             if val_emb is None:
@@ -243,7 +243,7 @@ class CTM(AbstractModel):
             else:
                 b_val = val_emb
             valid_data = dataset.CTMDataset(
-                x_valid.toarray(), b_val, idx2token)
+                x_valid, b_val, idx2token)
             return train_data, test_data, valid_data, input_size
         if test is None and validation is not None:
             x_valid = vec.transform(validation)
@@ -253,7 +253,7 @@ class CTM(AbstractModel):
             else:
                 b_val = val_emb
             valid_data = dataset.CTMDataset(
-                x_valid.toarray(), b_val, idx2token)
+                x_valid, b_val, idx2token)
             return train_data, valid_data, input_size
         if test is not None and validation is None:
             x_test = vec.transform(test)
@@ -261,7 +261,7 @@ class CTM(AbstractModel):
                 b_test = CTM.load_bert_data(bert_test_path, test, bert_model)
             else:
                 b_test = test_emb
-            test_data = dataset.CTMDataset(x_test.toarray(), b_test, idx2token)
+            test_data = dataset.CTMDataset(x_test, b_test, idx2token)
             return train_data, test_data, input_size
         if test is None and validation is None:
             return train_data, input_size

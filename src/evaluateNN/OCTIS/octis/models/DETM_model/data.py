@@ -37,7 +37,7 @@ def get_time_columns(matrix):
     given a matrix where the time column is the last row return the doc term matrix and the times
     """
     doc_term_matrix = matrix[:, :-1]
-    times = matrix[:, -1].toarray().astype(np.int32).squeeze()
+    times = matrix[:, -1].astype(np.int32).squeeze()
     return doc_term_matrix, times
 
 
@@ -94,7 +94,7 @@ def get_batch(doc_terms_matrix, indices, device, timestamps):
         [numpy array]: a numpy array with the data passed as parameter
     """
     data_batch = doc_terms_matrix[indices, :]
-    data_batch = torch.from_numpy(data_batch.toarray()).float().to(device)
+    data_batch = torch.from_numpy(data_batch).float().to(device)
     times_batch = timestamps[indices]
     return data_batch, times_batch
 
