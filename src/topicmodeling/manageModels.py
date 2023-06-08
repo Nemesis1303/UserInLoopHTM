@@ -1,15 +1,280 @@
+"""
+* *IntelComp H2020 project*
+* *Topic Modeling Toolbox*
+
+Provides several classes for Topic Modeling management, representation, and curation
+    - TMManager: Management of topic models and domain classification models
+    - TMmodel: Generic representation of all topic models that serve for its curation
+"""
+
 import argparse
 import json
 import shutil
 import sys
 import warnings
 from pathlib import Path
+import pandas as pd
 
 import numpy as np
-import pandas as pd
 import scipy.sparse as sparse
-from sparse_dot_topn import awesome_cossim_topn
+#from sparse_dot_topn import awesome_cossim_topn
 
+
+
+class TMManager(object):
+    """
+    Main class to manage functionality for the management of topic models
+    """
+
+    def listTMmodels(self, path_TMmodels: Path):
+        """
+        Returns a dictionary with all topic models or all DC models
+
+        Parameters
+        ----------
+        path_TMmodels : pathlib.Path
+            Path to the folder hosting the topic models or the dc models
+
+        Returns
+        -------
+        allTMmodels : Dictionary (path -> dictionary)
+            One dictionary entry per model
+            key is the topic model name
+            value is a dictionary with metadata
+        """
+        allTMmodels = {}
+        modelFolders = [el for el in path_TMmodels.iterdir()]
+        
+        for TMf in modelFolders:
+            # For topic models
+            if TMf.joinpath('trainconfig.json').is_file():
+                #print(f"{TMf.as_posix()} is a topic model")
+                modelConfig = TMf.joinpath('trainconfig.json')
+                with modelConfig.open('r', encoding='utf8') as fin:
+                    modelInfo = json.load(fin)
+                    allTMmodels[modelInfo['name']] = {
+                        "name": modelInfo['name'],
+                        "description": modelInfo['description'],
+                        "visibility": modelInfo['visibility'],
+                        "creator": modelInfo['creator'],
+                        "trainer": modelInfo['trainer'],
+                        "TrDtSet": modelInfo['TrDtSet'],
+                        "creation_date": modelInfo['creation_date'],
+                        "hierarchy-level": modelInfo['hierarchy-level'],
+                        "htm-version": modelInfo['htm-version']
+                    }
+                    submodelFolders = [
+                        el for el in TMf.iterdir() 
+                        if not el.as_posix().endswith("modelFiles") 
+                        and not el.as_posix().endswith("corpus.parquet") 
+                        and not el.as_posix().endswith("_old")]
+                    for sub_TMf in submodelFolders:
+                        submodelConfig = sub_TMf.joinpath('trainconfig.json')
+                        if submodelConfig.is_file():
+                            with submodelConfig.open('r', encoding='utf8') as fin:
+                                submodelInfo = json.load(fin)
+                                corpus = "Subcorpus created from " + \
+                                    str(modelInfo['name'])
+                                allTMmodels[submodelInfo['name']] = {
+                                    "name": submodelInfo['name'],
+                                    "description": submodelInfo['description'],
+                                    "visibility": submodelInfo['visibility'],
+                                    "creator": modelInfo['creator'],
+                                    "trainer": submodelInfo['trainer'],
+                                    "TrDtSet": corpus,
+                                    "creation_date": submodelInfo['creation_date'],
+                                    "hierarchy-level": submodelInfo['hierarchy-level'],
+                                    "htm-version": submodelInfo['htm-version']
+                                }
+            # For DC models
+            elif TMf.joinpath('dc_config.json').is_file():
+                #print(f"{TMf.as_posix()} is a domain classifier model")
+                modelConfig = TMf.joinpath('dc_config.json')
+                with modelConfig.open('r', encoding='utf8') as fin:
+                    modelInfo = json.load(fin)
+                allTMmodels[modelInfo['name']] = {
+                            "name": modelInfo['name'],
+                            "description": modelInfo['description'],
+                            "visibility": modelInfo['visibility'],
+                            "creator": modelInfo['creator'],
+                            "type": modelInfo['type'],
+                            "corpus": modelInfo['corpus'],
+                            "tag": modelInfo['tag'],
+                            "creation_date": modelInfo['creation_date']
+                        }
+            else:
+                print(f"No valid JSON file provided for Topic models or DC models")
+                return 0
+        return allTMmodels
+        
+    def getTMmodel(self, path_TMmodel: Path):
+        """
+        Returns a dictionary with a topic model and it's sub-models
+
+        Parameters
+        ----------
+        path_TMmodel : pathlib.Path
+            Path to the folder hosting the topic model
+
+        Returns
+        -------
+        result : Dictionary (path -> dictionary)
+            One dictionary entry per model
+            key is the topic model name
+            value is a dictionary with metadata
+        """
+        result = {}
+        
+        modelConfig = path_TMmodel.joinpath('trainconfig.json')
+        if modelConfig.is_file():
+            with modelConfig.open('r', encoding='utf8') as fin:
+                modelInfo = json.load(fin)
+                result[modelInfo['name']] = {
+                    "name": modelInfo['name'],
+                    "description": modelInfo['description'],
+                    "visibility": modelInfo['visibility'],
+                    "creator": modelInfo['creator'],
+                    "trainer": modelInfo['trainer'],
+                    "TMparam": modelInfo['TMparam'],
+                    "creation_date": modelInfo['creation_date'],
+                    "hierarchy-level": modelInfo['hierarchy-level'],
+                    "htm-version": modelInfo['htm-version']
+                }
+            submodelFolders = [el for el in path_TMmodel.iterdir() if not el.as_posix().endswith(
+                "modelFiles") and not el.as_posix().endswith("corpus.parquet") and not el.as_posix().endswith("_old")]
+            for sub_TMf in submodelFolders:
+                submodelConfig = sub_TMf.joinpath('trainconfig.json')
+                if submodelConfig.is_file():
+                    with submodelConfig.open('r', encoding='utf8') as fin:
+                        submodelInfo = json.load(fin)
+                        corpus = "Subcorpus created from " + \
+                            str(modelInfo['name'])
+                        result[submodelInfo['name']] = {
+                            "name": submodelInfo['name'],
+                            "description": submodelInfo['description'],
+                            "visibility": submodelInfo['visibility'],
+                            "creator": modelInfo['creator'],
+                            "trainer": submodelInfo['trainer'],
+                            "TrDtSet": corpus,
+                            "TMparam": submodelInfo['TMparam'],
+                            "creation_date": submodelInfo['creation_date'],
+                            "hierarchy-level": submodelInfo['hierarchy-level'],
+                            "htm-version": submodelInfo['htm-version']
+                        }
+        return result;
+
+    def deleteTMmodel(self, path_TMmodel: Path):
+        """
+        Deletes a Topic Model or a DC model
+
+        Parameters
+        ----------
+        path_TMmodel : pathlib.Path
+            Path to the folder containing the Topic Model or the DC model
+
+        Returns
+        -------
+        status : int
+            - 0 if the model could not be deleted
+            - 1 if the model was deleted successfully
+        """
+
+        if not path_TMmodel.is_dir():
+            print(f"File '{path_TMmodel.as_posix()}' does not exist.")
+            return 0
+        else:
+            try:
+                shutil.rmtree(path_TMmodel)
+                return 1
+            except:
+                return 0
+
+    def renameTMmodel(self, name: Path, new_name: Path):
+        """
+        Renames a topic model or a DC model
+
+        Parameters
+        ----------
+        name : pathlib.Path
+            Path to the model to be renamed
+
+        new_name : pathlib.Path
+            Path to the new name for the model
+
+        Returns
+        -------
+        status : int
+            - 0 if the model could not be renamed
+            - 1 if the model was renamed successfully
+
+        """
+        if not name.is_dir():
+            print(f"Model '{name.as_posix()}' does not exist.")
+            return 0
+        if new_name.is_file():
+            print(
+                f"Model '{new_name.as_posix()}' already exists. Rename or delete it first.")
+            return 0
+        try:
+            # Checking whether it is a TM or DC model
+            if name.joinpath('trainconfig.json').is_file():
+                config_file = name.joinpath('trainconfig.json')
+            elif name.joinpath('dc_config.json').is_file():
+                config_file = name.joinpath('dc_config.json')
+            with config_file.open("r", encoding="utf8") as fin:
+                TMmodel = json.load(fin)
+            TMmodel["name"] = new_name.stem
+            with config_file.open("w", encoding="utf-8") as fout:
+                json.dump(TMmodel, fout, ensure_ascii=False,
+                          indent=2, default=str)
+            shutil.move(name, new_name)
+            return 1
+        except:
+            return 0
+
+    def copyTMmodel(self, name: Path, new_name: Path):
+        """
+        Makes a copy of an existing TM or DC model
+
+        Parameters
+        ----------
+        name : pathlib.Path
+            Path to the model to be copied
+
+        new_name : pathlib.Path
+            Path to the new name for the model
+
+        Returns
+        -------
+        status : int
+            - 0 if the model could not be copied
+            - 1 if the model was copied successfully
+
+        """
+        if not name.is_dir():
+            print(f"Model '{name.as_posix()}' does not exist.")
+            return 0
+        if new_name.is_file():
+            print(
+                f"Model '{new_name.as_posix()}' already exists. Rename or delete it first.")
+            return 0
+        try:
+            shutil.copytree(name, new_name)
+            
+            # Checking whether it is a TM or DC model
+            if new_name.joinpath('trainconfig.json').is_file():
+                config_file = name.joinpath('trainconfig.json')
+            elif new_name.joinpath('dc_config.json').is_file():
+                config_file = name.joinpath('dc_config.json')
+            with config_file.open("r", encoding="utf8") as fin:
+                TMmodel = json.load(fin)
+            TMmodel["name"] = new_name.stem
+            with config_file.open("w", encoding="utf-8") as fout:
+                json.dump(TMmodel, fout, ensure_ascii=False,
+                          indent=2, default=str)
+            return 1
+        except:
+            return 0
 
 class TMmodel(object):
     # This class represents a Topic Model according to the LDA generative model
@@ -160,12 +425,10 @@ class TMmodel(object):
         np.save(self._TMfolder.joinpath('alphas.npy'), self._alphas)
         np.save(self._TMfolder.joinpath('betas.npy'), self._betas)
         sparse.save_npz(self._TMfolder.joinpath('thetas.npz'), self._thetas)
-        #sparse.save_npz(self._TMfolder.joinpath('distances.npz'), self._sims)
+        sparse.save_npz(self._TMfolder.joinpath('distances.npz'), self._sims)
 
-        self._logger.info("THETAS GUARDADAS")
         with self._TMfolder.joinpath('edits.txt').open('w', encoding='utf8') as fout:
             fout.write('\n'.join(self._edits))
-        self._logger.info("EDITS GUARDADAS")
         np.save(self._TMfolder.joinpath('betas_ds.npy'), self._betas_ds)
         np.save(self._TMfolder.joinpath(
             'topic_entropy.npy'), self._topic_entropy)
@@ -178,7 +441,6 @@ class TMmodel(object):
         with self._TMfolder.joinpath('tpc_labels.txt').open('w', encoding='utf8') as fout:
             fout.write('\n'.join(self._tpc_labels))
 
-        self._logger.info("STARTING PYLDAVIS")
         # Generate also pyLDAvisualization
         # pyLDAvis currently raises some Deprecation warnings
         with warnings.catch_warnings():
@@ -213,15 +475,13 @@ class TMmodel(object):
         with self._TMfolder.joinpath("pyLDAvis.html").open("w") as f:
             pyLDAvis.save_html(vis_data, f)
         # TODO: Check substituting by "pyLDAvis.prepared_data_to_html"
-        #self._modify_pyldavis_html(self._TMfolder.as_posix())
-        
-        self._logger.info("PYLDAVIS GUARDADO")
+        self._modify_pyldavis_html(self._TMfolder.as_posix())
 
         # Get coordinates of topics in the pyLDAvis visualization
         vis_data_dict = vis_data.to_dict()
         self._coords = list(
             zip(*[vis_data_dict['mdsDat']['x'], vis_data_dict['mdsDat']['y']]))
-
+        
         with self._TMfolder.joinpath('tpc_coords.txt').open('w', encoding='utf8') as fout:
             for item in self._coords:
                 fout.write(str(item) + "\n")
@@ -305,7 +565,7 @@ class TMmodel(object):
                 self._TMfolder.joinpath('thetas.npz'))
             self._ntopics = self._thetas.shape[1]
             # self._ndocs_active = np.array((self._thetas != 0).sum(0).tolist()[0])
-
+                        
     def _load_ndocs_active(self):
         if self._ndocs_active is None:
             self._ndocs_active = np.load(
@@ -372,7 +632,7 @@ class TMmodel(object):
             self._topic_entropy = np.load(
                 self._TMfolder.joinpath('topic_entropy.npy'))
 
-    def calculate_topic_coherence(self, metrics=["c_v", "c_npmi"], n_words=15, only_one=False):
+    def calculate_topic_coherence(self, metrics=["c_v", "c_npmi"], n_words=15, only_one=True):
 
         # Load topic information
         if self._tpc_descriptions is None:
@@ -445,14 +705,14 @@ class TMmodel(object):
         if self._topic_coherence is None:
             self._topic_coherence = np.load(
                 self._TMfolder.joinpath('topic_coherence.npy'))
-
+    
     def _calculate_sims(self, topn=50, lb=0):
         if self._thetas is None:
             self._load_thetas()
         thetas_sqrt = np.sqrt(self._thetas)
         thetas_col = thetas_sqrt.T
         self._sims = awesome_cossim_topn(thetas_sqrt, thetas_col, topn, lb)
-
+            
     def _load_sims(self):
         if self._sims is None:
             self._sims = sparse.load_npz(
@@ -486,10 +746,10 @@ class TMmodel(object):
         self._load_betas()
         self._load_thetas()
         self._load_vocab()
-        #self._load_sims()
+        self._load_sims()
         self.load_tpc_coords()
 
-        return self._alphas, self._betas, self._thetas, self._vocab #self._sims, self._coords
+        return self._alphas, self._betas, self._thetas, self._vocab, self._sims, self._coords
 
     def get_tpc_word_descriptions(self, n_words=15, tfidf=True, tpc=None):
         """returns the chemical description of topics
@@ -584,14 +844,12 @@ class TMmodel(object):
         if self._tpc_labels is None:
             with self._TMfolder.joinpath('tpc_labels.txt').open('r', encoding='utf8') as fin:
                 self._tpc_labels = [el.strip() for el in fin.readlines()]
-
+                
     def load_tpc_coords(self):
         if self._coords is None:
             with self._TMfolder.joinpath('tpc_coords.txt').open('r', encoding='utf8') as fin:
                 # read the data from the file and convert it back to a list of tuples
-                self._coords = \
-                    [tuple(map(float, line.strip()[1:-1].split(', ')))
-                        for line in fin]
+                self._coords = [tuple(map(float, line.strip()[1:-1].split(', '))) for line in fin]
 
     def get_alphas(self):
         self._load_alphas()
@@ -786,7 +1044,7 @@ class TMmodel(object):
             self.calculate_topic_coherence()
             self._edits.append('f ' + ' '.join([str(el) for el in tpcs]))
             # We are ready to save all variables in the model
-            #self._calculate_sims()
+            self._calculate_sims()
             self._save_all()
 
             self._logger.info(
@@ -895,3 +1153,170 @@ class TMmodel(object):
         }
         df = pd.DataFrame(data)
         return df, self._vocab_id2w
+    
+    def get_betas(self):
+        self._load_betas()
+        return self._betas
+    
+    def get_thetas(self):
+        self._load_thetas()
+        return self._thetas
+    
+    def get_vocab(self):
+        self._load_vocab_dicts()
+        return self._vocab_id2w
+    
+
+##############################################################################
+#                                  MAIN                                      #
+##############################################################################
+if __name__ == "__main__":
+
+    from tm_utils import look_for_path
+
+    parser = argparse.ArgumentParser(
+        description="Scripts for Topic Modeling Service")
+    parser.add_argument("--path_TMmodels", type=str, 
+                        default=None, required=True,
+                        metavar=("path_to_TMs"),
+                        help="path to topic models folder")
+    parser.add_argument("--listTMmodels", action="store_true", default=False,
+                        help="List Available Topic Models")
+    parser.add_argument("--getTMmodel", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Get more info about a specific model")
+    parser.add_argument("--deleteTMmodel", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Delete Topic Model with selected name")
+    parser.add_argument("--renameTM", type=str, default=None, nargs=2,
+                        metavar=("modelName", "new_modelName"),
+                        help="Rename Topic Model with selected name to new name")
+    parser.add_argument("--copyTM", type=str, default=None, nargs=2,
+                        metavar=("modelName", "new_modelName"),
+                        help="Make a copy of Topic Model")
+    parser.add_argument("--showTopics", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Retrieve topic labels and word composition for selected model")
+    parser.add_argument("--showTopicsAdvanced", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Retrieve topic labels, word composition for selected model and advanced statistics")
+    parser.add_argument("--setTpcLabels", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Set Topics Labels for selected model")
+    parser.add_argument("--deleteTopics", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Remove topics from selected model")
+    parser.add_argument("--getSimilarTopics", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Retrieve information about similar topics for selected model")
+    parser.add_argument("--fuseTopics", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Merge topics from selected model")
+    parser.add_argument("--topics", type=str, default=None,
+                        metavar=("topics"),
+                        help="Chosen topics from selected model to merge")
+    parser.add_argument("--sortTopics", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Sort topics according to size")
+    parser.add_argument("--resetTM", type=str, default=None,
+                        metavar=("modelName"),
+                        help="Reset Topic Model to its initial values after training")
+
+    args = parser.parse_args()
+
+    tmm = TMManager()
+
+    tm_path = Path(args.path_TMmodels)
+
+    if args.listTMmodels:
+        allTMmodels = tmm.listTMmodels(tm_path)
+        sys.stdout.write(json.dumps(allTMmodels))
+        
+    if args.getTMmodel:
+        tm_path = look_for_path(tm_path, f"{args.getTMmodel}")
+        allTMmodels = tmm.getTMmodel(tm_path.joinpath(f"{args.getTMmodel}"))
+        sys.stdout.write(json.dumps(allTMmodels))
+
+    if args.deleteTMmodel:
+        tm_path = look_for_path(tm_path, f"{args.deleteTMmodel}")
+        status = tmm.deleteTMmodel(tm_path.joinpath(f"{args.deleteTMmodel}"))
+        sys.stdout.write(str(status))
+
+    if args.renameTM:
+        tm_path = look_for_path(tm_path, f"{args.renameTM[0]}")
+        status = tmm.renameTMmodel(
+            tm_path.joinpath(f"{args.renameTM[0]}"),
+            tm_path.joinpath(f"{args.renameTM[1]}"),
+        )
+        sys.stdout.write(str(status))
+
+    if args.copyTM:
+        tm_path = look_for_path(tm_path, f"{args.copyTM[0]}")
+        status = tmm.copyTMmodel(
+            tm_path.joinpath(f"{args.copyTM[0]}"),
+            tm_path.joinpath(f"{args.copyTM[1]}"),
+        )
+        sys.stdout.write(str(status))
+
+    if args.showTopics:
+        tm_path = look_for_path(tm_path, f"{args.showTopics}")
+        tm = TMmodel(tm_path.joinpath(
+            f"{args.showTopics}").joinpath('TMmodel'))
+        sys.stdout.write(json.dumps(tm.showTopics()))
+
+    if args.showTopicsAdvanced:
+        tm_path = look_for_path(tm_path, f"{args.showTopicsAdvanced}")
+        tm = TMmodel(tm_path.joinpath(
+            f"{args.showTopicsAdvanced}").joinpath('TMmodel'))
+        sys.stdout.write(json.dumps(tm.showTopicsAdvanced()))
+
+    if args.setTpcLabels:
+        # Labels should come from standard input
+        TpcLabels = "".join([line for line in sys.stdin])
+        TpcLabels = json.loads(TpcLabels.replace('\\"', '"'))
+        tm_path = look_for_path(tm_path, f"{args.setTpcLabels}")
+        tm = TMmodel(tm_path.joinpath(
+            f"{args.setTpcLabels}").joinpath('TMmodel'))
+        status = tm.setTpcLabels(TpcLabels)
+        sys.stdout.write(str(status))
+
+    if args.deleteTopics:
+        # List of topics to remove should come from standard input
+        tpcs = "".join([line for line in sys.stdin])
+        tpcs = json.loads(tpcs.replace('\\"', '"'))
+        tm_path = look_for_path(tm_path, f"{args.deleteTopics}")
+        tm = TMmodel(tm_path.joinpath(
+            f"{args.deleteTopics}").joinpath('TMmodel'))
+        status = tm.deleteTopics(tpcs)
+        sys.stdout.write(str(status))
+
+    if args.getSimilarTopics:
+        # List of topics to remove should come from standard input
+        npairs = "".join([line for line in sys.stdin])
+        npairs = json.loads(npairs.replace('\\"', '"'))
+        tm_path = look_for_path(tm_path, f"{args.getSimilarTopics}")
+        tm = TMmodel(tm_path.joinpath(
+            f"{args.getSimilarTopics}").joinpath('TMmodel'))
+        sys.stdout.write(json.dumps(tm.getSimilarTopics(int(npairs))))
+
+    if args.fuseTopics is not None and args.topics is not None:
+        # List of topics to merge should come from standard input
+        tpcs = json.loads(args.topics)
+        tm_path = look_for_path(tm_path, f"{args.fuseTopics}")
+        tm = TMmodel(tm_path.joinpath(
+            f"{args.fuseTopics}").joinpath('TMmodel'))
+        status = tm.fuseTopics(tpcs)
+        sys.stdout.write(str(status))
+
+    if args.sortTopics:
+        tm_path = look_for_path(tm_path, f"{args.sortTopics}")
+        tm = TMmodel(tm_path.joinpath(
+            f"{args.sortTopics}").joinpath('TMmodel'))
+        status = tm.sortTopics()
+        sys.stdout.write(str(status))
+
+    if args.resetTM:
+        tm_path = look_for_path(tm_path, f"{args.resetTM}")
+        tm = TMmodel(tm_path.joinpath(f"{args.resetTM}").joinpath('TMmodel'))
+        status = tm.resetTM()
+        sys.stdout.write(str(status))
