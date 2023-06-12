@@ -48,7 +48,7 @@ training_params = {
     "num_epochs": 100,
     "num_samples": 20,
     "doc_topic_thr": 0.0,
-    "mallet_path": "src/topicmodeling/models/mallet-2.0.8/bin/mallet",
+    "mallet_path": "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeling/models/mallet-2.0.8/bin/mallet",
     "thetas_thr": 0.003,
     "token_regexp": "[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{P}]*\\p{L}",
     "alpha": 5.0,
