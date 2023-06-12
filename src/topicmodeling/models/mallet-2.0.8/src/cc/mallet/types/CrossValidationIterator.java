@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import com.google.errorprone.annotations.Var;
+import cc.mallet.types.InstanceList;
 
 /**
  * An iterator which splits an {@link InstanceList} into n-folds and iterates
@@ -107,7 +107,6 @@ implements java.util.Iterator<InstanceList[]>, Serializable {
             ret[1] = this.folds[0];
         } else {
             InstanceList[] training = new InstanceList[this.folds.length - 1];
-            @Var
             int j = 0;
             for (int i = 0; i < this.folds.length; i++) {
                 if (i == this.index) {

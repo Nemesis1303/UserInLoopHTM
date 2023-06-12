@@ -17,16 +17,12 @@
 
 package cc.mallet.pipe.tsf;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.regex.Pattern;
-
-import com.google.errorprone.annotations.Var;
+import java.io.*;
+import java.util.regex.*;
 
 import cc.mallet.pipe.Pipe;
 import cc.mallet.types.Instance;
+import cc.mallet.types.Token;
 import cc.mallet.types.TokenSequence;
 import cc.mallet.util.PropertyList;
 
@@ -78,9 +74,7 @@ public class OffsetConjunctions extends Pipe implements Serializable
 	{
 		TokenSequence ts = (TokenSequence) carrier.getData();
 		int tsSize = ts.size();
-		@Var
 		PropertyList[] oldfs = null;
-		@Var
 		PropertyList[] newfs = null;
 		try {
 			oldfs = new PropertyList[ts.size()];
@@ -132,16 +126,14 @@ public class OffsetConjunctions extends Pipe implements Serializable
 	 *	@return new features
 	 */
 	private PropertyList makeConjunctions (PropertyList.Iterator[] iters, int currIndex, int[][] conjunctions,
-																				 int j, int tsSize, @Var PropertyList newfs, int tsi, PropertyList[] oldfs,
+																				 int j, int tsSize, PropertyList newfs, int tsi, PropertyList[] oldfs,
 																				 int[] iterIndices) {
 		if (iters.length == currIndex) { // base case: add feature for current conjunction of iters
 			// avoid redundant doubling of feature space; include only upper triangle
 			if (redundant (conjunctions, j, iterIndices)) {
 				return newfs;
 			}
-			@Var
 			String newFeature = "";
-			@Var
 			double newValue = 1.0;
 			for (int i=0; i < iters.length; i++) {
 				String s = iters[i].getKey();
@@ -218,10 +210,7 @@ public class OffsetConjunctions extends Pipe implements Serializable
 	
 	private void writeObject (ObjectOutputStream out) throws IOException {
 		out.writeInt (CURRENT_SERIAL_VERSION);
-		@Var
-		int size1;
-		@Var
-		int size2;
+		int size1, size2;
 		size1 = (conjunctions == null) ? NULL_INTEGER : conjunctions.length;
 		out.writeInt(size1);
 		if (size1 != NULL_INTEGER) {
@@ -241,10 +230,7 @@ public class OffsetConjunctions extends Pipe implements Serializable
 	}
 	
 	private void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
-		@Var
-		int size1;
-		@Var
-		int size2;
+		int size1, size2;
 		int version = in.readInt ();
 		size1 = in.readInt();
 		// Deserialization doesn't call the unnamed class initializer, so do it here

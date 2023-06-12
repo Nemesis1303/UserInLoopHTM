@@ -2,8 +2,6 @@ package cc.mallet.fst;
 
 import java.util.logging.Logger;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.types.FeatureSequence;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
@@ -48,9 +46,7 @@ public class HMMTrainerByLikelihood extends TransducerTrainer {
 			hmm.reset();
 
 		converged = false;
-		@Var
 		double threshold = 0.001;
-		@Var
 		double logLikelihood = Double.NEGATIVE_INFINITY, prevLogLikelihood;
 		for (int iter = 0; iter < numIterations; iter++) {
 			prevLogLikelihood = logLikelihood;
@@ -66,7 +62,6 @@ public class HMMTrainerByLikelihood extends TransducerTrainer {
 					+ logLikelihood);
 
 			if (unlabeledSet != null) {
-				@Var
 				int numEx = 0;
 				for (Instance inst : unlabeledSet) {
 					numEx++;

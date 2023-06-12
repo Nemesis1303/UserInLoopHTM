@@ -7,14 +7,12 @@
 package cc.mallet.extract;
 
 
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Iterator;
-import java.util.Locale;
 
 import cc.mallet.types.Label;
 import cc.mallet.types.LabelAlphabet;
@@ -23,7 +21,7 @@ import cc.mallet.types.MatrixOps;
 /**
  * Created: Oct 8, 2004
  *
- * @author <A HREF="mailto:casutton@cs.umass.edu">casutton@cs.umass.edu</A>
+ * @author <A HREF="mailto:casutton@cs.umass.edu>casutton@cs.umass.edu</A>
  * @version $Id: PerDocumentF1Evaluator.java,v 1.1 2007/10/22 21:37:44 mccallum Exp $
  */
 public class PerDocumentF1Evaluator implements ExtractionEvaluator {
@@ -57,7 +55,7 @@ public class PerDocumentF1Evaluator implements ExtractionEvaluator {
   }
 
 
-  @Override public void evaluate (Extraction extraction)
+  public void evaluate (Extraction extraction)
   {
     evaluate (extraction, System.out);
   }
@@ -124,8 +122,7 @@ public class PerDocumentF1Evaluator implements ExtractionEvaluator {
       }
     }
 
-    DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-    DecimalFormat f = new DecimalFormat ("0.####", decimalFormatSymbols);
+    DecimalFormat f = new DecimalFormat ("0.####");
 
     double totalF1 = 0;
     int totalFields = 0;

@@ -15,11 +15,15 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.classify.Classification;
 import cc.mallet.classify.Classifier;
 import cc.mallet.classify.Trial;
+import cc.mallet.types.Alphabet;
+import cc.mallet.types.AlphabetCarrying;
+import cc.mallet.types.InstanceList;
+import cc.mallet.types.Label;
+import cc.mallet.types.LabelAlphabet;
+import cc.mallet.types.LabelVector;
 
 /**
  * Tracks ROC data for instances in {@link Trial} results.
@@ -51,7 +55,7 @@ public class ROCData implements AlphabetCarrying, Serializable {
      * @param thresholds        Array of thresholds to track counts for
      * @param labelAlphabet     Label alphabet for instances in {@link Trial}
      */
-    public ROCData(double[] thresholds, LabelAlphabet labelAlphabet) {
+    public ROCData(double[] thresholds, final LabelAlphabet labelAlphabet) {
         // ensure that thresholds are sorted
         Arrays.sort(thresholds);
         this.counts = new int[labelAlphabet.size()][thresholds.length][4];
@@ -77,7 +81,6 @@ public class ROCData implements AlphabetCarrying, Serializable {
         for (int label = 0; label < numLabels; label++) {
             double labelValue = values[label];
             int[][] thresholdCounts = this.counts[label];
-            @Var
             int threshold = 0;
             
             // add the trial to all the thresholds it would be positive for
@@ -180,7 +183,6 @@ public class ROCData implements AlphabetCarrying, Serializable {
      * @return Array of raw counts for specified label and threshold
      */
     public int[] getCounts(Label label, double threshold) {
-        @Var
         int index = Arrays.binarySearch(this.thresholds, threshold);
         if (index < 0) {
             index = (-index) - 2;
@@ -226,16 +228,15 @@ public class ROCData implements AlphabetCarrying, Serializable {
      * @return Precision for specified label and score
      */
     public double getPrecisionForScore(Label label, double score) {
-        int[][] buckets = this.counts[label.getIndex()];
+        final int[][] buckets = this.counts[label.getIndex()]; 
 
-        @Var
         int index = Arrays.binarySearch(this.thresholds, score);
         if (index < 0) {
             index = (-index) - 2;
         }
 
-        double tp;
-        double fp;
+        final double tp;
+        final double fp;
         if (index == this.thresholds.length - 1) {
             tp = buckets[index][TRUE_POSITIVE];
             fp = buckets[index][FALSE_POSITIVE];
@@ -256,8 +257,8 @@ public class ROCData implements AlphabetCarrying, Serializable {
      * @return Estimated percentage of events exceeding threshold
      */
     public double getPositivePercent(Label label, double threshold) {
-        int[] counts = getCounts(label, threshold);
-        int positive = counts[TRUE_POSITIVE] + counts[FALSE_POSITIVE];
+        final int[] counts = getCounts(label, threshold);
+        final int positive = counts[TRUE_POSITIVE] + counts[FALSE_POSITIVE];
         return ((double) positive / (double) (positive + counts[FALSE_NEGATIVE] + counts[TRUE_NEGATIVE])) * 100.0;
     }
     
@@ -301,13 +302,12 @@ public class ROCData implements AlphabetCarrying, Serializable {
      * @see #TRUE_NEGATIVE
      */
     public void setCounts(Label label, double threshold, int[] newCounts) {
-        @Var
         int index = Arrays.binarySearch(this.thresholds, threshold);
         if (index < 0) {
             index = (-index) - 2;
         }
         
-        int[] oldCounts = this.counts[label.getIndex()][index];
+        final int[] oldCounts = this.counts[label.getIndex()][index];
         if (newCounts.length != oldCounts.length) {
             throw new IllegalArgumentException ("Array of counts must contain " + oldCounts.length + " elements.");
         }
@@ -319,8 +319,8 @@ public class ROCData implements AlphabetCarrying, Serializable {
     
     //@Override
     public String toString() {
-        StringBuilder buf = new StringBuilder();
-        NumberFormat format = new DecimalFormat("0.####");
+        final StringBuilder buf = new StringBuilder();
+        final NumberFormat format = new DecimalFormat("0.####");
         
         for (int i = 0; i < this.labelAlphabet.size(); i++) {
             int[][] labelData = this.counts[i];
@@ -338,16 +338,13 @@ public class ROCData implements AlphabetCarrying, Serializable {
                 }
 
                 double tp = labelData[t][TRUE_POSITIVE];
-                @Var
                 double sum = tp + labelData[t][FALSE_POSITIVE];
-                @Var
                 double precision = 0.0;
                 if (sum != 0) {
                     precision = tp / sum;
                 }
                 
                 sum = tp + labelData[t][FALSE_NEGATIVE];
-                @Var
                 double recall = 0.0;
                 if (sum != 0) {
                     recall = tp / sum;

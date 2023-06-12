@@ -16,25 +16,11 @@
 
 package cc.mallet.pipe.tsf;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Reader;
-import java.io.Serializable;
-import java.util.Hashtable;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
-import com.google.errorprone.annotations.Var;
-
-import cc.mallet.pipe.Pipe;
-import cc.mallet.types.Instance;
-import cc.mallet.types.Token;
-import cc.mallet.types.TokenSequence;
+import cc.mallet.pipe.*;
+import cc.mallet.types.*;
 
 public class TrieLexiconMembership extends Pipe implements Serializable {
 	// Perhaps give it your own tokenizer?
@@ -49,7 +35,6 @@ public class TrieLexiconMembership extends Pipe implements Serializable {
 		this.name = name;
 		this.lexicon = new TrieLexicon(name, ignoreCase);
 		LineNumberReader reader = new LineNumberReader(lexiconReader);
-		@Var
 		String line;
 		while (true) {
 			try {
@@ -72,7 +57,6 @@ public class TrieLexiconMembership extends Pipe implements Serializable {
 		this.name = name;
 		this.lexicon = new TrieLexicon(name, ignoreCase);
 		LineNumberReader reader = new LineNumberReader(lexiconReader);
-		@Var
 		String line;
 		while (true) {
 			try {
@@ -161,13 +145,10 @@ public class TrieLexiconMembership extends Pipe implements Serializable {
 		}
 
 		public void add(String word, boolean includeDelims, String delim) {
-			@Var
 			boolean newWord = false;
 			StringTokenizer st = new StringTokenizer(word, delim, includeDelims);
-			@Var
 			Hashtable currentLevel = lex;
 			while (st.hasMoreTokens()) {
-				@Var
 				String token = st.nextToken();
 				if (ignoreCase)
 					token = token.toLowerCase();
@@ -183,7 +164,6 @@ public class TrieLexiconMembership extends Pipe implements Serializable {
 		}
 
 		public void addFeatures(TokenSequence ts) {
-			@Var
 			int i = 0;
 			while (i < ts.size()) {
 				int j = endOfWord(ts, i);
@@ -204,13 +184,10 @@ public class TrieLexiconMembership extends Pipe implements Serializable {
 						.println("Lexicon.lastIndexOf: error - out of TokenSequence boundaries");
 				return -1;
 			}
-			@Var
 			Hashtable currentLevel = lex;
-			@Var
 			int end = -1;
 			for (int i = start; i < ts.size(); i++) {
 				Token t = ts.get(i);
-				@Var
 				String s = t.getText();
 				if (ignoreCase)
 					s = s.toLowerCase();

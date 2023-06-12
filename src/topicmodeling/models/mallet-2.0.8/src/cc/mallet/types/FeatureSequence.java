@@ -11,12 +11,8 @@
 
 package cc.mallet.types;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
-import com.google.errorprone.annotations.Var;
+import java.util.Arrays;
+import java.io.*;
 
 /**
  *   An implementation of {@link Sequence} that ensures that every
@@ -186,7 +182,7 @@ public class FeatureSequence implements Sequence, Serializable, AlphabetCarrying
         //  creating a new array and then swapping it in.
 
         // First: figure out how long the new array will have to be
-		@Var
+
         int newLength = 0;
 		boolean[] keepers = new boolean[length];
         for (int i = 0; i < length; i++) {
@@ -201,7 +197,7 @@ public class FeatureSequence implements Sequence, Serializable, AlphabetCarrying
         int[] newFeatures = new int[newLength];
 
         // Third: fill the new array
-		@Var
+
         int newIndex = 0;
         for (int i = 0; i < length; i++) {
             if (keepers[i]) {
@@ -231,7 +227,7 @@ public class FeatureSequence implements Sequence, Serializable, AlphabetCarrying
         //  creating a new array and then swapping it in.
 
         // First: figure out how long the new array will have to be
-		@Var
+
         int newLength = 0;
         for (int i = 0; i < length; i++) {
             if (counts[features[i]] >= cutoff) {
@@ -244,7 +240,7 @@ public class FeatureSequence implements Sequence, Serializable, AlphabetCarrying
         int[] newFeatures = new int[newLength];
 
         // Third: fill the new array
-		@Var
+
         int newIndex = 0;
         for (int i = 0; i < length; i++) {
             if (counts[features[i]] >= cutoff) {

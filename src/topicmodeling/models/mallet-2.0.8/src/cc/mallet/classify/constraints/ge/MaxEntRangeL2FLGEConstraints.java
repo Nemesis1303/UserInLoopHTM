@@ -7,10 +7,9 @@
 
 package cc.mallet.classify.constraints.ge;
 
-import com.carrotsearch.hppc.DoubleArrayList;
-import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.cursors.ObjectCursor;
+import gnu.trove.TDoubleArrayList;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -40,21 +39,21 @@ public class MaxEntRangeL2FLGEConstraints implements MaxEntGEConstraint {
   private int numFeatures;
   private int numLabels;
   
-  protected IntObjectHashMap<MaxEntL2IndGEConstraint> constraints;
+  protected TIntObjectHashMap<MaxEntL2IndGEConstraint> constraints;
   
   // cache of set of constrained features that fire at last FeatureVector
   // provided in preprocess call
-  protected IntArrayList indexCache;
-  protected DoubleArrayList valueCache;
+  protected TIntArrayList indexCache;
+  protected TDoubleArrayList valueCache;
 
   public MaxEntRangeL2FLGEConstraints(int numFeatures, int numLabels, boolean useValues, boolean normalize) {
     this.numFeatures = numFeatures;
     this.numLabels = numLabels;
     this.useValues = useValues;
     this.normalize = normalize;
-    this.constraints = new IntObjectHashMap<MaxEntL2IndGEConstraint>();
-    this.indexCache = new IntArrayList();
-    this.valueCache = new DoubleArrayList();
+    this.constraints = new TIntObjectHashMap<MaxEntL2IndGEConstraint>();
+    this.indexCache = new TIntArrayList();
+    this.valueCache = new TDoubleArrayList();
   }
   
   public void addConstraint(int fi, int li, double lower, double upper, double weight) {
@@ -96,8 +95,8 @@ public class MaxEntRangeL2FLGEConstraints implements MaxEntGEConstraint {
   }
 
   public void preProcess(FeatureVector input) {
-    indexCache.clear();
-    if (useValues) valueCache.clear();
+    indexCache.resetQuick();
+    if (useValues) valueCache.resetQuick();
     int fi;
     // cache constrained input features
     for (int loc = 0; loc < input.numLocations(); loc++) {
@@ -119,10 +118,10 @@ public class MaxEntRangeL2FLGEConstraints implements MaxEntGEConstraint {
     double value = 0;
     for (int i = 0; i < indexCache.size(); i++) {
       if (useValues) {
-        value += constraints.get(indexCache.get(i)).getGradientContribution(label) * valueCache.get(i);
+        value += constraints.get(indexCache.getQuick(i)).getGradientContribution(label) * valueCache.getQuick(i);
       }
       else {
-        value += constraints.get(indexCache.get(i)).getGradientContribution(label);
+        value += constraints.get(indexCache.getQuick(i)).getGradientContribution(label);
       }
     }
     return value;
@@ -134,10 +133,10 @@ public class MaxEntRangeL2FLGEConstraints implements MaxEntGEConstraint {
       double p = weight * dist[li];
       for (int i = 0; i < indexCache.size(); i++) {
         if (useValues) {
-          constraints.get(indexCache.get(i)).expectation[li] += p * valueCache.get(i);
+          constraints.get(indexCache.getQuick(i)).expectation[li] += p * valueCache.getQuick(i); 
         }
         else {
-          constraints.get(indexCache.get(i)).expectation[li] += p;
+          constraints.get(indexCache.getQuick(i)).expectation[li] += p; 
         }
       }
     }
@@ -145,8 +144,8 @@ public class MaxEntRangeL2FLGEConstraints implements MaxEntGEConstraint {
 
   public double getValue() {
     double value = 0.0;
-    for (ObjectCursor<MaxEntL2IndGEConstraint> fi : constraints.values()) {
-      MaxEntL2IndGEConstraint constraint = fi.value;
+    for (int fi : constraints.keys()) {
+      MaxEntL2IndGEConstraint constraint = constraints.get(fi);
       if ( constraint.count > 0.0) {
         // value due to current constraint
         for (int labelIndex = 0; labelIndex < numLabels; ++labelIndex) {
@@ -159,8 +158,8 @@ public class MaxEntRangeL2FLGEConstraints implements MaxEntGEConstraint {
   }
 
   public void zeroExpectations() {
-    for (ObjectCursor<MaxEntL2IndGEConstraint> fi : constraints.values()) {
-      fi.value.expectation = new double[fi.value.getNumConstrainedLabels()];
+    for (int fi : constraints.keys()) {
+      constraints.get(fi).expectation = new double[constraints.get(fi).getNumConstrainedLabels()];
     }
   }
   

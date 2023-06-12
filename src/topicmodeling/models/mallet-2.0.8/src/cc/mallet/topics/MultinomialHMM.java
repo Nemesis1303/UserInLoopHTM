@@ -18,10 +18,7 @@ import java.util.zip.*;
 import java.io.*;
 import java.text.NumberFormat;
 
-import com.carrotsearch.hppc.IntIntHashMap;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.cursors.IntIntCursor;
-import com.carrotsearch.hppc.cursors.IntCursor;
+import gnu.trove.*;
 
 /**
  * Latent Dirichlet Allocation.
@@ -50,7 +47,7 @@ public class MultinomialHMM {
     double pi;
     double sumPi;
 
-    IntObjectHashMap<IntIntHashMap> documentTopics;
+    TIntObjectHashMap<TIntIntHashMap> documentTopics;
     int[] documentSequenceIDs;    
     int[] documentStates;
 
@@ -92,7 +89,7 @@ public class MultinomialHMM {
 	
 	System.out.println("LDA HMM: " + numberOfTopics);
 	
-	documentTopics = new IntObjectHashMap<IntIntHashMap>();
+	documentTopics = new TIntObjectHashMap<TIntIntHashMap>();
 
 	this.numTopics = numberOfTopics;
 	this.alphaSum = numberOfTopics;
@@ -116,19 +113,18 @@ public class MultinomialHMM {
 	for (int doc=0; doc < numDocs; doc++) {
 	    if (! documentTopics.containsKey(doc)) { continue; }
 	    
-	    IntIntHashMap topicCounts = documentTopics.get(doc);
+	    TIntIntHashMap topicCounts = documentTopics.get(doc);
 	    
 	    int count = 0;
-	    for (IntIntCursor keyVal : topicCounts) {
-			int topic = keyVal.key;
-			int topicCount = keyVal.value;
-			//histogram[topicCount]++;
-			//totalTokens += topicCount;
+	    for (int topic: topicCounts.keys()) {
+		int topicCount = topicCounts.get(topic);
+		//histogram[topicCount]++;
+		//totalTokens += topicCount;
 
-			if (topicCount > maxTokensPerTopic[topic]) {
-				maxTokensPerTopic[topic] = topicCount;
-			}
-			count += topicCount;
+		if (topicCount > maxTokensPerTopic[topic]) {
+		    maxTokensPerTopic[topic] = topicCount;
+		}
+		count += topicCount;
 	    }
 	    if (count > maxDocLength) {
 		maxDocLength = count;
@@ -212,7 +208,7 @@ public class MultinomialHMM {
 	//  takes an int-int hashmap as a mask to only update
 	//  the distributions for topics that have actually changed.
 	// Here we create a dummy count hash that has all the topics.
-	IntIntHashMap allTopicsDummy = new IntIntHashMap();
+	TIntIntHashMap allTopicsDummy = new TIntIntHashMap();
 	for (int topic = 0; topic < numTopics; topic++) {
 	    allTopicsDummy.put(topic, 1);
 	}
@@ -227,13 +223,12 @@ public class MultinomialHMM {
 
     }
 
-    private void recacheStateTopicDistribution(int state, IntIntHashMap topicCounts) {
+    private void recacheStateTopicDistribution(int state, TIntIntHashMap topicCounts) {
 	int[] currentStateTopicCounts = stateTopicCounts[state];
 	double[][] currentStateCache = topicLogGammaCache[state];
 	double[] cache;
 
-	for (IntCursor cursor: topicCounts.keys()) {
-		int topic = cursor.value;
+	for (int topic: topicCounts.keys()) {
 	    cache = currentStateCache[topic];
 	    
 	    cache[0] = 0.0;
@@ -334,11 +329,11 @@ public class MultinomialHMM {
 	    // Now add the new topic
 
 	    if (! documentTopics.containsKey(doc)) {
-		documentTopics.put(doc, new IntIntHashMap());
+		documentTopics.put(doc, new TIntIntHashMap());
 	    }
 
 	    if (documentTopics.get(doc).containsKey(topic)) {
-		documentTopics.get(doc).addTo(topic, 1);
+		documentTopics.get(doc).increment(topic);
 	    }
 	    else {
 		documentTopics.get(doc).put(topic, 1);
@@ -462,7 +457,7 @@ public class MultinomialHMM {
 	//  documentTopics hash.
 	if (! documentTopics.containsKey(doc)) { return; }
 
-        IntIntHashMap topicCounts = documentTopics.get(doc);
+        TIntIntHashMap topicCounts = documentTopics.get(doc);
 
 	// if we are in initializing mode, this is meaningless,
 	//  but it won't hurt.
@@ -475,9 +470,8 @@ public class MultinomialHMM {
 	
 	int docLength = 0;
 	
-	for (IntIntCursor keyVal : topicCounts) {
-		int topic = keyVal.key;
-	    int topicCount = keyVal.value;
+	for (int topic: topicCounts.keys()) {
+	    int topicCount = topicCounts.get(topic);
 	    if (! initializing) {
 		currentStateTopicCounts[topic] -= topicCount;
 	    }
@@ -650,50 +644,49 @@ public class MultinomialHMM {
 	    double[][] currentStateLogGammaCache = topicLogGammaCache[state];
 
 	    int totalTokens = 0;
-	    for (IntIntCursor keyVal : topicCounts) {
-			int topic = keyVal.key;
-			int count = keyVal.value;
+	    for (int topic: topicCounts.keys()) {
+		int count = topicCounts.get(topic);
 
-			// Cached Sampling Distribution
-			stateLogLikelihoods[state] += currentStateLogGammaCache[topic][count];
+		// Cached Sampling Distribution
+		stateLogLikelihoods[state] += currentStateLogGammaCache[topic][count];
 
+		
+		/*
+		  // Hybrid version
 
-			/*
-			  // Hybrid version
+		if (count < currentStateLogGammaCache[topic].length) {
+		    stateLogLikelihoods[state] += currentStateLogGammaCache[topic][count];
+		}
+		else {
+		    int i = currentStateLogGammaCache[topic].length - 1;
 
-			if (count < currentStateLogGammaCache[topic].length) {
-				stateLogLikelihoods[state] += currentStateLogGammaCache[topic][count];
-			}
-			else {
-				int i = currentStateLogGammaCache[topic].length - 1;
+		    stateLogLikelihoods[state] += 
+			currentStateLogGammaCache[topic][ i ];
 
-				stateLogLikelihoods[state] +=
-				currentStateLogGammaCache[topic][ i ];
+		    for (; i < count; i++) {
+			stateLogLikelihoods[state] +=
+			    Math.log(alpha[topic] + currentStateTopicCounts[topic] + i);
+		    }
+		}
+		*/
 
-				for (; i < count; i++) {
-				stateLogLikelihoods[state] +=
-					Math.log(alpha[topic] + currentStateTopicCounts[topic] + i);
-				}
-			}
-			*/
+		/*
+		for (int j=0; j < count; j++) {
+		    stateLogLikelihoods[state] +=
+			Math.log( (alpha[topic] + currentStateTopicCounts[topic] + j) /
+				  (alphaSum + stateTopicTotals[state] + totalTokens) );
 
-			/*
-			for (int j=0; j < count; j++) {
-				stateLogLikelihoods[state] +=
-				Math.log( (alpha[topic] + currentStateTopicCounts[topic] + j) /
-					  (alphaSum + stateTopicTotals[state] + totalTokens) );
-
-				if (Double.isNaN(stateLogLikelihoods[state])) {
-				System.out.println("NaN: "  + alpha[topic] + " + " +
-						   currentStateTopicCounts[topic] + " + " +
-						   j + ") /\n" +
-						   "(" + alphaSum + " + " +
-						   stateTopicTotals[state] + " + " + totalTokens);
-				}
-
-				totalTokens++;
-			}
-			*/
+		    if (Double.isNaN(stateLogLikelihoods[state])) {
+			System.out.println("NaN: "  + alpha[topic] + " + " +
+					   currentStateTopicCounts[topic] + " + " + 
+					   j + ") /\n" + 
+					   "(" + alphaSum + " + " + 
+					   stateTopicTotals[state] + " + " + totalTokens);
+		    }
+		    
+		    totalTokens++;
+		}
+		*/
 	    }
 	    
 	    // Cached Sampling Distribution

@@ -7,13 +7,11 @@
 
 package cc.mallet.classify.constraints.pr;
 
-import java.util.BitSet;
+import gnu.trove.TDoubleArrayList;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
 
-import com.carrotsearch.hppc.DoubleArrayList;
-import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.google.errorprone.annotations.Var;
+import java.util.BitSet;
 
 import cc.mallet.types.FeatureVector;
 import cc.mallet.types.Instance;
@@ -31,20 +29,20 @@ public abstract class MaxEntFLPRConstraints implements MaxEntPRConstraint {
   protected int numLabels;
   
   // maps between input feature indices and constraints
-  protected IntObjectHashMap<MaxEntFLPRConstraint> constraints;
+  protected TIntObjectHashMap<MaxEntFLPRConstraint> constraints;
   
   // cache of set of constrained features that fire at last FeatureVector
   // provided in preprocess call
-  protected IntArrayList indexCache;
-  protected DoubleArrayList valueCache;
+  protected TIntArrayList indexCache;
+  protected TDoubleArrayList valueCache;
 
   public MaxEntFLPRConstraints(int numFeatures, int numLabels, boolean useValues) {
     this.useValues = useValues;
     this.numFeatures = numFeatures;
     this.numLabels = numLabels;
-    this.constraints = new IntObjectHashMap<MaxEntFLPRConstraint>();
-    this.indexCache = new IntArrayList();
-    this.valueCache = new DoubleArrayList();
+    this.constraints = new TIntObjectHashMap<MaxEntFLPRConstraint>();
+    this.indexCache = new TIntArrayList();
+    this.valueCache = new TDoubleArrayList();
   }
 
   public abstract void addConstraint(int fi, double[] ex, double weight);
@@ -55,28 +53,25 @@ public abstract class MaxEntFLPRConstraints implements MaxEntPRConstraint {
       double p = weight * dist[li];
       for (int i = 0; i < indexCache.size(); i++) {
         if (useValues) {
-          constraints.get(indexCache.get(i)).expectation[li] += p * valueCache.get(i); 
+          constraints.get(indexCache.getQuick(i)).expectation[li] += p * valueCache.getQuick(i); 
         }
         else {
-          constraints.get(indexCache.get(i)).expectation[li] += p; 
+          constraints.get(indexCache.getQuick(i)).expectation[li] += p; 
         }
       }
     }
   }
 
   public void zeroExpectations() {
-    for (IntObjectCursor<MaxEntFLPRConstraint> fi : constraints) {
-      fi.value.expectation = new double[numLabels];
+    for (int fi : constraints.keys()) {
+      constraints.get(fi).expectation = new double[numLabels];
     }
   }
 
   public BitSet preProcess(InstanceList data) {
     // count
-    @Var
     int ii = 0;
-    @Var
     int fi;
-    @Var
     FeatureVector fv;
     BitSet bitSet = new BitSet(data.size());
     for (Instance instance : data) {
@@ -105,9 +100,8 @@ public abstract class MaxEntFLPRConstraints implements MaxEntPRConstraint {
   }
 
   public void preProcess(FeatureVector input) {
-    indexCache.clear();
-    if (useValues) valueCache.clear();
-    @Var
+    indexCache.resetQuick();
+    if (useValues) valueCache.resetQuick();
     int fi;
     // cache constrained input features
     for (int loc = 0; loc < input.numLocations(); loc++) {

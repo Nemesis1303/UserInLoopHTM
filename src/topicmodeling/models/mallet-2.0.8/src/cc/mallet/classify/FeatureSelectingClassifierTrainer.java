@@ -27,23 +27,24 @@ import cc.mallet.util.CommandOption;
  */
 public class FeatureSelectingClassifierTrainer extends ClassifierTrainer
 {
-    ClassifierTrainer underlyingTrainer;
-    FeatureSelector featureSelector;
-    Classifier classifier;
-    @Override public Classifier getClassifier () { return classifier; }
+	ClassifierTrainer underlyingTrainer;
+	FeatureSelector featureSelector;
+	Classifier classifier;
+	public Classifier getClassifier () { return classifier; }
 
-    public FeatureSelectingClassifierTrainer (ClassifierTrainer underlyingTrainer, FeatureSelector featureSelector)
-    {
-        this.underlyingTrainer = underlyingTrainer;
-        this.featureSelector = featureSelector;
-    }
+	public FeatureSelectingClassifierTrainer (ClassifierTrainer underlyingTrainer,
+																						FeatureSelector featureSelector)
+	{
+		this.underlyingTrainer = underlyingTrainer;
+		this.featureSelector = featureSelector;
+	}
 
-    @Override public Classifier train (InstanceList trainingSet)
-    {
-        featureSelector.selectFeaturesFor (trainingSet);
-        // TODO What about also selecting features for the validation set?
-        this.classifier = underlyingTrainer.train (trainingSet);
-        return classifier;
-    }
+	public Classifier train (InstanceList trainingSet)
+	{
+		featureSelector.selectFeaturesFor (trainingSet);
+		// TODO What about also selecting features for the validation set?
+		this.classifier = underlyingTrainer.train (trainingSet);
+		return classifier;
+	}
 
 }

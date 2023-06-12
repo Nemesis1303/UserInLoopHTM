@@ -9,11 +9,16 @@ package cc.mallet.types.tests;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import java.util.Arrays;
 import java.io.IOException;
+
+import cc.mallet.types.MatrixOps;
+import cc.mallet.types.Matrixn;
 import cc.mallet.types.SparseMatrixn;
-import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.DoubleArrayList;
+
+import gnu.trove.TIntArrayList;
+import gnu.trove.TDoubleArrayList;
 
 /**
  * Created: Aug 30, 2004
@@ -75,8 +80,8 @@ public class TestSparseMatrixn extends TestCase {
   private SparseMatrixn make3dMatrix ()
   {
     int[] sizes = new int[]{2, 3, 4};
-    IntArrayList idxs = new IntArrayList ();
-    DoubleArrayList vals = new DoubleArrayList ();
+    TIntArrayList idxs = new TIntArrayList ();
+    TDoubleArrayList vals = new TDoubleArrayList ();
 
     for (int i = 0; i < 24; i++) {
       if (i % 3 != 0) {
@@ -85,7 +90,7 @@ public class TestSparseMatrixn extends TestCase {
       }
     }
 
-    SparseMatrixn a = new SparseMatrixn (sizes, idxs.toArray (), vals.toArray ());
+    SparseMatrixn a = new SparseMatrixn (sizes, idxs.toNativeArray (), vals.toNativeArray ());
     return a;
   }
 

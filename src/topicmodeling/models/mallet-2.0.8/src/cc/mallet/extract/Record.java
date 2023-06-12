@@ -6,32 +6,30 @@
    information, see the file `LICENSE' included with this distribution. */
 package cc.mallet.extract;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import gnu.trove.THashMap;
 
-import com.google.errorprone.annotations.Var;
+import java.util.Iterator;
 
 import cc.mallet.types.Label;
 
 /**
  * Created: Oct 12, 2004
  *
- * @author <A HREF="mailto:casutton@cs.umass.edu>casutton@cs.umass.edu"></A>
+ * @author <A HREF="mailto:casutton@cs.umass.edu>casutton@cs.umass.edu</A>
  * @version $Id: Record.java,v 1.1 2007/10/22 21:37:44 mccallum Exp $
  */
 public class Record {
 
-  private HashMap fieldMap;
+  private THashMap fieldMap;
   private String name;
 
   public Record (String name, LabeledSpans spans) {
     this.name = name;
-    fieldMap = new HashMap ();
+    fieldMap = new THashMap ();
     for (int i = 0; i < spans.size(); i++) {
       LabeledSpan span = spans.getLabeledSpan (i);
       if (!span.isBackground()) {
         Label tag = span.getLabel ();
-        @Var
         Field field = (Field) fieldMap.get (tag);
         if (field == null) {
           field = new Field (span);

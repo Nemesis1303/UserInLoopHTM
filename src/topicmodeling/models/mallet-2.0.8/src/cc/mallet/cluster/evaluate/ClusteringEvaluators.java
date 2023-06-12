@@ -1,7 +1,5 @@
 package cc.mallet.cluster.evaluate;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.cluster.Clustering;
 
 /**
@@ -26,7 +24,6 @@ public class ClusteringEvaluators extends ClusteringEvaluator {
 	 * @return A String summarizing the evaluation metric.
 	 */
 	public String evaluate (Clustering truth, Clustering predicted) {
-		@Var
 		String results = "";
 		for (int i = 0; i < evaluators.length; i++) {
 			String name = evaluators[i].getClass().getName();
@@ -43,7 +40,6 @@ public class ClusteringEvaluators extends ClusteringEvaluator {
 	 * since the first evaluation.
 	 */
 	public String evaluateTotals () {
-		@Var
 		String results = "";
 		for (int i = 0; i < evaluators.length; i++) {
 			String name = evaluators[i].getClass().getName();

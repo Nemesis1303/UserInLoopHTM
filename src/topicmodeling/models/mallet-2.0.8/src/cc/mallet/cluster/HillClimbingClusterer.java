@@ -2,8 +2,6 @@ package cc.mallet.cluster;
 
 import java.util.LinkedList;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.cluster.neighbor_evaluator.NeighborEvaluator;
 import cc.mallet.pipe.Pipe;
 import cc.mallet.types.InstanceList;
@@ -71,10 +69,8 @@ public abstract class HillClimbingClusterer extends KBestClusterer {
 	 */
 	public Clustering[] clusterKBest (InstanceList instances, int iterations, Clustering initialClustering, int k) {
 		LinkedList<Clustering> solutions = new LinkedList<Clustering>();
-		@Var
 		Clustering bestsofar = (initialClustering == null) ? initializeClustering(instances) : initialClustering;
 		solutions.addFirst(bestsofar);
-		@Var
 		int iter = 0;		
 		do {
 			bestsofar = improveClustering(solutions.getFirst().shallowCopy());

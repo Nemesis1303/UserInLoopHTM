@@ -12,20 +12,15 @@
 package cc.mallet.fst.confidence;
 
 
+import java.util.logging.*;
+import java.util.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.logging.Logger;
 
-import com.google.errorprone.annotations.Var;
-
-import cc.mallet.fst.Segment;
-import cc.mallet.fst.SumLatticeDefault;
-import cc.mallet.fst.Transducer;
+import cc.mallet.extract.LabeledSpan;
+import cc.mallet.fst.*;
 import cc.mallet.pipe.Noop;
-import cc.mallet.pipe.iterator.SegmentIterator;
-import cc.mallet.types.Instance;
-import cc.mallet.types.InstanceList;
+import cc.mallet.pipe.iterator.*;
+import cc.mallet.types.*;
 import cc.mallet.util.MalletLogger;
 
 /**
@@ -82,7 +77,6 @@ abstract public class TransducerConfidenceEstimator implements Serializable
 			segmentList.add (segment);
 		}
 		Collections.sort (segmentList);
-		@Var
 		Segment[] ret = new Segment[1];
 		ret = (Segment[]) segmentList.toArray (ret);
 		return ret;

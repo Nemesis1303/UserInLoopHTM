@@ -7,13 +7,11 @@
 
 package cc.mallet.classify.constraints.ge;
 
-import java.util.BitSet;
+import gnu.trove.TDoubleArrayList;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
 
-import com.carrotsearch.hppc.DoubleArrayList;
-import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.google.errorprone.annotations.Var;
+import java.util.BitSet;
 
 import cc.mallet.types.FeatureVector;
 import cc.mallet.types.Instance;
@@ -21,7 +19,7 @@ import cc.mallet.types.InstanceList;
 
 /**
  * Abstract expectation constraint for use with Generalized Expectation (GE).
- *
+ * 
  * @author Gregory Druck
  */
 
@@ -30,35 +28,34 @@ public abstract class MaxEntFLGEConstraints implements MaxEntGEConstraint {
   protected boolean useValues;
   protected int numLabels;
   protected int numFeatures;
-
+  
   // maps between input feature indices and constraints
-  protected IntObjectHashMap<MaxEntFLGEConstraint> constraints;
-
+  protected TIntObjectHashMap<MaxEntFLGEConstraint> constraints;
+  
   // cache of set of constrained features that fire at last FeatureVector
   // provided in preprocess call
-  protected IntArrayList indexCache;
-  protected DoubleArrayList valueCache;
-
+  protected TIntArrayList indexCache;
+  protected TDoubleArrayList valueCache;
+  
   public MaxEntFLGEConstraints(int numFeatures, int numLabels, boolean useValues) {
     this.numFeatures = numFeatures;
     this.numLabels = numLabels;
     this.useValues = useValues;
-    this.constraints = new IntObjectHashMap<MaxEntFLGEConstraint>();
-    this.indexCache = new IntArrayList();
-    this.valueCache = new DoubleArrayList();
+    this.constraints = new TIntObjectHashMap<MaxEntFLGEConstraint>();
+    this.indexCache = new TIntArrayList();
+    this.valueCache = new TDoubleArrayList();
   }
 
   public abstract void addConstraint(int fi, double[] ex, double weight);
-
+  
   public double getCompositeConstraintFeatureValue(FeatureVector input, int label) {
-    @Var
     double value = 0;
     for (int i = 0; i < indexCache.size(); i++) {
       if (useValues) {
-        value += constraints.get(indexCache.get(i)).getValue(label) * valueCache.get(i);
+        value += constraints.get(indexCache.getQuick(i)).getValue(label) * valueCache.getQuick(i);
       }
       else {
-        value += constraints.get(indexCache.get(i)).getValue(label);
+        value += constraints.get(indexCache.getQuick(i)).getValue(label);
       }
     }
     return value;
@@ -70,28 +67,25 @@ public abstract class MaxEntFLGEConstraints implements MaxEntGEConstraint {
       double p = weight * dist[li];
       for (int i = 0; i < indexCache.size(); i++) {
         if (useValues) {
-          constraints.get(indexCache.get(i)).expectation[li] += p * valueCache.get(i);
+          constraints.get(indexCache.getQuick(i)).expectation[li] += p * valueCache.getQuick(i); 
         }
         else {
-          constraints.get(indexCache.get(i)).expectation[li] += p;
+          constraints.get(indexCache.getQuick(i)).expectation[li] += p; 
         }
       }
     }
   }
 
   public void zeroExpectations() {
-    for (ObjectCursor<MaxEntFLGEConstraint> cursor : constraints.values()) {
-      cursor.value.expectation = new double[numLabels];
+    for (int fi : constraints.keys()) {
+      constraints.get(fi).expectation = new double[numLabels];
     }
   }
 
   public BitSet preProcess(InstanceList data) {
     // count
-    @Var
     int ii = 0;
-    @Var
     int fi;
-    @Var
     FeatureVector fv;
     BitSet bitSet = new BitSet(data.size());
     for (Instance instance : data) {
@@ -104,7 +98,7 @@ public abstract class MaxEntFLGEConstraints implements MaxEntGEConstraint {
             constraints.get(fi).count += weight * fv.valueAtLocation(loc);
           }
           else {
-            constraints.get(fi).count += weight;
+            constraints.get(fi).count += weight; 
           }
           bitSet.set(ii);
         }
@@ -113,16 +107,15 @@ public abstract class MaxEntFLGEConstraints implements MaxEntGEConstraint {
       // default feature, for label regularization
       if (constraints.containsKey(numFeatures)) {
         bitSet.set(ii);
-        constraints.get(numFeatures).count += weight;
+        constraints.get(numFeatures).count += weight; 
       }
     }
     return bitSet;
   }
 
   public void preProcess(FeatureVector input) {
-    indexCache.clear();
-    if (useValues) valueCache.clear();
-    @Var
+    indexCache.resetQuick();
+    if (useValues) valueCache.resetQuick();
     int fi;
     // cache constrained input features
     for (int loc = 0; loc < input.numLocations(); loc++) {

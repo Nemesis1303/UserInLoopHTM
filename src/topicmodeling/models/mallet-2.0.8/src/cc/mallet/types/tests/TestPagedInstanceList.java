@@ -6,17 +6,14 @@
    information, see the file `LICENSE' included with this distribution. */
 package cc.mallet.types.tests;
 
-import cc.mallet.classify.Classifier;
-import cc.mallet.classify.ClassifierTrainer;
-import cc.mallet.classify.MaxEntTrainer;
-import cc.mallet.classify.Trial;
+import junit.framework.*;
+
 import java.io.File;
 import java.util.Iterator;
-import cc.mallet.pipe.FeatureSequence2FeatureVector;
-import cc.mallet.pipe.Pipe;
-import cc.mallet.pipe.SerialPipes;
-import cc.mallet.pipe.Target2Label;
-import cc.mallet.pipe.TokenSequence2FeatureSequence;
+
+import cc.mallet.classify.*;
+import cc.mallet.pipe.*;
+import cc.mallet.pipe.iterator.PipeInputIterator;
 import cc.mallet.pipe.iterator.RandomTokenSequenceIterator;
 import cc.mallet.types.Alphabet;
 import cc.mallet.types.Dirichlet;
@@ -24,40 +21,40 @@ import cc.mallet.types.InstanceList;
 import cc.mallet.types.Instance;
 import cc.mallet.types.PagedInstanceList;
 import cc.mallet.util.Randoms;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Created: Apr 19, 2005
  *
- * @author <A HREF="mailto:casutton@cs.umass.edu">casutton@cs.umass.edu</A>
+ * @author <A HREF="mailto:casutton@cs.umass.edu>casutton@cs.umass.edu</A>
  * @version $Id: TestPagedInstanceList.java,v 1.1 2007/10/22 21:37:55 mccallum Exp $
  */
 public class TestPagedInstanceList extends TestCase {
 
-    public TestPagedInstanceList (String name) {
-        super (name);
-    }
+  public TestPagedInstanceList (String name)
+  {
+    super (name);
+  }
 
-    public static Test suite () {
-        return new TestSuite(TestPagedInstanceList.class);
-    }
+  public static Test suite ()
+  {
+    return new TestSuite (TestPagedInstanceList.class);
+  }
 
 
-    private static Alphabet dictOfSize (int size) {
-        Alphabet ret = new Alphabet ();
-        for (int i = 0; i < size; i++)
-            ret.lookupIndex ("feature"+i);
-        return ret;
-    }
+	private static Alphabet dictOfSize (int size)
+	{
+		Alphabet ret = new Alphabet ();
+		for (int i = 0; i < size; i++)
+			ret.lookupIndex ("feature"+i);
+		return ret;
+	}
 
   public void testRandomTrained ()
   {
-    Pipe p = new SerialPipes(new Pipe[]    {
-            new TokenSequence2FeatureSequence(),
-            new FeatureSequence2FeatureVector(),
-            new Target2Label()});
+    Pipe p = new SerialPipes (new Pipe[]	{
+			new TokenSequence2FeatureSequence (),
+			new FeatureSequence2FeatureVector (),
+			new Target2Label()});
 
     double testAcc1 = testRandomTrainedOn (new InstanceList (p));
     double testAcc2 = testRandomTrainedOn (new PagedInstanceList (p, 700, 200, new File(".")));
@@ -66,7 +63,7 @@ public class TestPagedInstanceList extends TestCase {
 
   private double testRandomTrainedOn (InstanceList training)
   {
-    ClassifierTrainer trainer = new MaxEntTrainer();
+    ClassifierTrainer trainer = new MaxEntTrainer ();
 
     Alphabet fd = dictOfSize (3);
     String[] classNames = new String[] {"class0", "class1", "class2"};
@@ -87,7 +84,7 @@ public class TestPagedInstanceList extends TestCase {
 
     System.out.println ("Accuracy on training set:");
     System.out.println (classifier.getClass().getName()
-                          + ": " + new Trial(classifier, training).getAccuracy());
+                          + ": " + new Trial (classifier, training).getAccuracy());
 
     System.out.println ("Accuracy on testing set:");
     double testAcc = new Trial (classifier, testing).getAccuracy();

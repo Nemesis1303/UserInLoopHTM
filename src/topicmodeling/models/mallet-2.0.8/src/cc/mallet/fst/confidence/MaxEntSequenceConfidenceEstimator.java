@@ -11,22 +11,12 @@
 
 package cc.mallet.fst.confidence;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
-import com.google.errorprone.annotations.Var;
-
-import cc.mallet.classify.Classification;
-import cc.mallet.classify.MaxEnt;
-import cc.mallet.classify.MaxEntTrainer;
-import cc.mallet.fst.Transducer;
-import cc.mallet.pipe.Pipe;
-import cc.mallet.types.Alphabet;
-import cc.mallet.types.InfoGain;
-import cc.mallet.types.Instance;
-import cc.mallet.types.InstanceList;
-import cc.mallet.types.Labeling;
-import cc.mallet.types.Sequence;
+import cc.mallet.classify.*;
+import cc.mallet.fst.*;
+import cc.mallet.pipe.*;
+import cc.mallet.types.*;
 
 /**
  * Estimates the confidence of a {@link Sequence} extracted by a {@link
@@ -74,8 +64,8 @@ public class MaxEntSequenceConfidenceEstimator extends TransducerSequenceConfide
 		 Calculates the confidence in the tagging of an {@link Instance}.
 	 */
 	public double estimateConfidenceFor (Instance instance,
-																			 Object[] startTags, Object[] inTags) {
-		@Var
+																			 Object[] startTags, Object[] inTags) {		
+		
 		Classification c = null;
 		if (Alphabet.alphabetsMatch(instance, this.pipe)) 
 			c = this.meClassifier.classify (new SequenceConfidenceInstance (instance));							
@@ -97,7 +87,6 @@ public class MaxEntSequenceConfidenceEstimator extends TransducerSequenceConfide
 																													 correctInstance));
 		}
 		Collections.sort (confidenceList);
-		@Var
 		PipedInstanceWithConfidence[] ret = new PipedInstanceWithConfidence[1];
 		ret = (PipedInstanceWithConfidence[]) confidenceList.toArray (ret);
 		return ret;

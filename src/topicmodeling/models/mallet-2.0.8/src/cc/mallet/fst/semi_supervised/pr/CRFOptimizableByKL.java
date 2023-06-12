@@ -17,8 +17,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Logger;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.fst.CRF;
 import cc.mallet.fst.Transducer;
 import cc.mallet.optimize.Optimizable.ByGradientValue;
@@ -133,9 +131,7 @@ public class CRFOptimizableByKL implements Serializable, ByGradientValue {
 		// updating tasks
 		ArrayList<Callable<Double>> tasks = new ArrayList<Callable<Double>>();
 		int increment = trainingSet.size() / numThreads;
-		@Var
 		int start = 0;
-		@Var
 		int end = increment;
 	  for (int taskIndex = 0; taskIndex < numThreads; taskIndex++) {
 	  	// same structure, but with zero values
@@ -150,8 +146,7 @@ public class CRFOptimizableByKL implements Serializable, ByGradientValue {
 				end = start + increment;
 			}
 		}
-
-		@Var
+		
 		double value = 0;
 		
 		try {
@@ -262,7 +257,6 @@ public class CRFOptimizableByKL implements Serializable, ByGradientValue {
   	}
   	
 		public Double call() throws Exception {
-			@Var
 			double value = 0;
 			
 			for (int ii = start; ii < end; ii++) {

@@ -1,7 +1,5 @@
 package cc.mallet.cluster.clustering_scorer;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.cluster.Clustering;
 import cc.mallet.cluster.iterator.AllPairsIterator;
 import cc.mallet.cluster.neighbor_evaluator.AgglomerativeNeighbor;
@@ -29,9 +27,7 @@ public class PairwiseScorer implements ClusteringScorer {
 	public double score(Clustering clustering) {
 		Clustering singletons = ClusterUtils
 				.createSingletonClustering(clustering.getInstances());
-		@Var
 		double total = 0;
-		@Var
 		int count = 0;
 		for (AllPairsIterator iter = new AllPairsIterator(singletons); iter
 				.hasNext(); count++) {

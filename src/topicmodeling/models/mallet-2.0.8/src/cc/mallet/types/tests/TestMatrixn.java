@@ -9,8 +9,11 @@ package cc.mallet.types.tests;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import java.util.Arrays;
 import java.io.IOException;
+
+import cc.mallet.types.MatrixOps;
 import cc.mallet.types.Matrixn;
 
 /**

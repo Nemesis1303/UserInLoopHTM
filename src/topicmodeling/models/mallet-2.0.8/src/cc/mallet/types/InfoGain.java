@@ -19,8 +19,6 @@
 
 package cc.mallet.types;
 
-import com.google.errorprone.annotations.Var;
-
 public class InfoGain extends RankedFeatureVector
 {
 	// xxx This is DISGUSTINGLY non-thread-safe.
@@ -35,7 +33,7 @@ public class InfoGain extends RankedFeatureVector
 	
 	private static double[] calcInfoGains (InstanceList ilist)
 	{
-		double log2 = Math.log(2);
+		final double log2 = Math.log(2);
 		int numInstances = ilist.size();
 		int numClasses = ilist.getTargetAlphabet().size();
 		int numFeatures = ilist.getDataAlphabet().size();
@@ -43,11 +41,9 @@ public class InfoGain extends RankedFeatureVector
 		double[][] targetFeatureCount = new double[numClasses][numFeatures];
 		double[] featureCountSum = new double[numFeatures];
 		double[] targetCount = new double[numClasses];
-		@Var
 		double targetCountSum = 0;
-		@Var
+		double flv;	// feature location value
 		int fli; // feature location index
-		@Var
 		double count;
 		// Populate targetFeatureCount, et al
 		for (int i = 0; i < ilist.size(); i++) {
@@ -56,7 +52,6 @@ public class InfoGain extends RankedFeatureVector
 			FeatureVector fv = (FeatureVector) inst.getData ();
 			double instanceWeight = ilist.getInstanceWeight(i);
 			// The code below relies on labelWeights summing to 1 over all labels!
-			@Var
 			double labelWeightSum = 0;
 			for (int ll = 0; ll < labeling.numLocations(); ll++) {
 				int li = labeling.indexAtLocation (ll);
@@ -84,7 +79,6 @@ public class InfoGain extends RankedFeatureVector
 			return infogains;
 		}
 		assert (targetCountSum > 0) : targetCountSum;
-		@Var
 		double p;
 		double[] classDistribution = new double[numClasses];
 		// Calculate the overall entropy of the labels, ignoring the features
@@ -102,9 +96,7 @@ public class InfoGain extends RankedFeatureVector
 		//System.out.println ("Total class entropy = "+staticBaseEntropy);
 		// Calculate the InfoGain of each feature
 		for (int fi = 0; fi < numFeatures; fi++) {
-			@Var
 			double featurePresentEntropy = 0;
-			@Var
 			double norm = featureCountSum[fi];
 			if (norm > 0) {
 				for (int li = 0; li < numClasses; li++) {
@@ -116,7 +108,6 @@ public class InfoGain extends RankedFeatureVector
 			}
 			assert (!Double.isNaN(featurePresentEntropy)) : fi;
 			norm = targetCountSum-featureCountSum[fi];
-			@Var
 			double featureAbsentEntropy = 0;
 			if (norm > 0) {
 				for (int li = 0; li < numClasses; li++) {

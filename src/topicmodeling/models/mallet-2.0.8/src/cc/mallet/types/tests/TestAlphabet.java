@@ -5,11 +5,12 @@
    version 1.0, as published by http://www.opensource.org.  For further
    information, see the file `LICENSE' included with this distribution. */
 package cc.mallet.types.tests;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import cc.mallet.types.Alphabet;
-import junit.framework.TestSuite;
+
+import junit.framework.*;
+
 import java.io.IOException;
+
+import cc.mallet.types.Alphabet;
 
 /**
  * Created: Nov 24, 2004
@@ -35,6 +36,7 @@ public class TestAlphabet extends TestCase {
     assertEquals (3, dict.lookupIndex ("TEST4", true));
   }
 
+  // tests a bug where
   public void testReadResolve () throws IOException, ClassNotFoundException
   {
     Alphabet dict = new Alphabet ();

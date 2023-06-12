@@ -10,8 +10,6 @@ package cc.mallet.fst.semi_supervised.pr;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.fst.CRF;
 import cc.mallet.fst.Transducer;
 import cc.mallet.fst.semi_supervised.pr.constraints.PRConstraint;
@@ -36,7 +34,6 @@ public class PRAuxiliaryModel extends Transducer {
   public PRAuxiliaryModel(CRF baseModel, ArrayList<PRConstraint> constraints) {
     this.baseModel = baseModel;
     this.constraints = constraints;
-    @Var
     int index = 0;
     this.parameters = new double[constraints.size()][];
     for (PRConstraint constraint : constraints) {
@@ -73,9 +70,7 @@ public class PRAuxiliaryModel extends Transducer {
   }
   
   public double getValue() {
-    @Var
     double value = 0;
-    @Var
     int index = 0;
     for (PRConstraint constraint : constraints) {
       value += constraint.getAuxiliaryValueContribution(parameters[index]);
@@ -85,9 +80,7 @@ public class PRAuxiliaryModel extends Transducer {
   }
   
   public double getCompleteValueContribution() {
-    @Var
     double value = 0;
-    @Var
     int index = 0;
     for (PRConstraint constraint : constraints) {
       value += constraint.getCompleteValueContribution(parameters[index]);
@@ -97,9 +90,7 @@ public class PRAuxiliaryModel extends Transducer {
   }
   
   public void getValueGradient(double[] gradient) {
-    @Var
     int index = 0;
-    @Var
     int start = 0;
     for (PRConstraint constraint: constraints) {
       double[] constraintGradient = new double[constraint.numDimensions()];
@@ -111,13 +102,10 @@ public class PRAuxiliaryModel extends Transducer {
   }
   
   public double getWeight(int index, int position, Sequence input, TransitionIterator iter) {
-
-    @Var
     double weight = 0;
     
     int si1 = iter.getSourceState().getIndex(); 
     int si2 = iter.getDestinationState().getIndex();
-    @Var
     int constrIndex = 0;
     for (PRConstraint constraint : constraints) {
       weight += constraint.getScore((FeatureVector)input.get(position), position, si1, si2, parameters[constrIndex]);
@@ -146,7 +134,6 @@ public class PRAuxiliaryModel extends Transducer {
   
   public void getParameters(double[] params) {
     assert(params.length == numParameters);
-    @Var
     int start = 0;
     for (int i = 0; i < this.parameters.length; i++) {
       System.arraycopy(this.parameters[i], 0, params, start, this.parameters[i].length);
@@ -154,9 +141,8 @@ public class PRAuxiliaryModel extends Transducer {
     }
   }
 
-  public double getParameter(@Var int index) {
+  public double getParameter(int index) {
     assert(index > 0);
-    @Var
     int constrIndex = 0;
     for (PRConstraint constraint : constraints) {
       if (index < constraint.numDimensions()) {
@@ -170,7 +156,6 @@ public class PRAuxiliaryModel extends Transducer {
 
   public void setParameters(double[] params) {
     assert(params.length == numParameters);
-    @Var
     int start = 0;
     for (int i = 0; i < parameters.length; i++) {
       System.arraycopy(params, start, this.parameters[i], 0, this.parameters[i].length);
@@ -178,9 +163,8 @@ public class PRAuxiliaryModel extends Transducer {
     }
   }
 
-  public void setParameter(@Var int index, double value) {
+  public void setParameter(int index, double value) {
     assert(index > 0);
-    @Var
     int constrIndex = 0;
     for (PRConstraint constraint : constraints) {
       if (index < constraint.numDimensions()) {

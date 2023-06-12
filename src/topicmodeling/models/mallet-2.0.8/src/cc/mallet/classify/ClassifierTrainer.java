@@ -106,7 +106,7 @@ public abstract class ClassifierTrainer<C extends Classifier>
 		public abstract CT newClassifierTrainer (Classifier initialClassifier);
 		public CT newClassifierTrainer () { return newClassifierTrainer (null); }
 				
-		@Override public String toString() {
+		public String toString() {
 			return this.getClass().getName();
 		}
 

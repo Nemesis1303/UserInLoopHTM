@@ -12,8 +12,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
-import com.google.errorprone.annotations.Var;
-
+import cc.mallet.pipe.Pipe;
+import cc.mallet.types.Alphabet;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 import cc.mallet.types.Multinomial;
@@ -87,15 +87,10 @@ public class NaiveBayesEMTrainer extends ClassifierTrainer<NaiveBayes> {
   {
 
     // Get a classifier trained on the labeled examples only
-    @Var
     NaiveBayes c = (NaiveBayes) nbTrainer.newClassifierTrainer().train (trainingSet);
-    @Var
-    double prevLogLikelihood = 0;
-    @Var
-    double logLikelihood = 0;
-    @Var
+    double prevLogLikelihood = 0, logLikelihood = 0;
     boolean converged = false;
-    @Var
+
     int iteration = 0;
     while (!converged) {
       // Make a new trainingSet that has some labels set
@@ -126,7 +121,6 @@ public class NaiveBayesEMTrainer extends ClassifierTrainer<NaiveBayes> {
 
   public String toString()
   {
-    @Var
   	String ret = "NaiveBayesEMTrainer";
   	if (docLengthNormalization != 1.0) ret += ",docLengthNormalization="+docLengthNormalization;
   	if (unlabeledDataWeight != 1.0) ret += ",unlabeledDataWeight="+unlabeledDataWeight;

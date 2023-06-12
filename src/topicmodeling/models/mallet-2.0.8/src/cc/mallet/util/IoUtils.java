@@ -14,21 +14,15 @@
 
 package cc.mallet.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.Reader;
-
-import com.google.errorprone.annotations.Var;
+import java.io.*;
 
 public class IoUtils
 {
 
 	public static CharSequence contentsAsCharSequence (Reader reader) throws java.io.IOException
 	{
-		int BUFSIZE = 2048;
+		final int BUFSIZE = 2048;
 		char[] buf = new char[BUFSIZE];
-		@Var
 		int count;
 		StringBuffer sb = new StringBuffer (BUFSIZE);
 		do {

@@ -7,10 +7,7 @@
 
 package cc.mallet.classify.constraints.pr;
 
-import com.carrotsearch.hppc.IntIntHashMap;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.google.errorprone.annotations.Var;
-
+import gnu.trove.TIntIntHashMap;
 import cc.mallet.types.FeatureVector;
 
 /**
@@ -22,12 +19,12 @@ import cc.mallet.types.FeatureVector;
 
 public class MaxEntL2FLPRConstraints extends MaxEntFLPRConstraints {
   
-  private IntIntHashMap constraintIndices;
+  private TIntIntHashMap constraintIndices;
   private boolean normalize;
   
   public MaxEntL2FLPRConstraints(int numFeatures, int numLabels, boolean useValues, boolean normalize) {
     super(numFeatures, numLabels, useValues);
-    this.constraintIndices = new IntIntHashMap();
+    this.constraintIndices = new TIntIntHashMap();
     this.normalize = normalize;
   }
   
@@ -48,75 +45,72 @@ public class MaxEntL2FLPRConstraints extends MaxEntFLPRConstraints {
   }
 
   public double getAuxiliaryValueContribution(double[] parameters) {
-    @Var
     double value = 0;
-    for (IntObjectCursor<MaxEntFLPRConstraint> fi : constraints) {
-      int ci = constraintIndices.get(fi.key);
+    for (int fi : constraints.keys()) {
+      int ci = constraintIndices.get(fi);
       for (int li = 0; li < numLabels; li++) {
         double param =  parameters[ci + li * constraints.size()];
         // targets dot parameters
-        value += fi.value.target[li] * param;
+        value += constraints.get(fi).target[li] * param;
         // regularization
-        value -= param * param / (2  * fi.value.weight);
+        value -= param * param / (2  * constraints.get(fi).weight);
       }
     }
     return value;
   }
 
   public void getGradient(double[] parameters, double[] gradient) {
-    for (IntObjectCursor<MaxEntFLPRConstraint> fi : constraints) {
-      int ci = constraintIndices.get(fi.key);
+    for (int fi : constraints.keys()) {
+      int ci = constraintIndices.get(fi);
       double norm;
       if (normalize) {
-        norm = fi.value.count;
+        norm = constraints.get(fi).count;
       }
       else {
         norm = 1;
       }
       for (int li = 0; li < numLabels; li++) {
         double param =  parameters[ci + li * constraints.size()];
-        gradient[ci + li * constraints.size()] = fi.value.target[li] - fi.value.expectation[li] / norm;
+        gradient[ci + li * constraints.size()] = constraints.get(fi).target[li] - constraints.get(fi).expectation[li] / norm;
         // regularization
-        gradient[ci + li * constraints.size()] -= param / fi.value.weight;
+        gradient[ci + li * constraints.size()] -= param / constraints.get(fi).weight;
       }
     }
   }
 
   public double getCompleteValueContribution() {
-    @Var
     double value = 0;
-    for (IntObjectCursor<MaxEntFLPRConstraint> fi : constraints) {
+    for (int fi : constraints.keys()) {
       double norm;
       if (normalize) {
-        norm = fi.value.count;
+        norm = constraints.get(fi).count;
       }
       else {
         norm = 1;
       }
       for (int li = 0; li < numLabels; li++) {
-        value -= fi.value.weight * Math.pow(fi.value.target[li] - fi.value.expectation[li] / norm, 2) / 2;
+        value -= constraints.get(fi).weight * Math.pow(constraints.get(fi).target[li] - constraints.get(fi).expectation[li] / norm, 2) / 2;
       }
     }
     return value;
   }
 
   public double getScore(FeatureVector input, int label, double[] parameters) {
-    @Var
     double score = 0;
     for (int i = 0; i < indexCache.size(); i++) {
-      int ci = constraintIndices.get(indexCache.get(i));
+      int ci = constraintIndices.get(indexCache.getQuick(i));
       double param = parameters[ci + label * constraints.size()];
       
       double norm;
       if (normalize) {
-        norm = constraints.get(indexCache.get(i)).count;
+        norm = constraints.get(indexCache.getQuick(i)).count;
       }
       else {
         norm = 1;
       }
       
       if (useValues) {
-        score += param * valueCache.get(i) / norm;
+        score += param * valueCache.getQuick(i) / norm;
       }
       else {
         score += param / norm;

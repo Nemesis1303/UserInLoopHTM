@@ -8,7 +8,7 @@ import cc.mallet.pipe.Pipe;
 import cc.mallet.types.Instance;
 import cc.mallet.util.MalletProgressMessageLogger;
 
-import com.carrotsearch.hppc.IntArrayList;
+import gnu.trove.TIntArrayList;
 
 /**
  * Greedily merges Instances until convergence. New merges are scored
@@ -42,7 +42,7 @@ public class GreedyAgglomerativeByDensity extends GreedyAgglomerative {
 	/**
 	 * Integers representing the Instance indices that have not yet been placed in a cluster.
 	 */
-	IntArrayList unclusteredInstances;
+	TIntArrayList unclusteredInstances;
 
 	/**
 	 * Index of an Instance in the cluster currently being created.
@@ -140,23 +140,10 @@ public class GreedyAgglomerativeByDensity extends GreedyAgglomerative {
 	}
 
 	private void fillUnclusteredInstances (int size) {
-		int[] tempArray = new int[size];
-		unclusteredInstances = new IntArrayList(size);
-		for (int i = 0; i < size; i++) {
-			tempArray[i] = i;
+		unclusteredInstances = new TIntArrayList(size);
+		for (int i = 0; i < size; i++)
 			unclusteredInstances.add(i);
-		}
-
-		// Knuth Fisher Yates shuffle
-		for (int i = size - 1; i > 0; i--) {
-			int r = random.nextInt(i + 1);
-			int t = tempArray[i];
-			tempArray[r] = tempArray[i];
-			tempArray[i] = t;
-		}
-
-		unclusteredInstances = new IntArrayList();
-		unclusteredInstances.add(tempArray, 0, size);
+		unclusteredInstances.shuffle(random);
 	}
 	
 	public String toString () {

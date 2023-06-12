@@ -3,18 +3,19 @@ package cc.mallet.fst;
 import java.util.BitSet;
 import java.util.logging.Logger;
 
-import com.google.errorprone.annotations.Var;
-
-import cc.mallet.fst.MEMM.State;
-import cc.mallet.fst.MEMM.TransitionIterator;
-import cc.mallet.optimize.LimitedMemoryBFGS;
-import cc.mallet.optimize.Optimizable;
-import cc.mallet.optimize.Optimizer;
 import cc.mallet.types.FeatureSequence;
 import cc.mallet.types.FeatureVector;
 import cc.mallet.types.FeatureVectorSequence;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
+
+import cc.mallet.fst.MEMM.State;
+import cc.mallet.fst.MEMM.TransitionIterator;
+
+import cc.mallet.optimize.LimitedMemoryBFGS;
+import cc.mallet.optimize.Optimizable;
+import cc.mallet.optimize.Optimizer;
+
 import cc.mallet.util.MalletLogger;
 
 /**
@@ -114,10 +115,8 @@ public class MEMMTrainer extends TransducerTrainer
 		// Gather the constraints
 		omemm.gatherExpectationsOrConstraints (true);
 		Optimizer maximizer = new LimitedMemoryBFGS(omemm);
-		@Var
 		int i;
 //		boolean continueTraining = true;
-		@Var
 		boolean converged = false;
 		logger.info ("CRF about to train with "+numIterations+" iterations");
 		for (i = 0; i < numIterations; i++) {
@@ -251,7 +250,6 @@ public class MEMMTrainer extends TransducerTrainer
 			// Instance values must either always or never be included in
 			// the total values; we can't just sometimes skip a value
 			// because it is infinite, this throws off the total values.
-			@Var
 			boolean initializingInfiniteValues = false;
 			CRF.Factors factors = gatherConstraints ? constraints : expectations;
 			CRF.Factors.Incrementor factorIncrementor = factors.new Incrementor ();
@@ -261,7 +259,6 @@ public class MEMMTrainer extends TransducerTrainer
 				initializingInfiniteValues = true;
 			}
 
-			@Var
 			double labelLogProb = 0;
 			for (int i = 0; i < memm.numStates(); i++) {
 				MEMM.State s = (State) memm.getState (i);

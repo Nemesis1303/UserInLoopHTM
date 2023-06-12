@@ -17,8 +17,11 @@ package cc.mallet.types.tests;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import java.io.File;
 import java.io.IOException;
+
+import cc.mallet.types.DenseVector;
 import cc.mallet.types.HashedSparseVector;
 import cc.mallet.types.SparseVector;
 import cc.mallet.util.FileUtils;
@@ -182,7 +185,6 @@ public class TestHashedSparseVector extends TestCase
     }
   }
 
-  /*
   // tests index2location getting screwed up when old (v 1.3) instances are de-serialized
   public void testPlusEqualsFromSaved () throws IOException, ClassNotFoundException
   {
@@ -203,7 +205,6 @@ public class TestHashedSparseVector extends TestCase
     sv.indexVector ();
     FileUtils.writeObject (oldSv, sv);
   }
-      */
 
   public static Test suite ()
 	{

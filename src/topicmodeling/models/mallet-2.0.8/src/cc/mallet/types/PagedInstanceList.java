@@ -16,11 +16,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.rmi.dgc.VMID;
 import java.util.BitSet;
 import java.util.Map;
-import java.util.UUID;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import cc.mallet.pipe.Noop;
 import cc.mallet.pipe.Pipe;
@@ -95,7 +93,7 @@ public class PagedInstanceList extends InstanceList
     
     /** uniquely identifies this InstanceList. Used in creating
      * serialized page name for swap files. */
-    UUID id = UUID.randomUUID();
+    VMID id = new VMID();
     
     /** Avoids creating a new noop pipe for each page */
     Pipe noopPipe;
@@ -163,7 +161,7 @@ public class PagedInstanceList extends InstanceList
      * @param r The source of randomness to use in shuffling.
      * @return one <code>InstanceList</code> for each element of <code>proportions</code>
      */
-    @Override public InstanceList[] split (java.util.Random r, double[] proportions) {
+    public InstanceList[] split (java.util.Random r, double[] proportions) {
         InstanceList[] ret = new InstanceList[proportions.length];
         double maxind[] = proportions.clone();
         int size = size();
@@ -208,7 +206,6 @@ public class PagedInstanceList extends InstanceList
      * @return Swap file
      */
     private File getFileForPage (int page) {
-        System.out.println(id + "." + page);
         return new File (swapDir, id + "." + page);
     }
     
@@ -319,7 +316,7 @@ public class PagedInstanceList extends InstanceList
      * catch OutOfMemoryError.
      * @return <code>true</code> if successful
      */
-    @Override public boolean add (Instance instance) {
+    public boolean add (Instance instance) {
         InstanceList page;
         if (this.size % this.instancesPerPage == 0) {
             // this is the start of a new page, swap out the one in this pages
@@ -343,7 +340,7 @@ public class PagedInstanceList extends InstanceList
     /** Returns the <code>Instance</code> at the specified index. If
      * this Instance is not in memory, swap a block of instances back
      * into memory. */
-    @Override public Instance get (int index) {
+    public Instance get (int index) {
         InstanceList page = getPageForIndex (index, false);
         return page.get (index % this.instancesPerPage);
     }
@@ -351,7 +348,7 @@ public class PagedInstanceList extends InstanceList
     /** Replaces the <code>Instance</code> at position
      * <code>index</code> with a new one. Note that this is the only
      * sanctioned way of changing an Instance. */
-    @Override public Instance set (int index, Instance instance) {
+    public Instance set (int index, Instance instance) {
         InstanceList page = getPageForIndex (index, true);
         return page.set (index % this.instancesPerPage, instance);
     }
@@ -365,7 +362,7 @@ public class PagedInstanceList extends InstanceList
     
     }
 
-    @Override public InstanceList shallowClone () {
+    public InstanceList shallowClone () {
         InstanceList ret = this.cloneEmpty ();
         for (int i = 0; i < this.size (); i++) {
             ret.add (get (i));
@@ -373,7 +370,7 @@ public class PagedInstanceList extends InstanceList
         return ret;
     }
 
-    @Override public InstanceList cloneEmpty () {
+    public InstanceList cloneEmpty () {
         return super.cloneEmptyInto (new PagedInstanceList (
                 this.pipe,
                 this.inMemoryPages.length,
@@ -381,7 +378,7 @@ public class PagedInstanceList extends InstanceList
                 this.swapDir)); 
     }
 
-    @Override public void clear () {
+    public void clear () {
         int numPages = this.size / this.instancesPerPage;
         for (int i = 0; i <= numPages; i++) {
             getFileForPage (i).delete ();
@@ -415,12 +412,8 @@ public class PagedInstanceList extends InstanceList
         return this.swapOutTime;
     }
 
-    @Override public int size () {
+    public int size () {
         return this.size;
-    }
-    
-    @Override public Iterator<Instance> iterator() {
-        return new PagedInstanceListIterator();
     }
     
     /** Serializes a single object without metadata
@@ -568,7 +561,7 @@ public class PagedInstanceList extends InstanceList
     }
 
     private void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
-        this.id = (UUID) in.readObject ();
+        this.id = (VMID) in.readObject ();
         this.pipe = (Pipe) in.readObject();
         // memory attributes
         this.instancesPerPage = in.readInt ();
@@ -579,28 +572,6 @@ public class PagedInstanceList extends InstanceList
         this.inMemoryPages = new InstanceList[this.inMemoryPageIds.length];
         for (int i = 0; i < this.inMemoryPageIds.length; i++) {
             this.inMemoryPages[i] = deserializePage(in);
-        }
-    }
-    
-    // Based on ArrayList Itr class.
-    private class PagedInstanceListIterator implements Iterator<Instance> {
-        int cursor = 0;
-        int lastReturned = -1;
-        
-        @Override public boolean hasNext() {
-            return cursor != size();
-        }
-        
-        @Override public Instance next() {
-            try {
-                int i = cursor;
-                Instance next = get(i);
-                lastReturned = i;
-                cursor = i + 1;
-                return next;
-            } catch (RuntimeException e) {
-                throw new NoSuchElementException();
-            }
         }
     }
 }

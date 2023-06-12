@@ -1,10 +1,9 @@
 package cc.mallet.classify;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Logger;
-
-import com.google.errorprone.annotations.Var;
 
 import cc.mallet.optimize.LimitedMemoryBFGS;
 import cc.mallet.optimize.Optimizable;
@@ -115,7 +114,6 @@ public class MaxEntOptimizableByLabelLikelihood implements Optimizable.ByGradien
 			// For the default feature, whose weight is 1.0
 			assert(!Double.isNaN(instanceWeight)) : "instanceWeight is NaN";
 			assert(!Double.isNaN(li)) : "bestIndex is NaN";
-			@Var
 			boolean hasNaN = false;
 			for (int i = 0; i < fv.numLocations(); i++) {
 				if(Double.isNaN(fv.valueAtLocation(i))) {
@@ -147,7 +145,7 @@ public class MaxEntOptimizableByLabelLikelihood implements Optimizable.ByGradien
 		return parameters.length;
 	}
 
-	public void getParameters (@Var double[] buff) {
+	public void getParameters (double[] buff) {
 		if (buff == null || buff.length != parameters.length)
 			buff = new double [parameters.length];
 		System.arraycopy (parameters, 0, buff, 0, parameters.length);
@@ -174,10 +172,8 @@ public class MaxEntOptimizableByLabelLikelihood implements Optimizable.ByGradien
 			MatrixOps.setAll (cachedGradient, 0.0);
 			// Incorporate likelihood of data
 			double[] scores = new double[trainingList.getTargetAlphabet().size()];
-			@Var
 			double value = 0.0;
 			Iterator<Instance> iter = trainingList.iterator();
-			@Var
 			int ii=0;
 			while (iter.hasNext()) {
 				ii++;
@@ -218,7 +214,6 @@ public class MaxEntOptimizableByLabelLikelihood implements Optimizable.ByGradien
 			//logger.info ("-Expectations:"); cachedGradient.print();
 
 			// Incorporate prior on parameters
-			@Var
 			double prior = 0;
 			if (usingHyperbolicPrior) {
 				for (int li = 0; li < numLabels; li++)

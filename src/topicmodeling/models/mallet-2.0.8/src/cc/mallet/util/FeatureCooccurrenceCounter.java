@@ -1,8 +1,7 @@
 package cc.mallet.util;
 
 import cc.mallet.types.*;
-
-import com.carrotsearch.hppc.IntIntHashMap;
+import gnu.trove.*;
 
 import java.util.Arrays;
 import java.util.logging.*;
@@ -31,7 +30,7 @@ public class FeatureCooccurrenceCounter {
 		 "A file to write words that were not linked.", null);
 
 
-	IntIntHashMap[] featureFeatureCounts;
+	TIntIntHashMap[] featureFeatureCounts;
 	InstanceList instances;
 	int numFeatures;
 	int[] documentFrequencies;
@@ -40,9 +39,9 @@ public class FeatureCooccurrenceCounter {
 		this.instances = instances;
 		numFeatures = instances.getDataAlphabet().size();
 
-		featureFeatureCounts = new IntIntHashMap[numFeatures];
+		featureFeatureCounts = new TIntIntHashMap[numFeatures];
 		for (int feature = 0; feature < numFeatures; feature++) {
-			featureFeatureCounts[feature] = new IntIntHashMap();
+			featureFeatureCounts[feature] = new TIntIntHashMap();
 		}
 
 		documentFrequencies = new int[numFeatures];
@@ -50,7 +49,7 @@ public class FeatureCooccurrenceCounter {
 
 	public void count() {
 		
-		IntIntHashMap featureCounts = new IntIntHashMap();
+		TIntIntHashMap featureCounts = new TIntIntHashMap();
 		
 		int index = 0;
 
@@ -58,22 +57,22 @@ public class FeatureCooccurrenceCounter {
 			FeatureSequence features = (FeatureSequence) instance.getData();
 
 			for (int i=0; i<features.getLength(); i++) {
-				featureCounts.putOrAdd(features.getIndexAtPosition(i), 1, 1);
+				featureCounts.adjustOrPutValue(features.getIndexAtPosition(i), 1, 1);
 			}
 
-			int[] keys = featureCounts.keys().toArray();
+			int[] keys = featureCounts.keys();
 			for (int i = 0; i < keys.length - 1; i++) {
 				int leftFeature = keys[i];
 				for (int j = i+1; j < keys.length; j++) {
 					int rightFeature = keys[j];
-					featureFeatureCounts[leftFeature].putOrAdd(rightFeature, 1, 1);
-					featureFeatureCounts[rightFeature].putOrAdd(leftFeature, 1, 1);
+					featureFeatureCounts[leftFeature].adjustOrPutValue(rightFeature, 1, 1);
+					featureFeatureCounts[rightFeature].adjustOrPutValue(leftFeature, 1, 1);					
 				}
 			}
 
 			for (int key: keys) { documentFrequencies[key]++; }
 
-			featureCounts = new IntIntHashMap();
+			featureCounts = new TIntIntHashMap();
 
 			index++;
 			if (index % 1000 == 0) { System.err.println(index); }
@@ -139,8 +138,8 @@ public class FeatureCooccurrenceCounter {
 
 		for (int feature = 0; feature < numFeatures; feature++) {
 
-			IntIntHashMap featureCounts = featureFeatureCounts[feature];
-			int[] keys = featureCounts.keys().toArray();
+			TIntIntHashMap featureCounts = featureFeatureCounts[feature];
+			int[] keys = featureCounts.keys();
 
 			double featureIDF = logTotalDocs - logCache[documentFrequencies[feature]];
 

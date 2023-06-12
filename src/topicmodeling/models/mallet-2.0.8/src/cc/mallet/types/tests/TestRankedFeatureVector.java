@@ -14,12 +14,8 @@
 
 package cc.mallet.types.tests;
 
-
-import cc.mallet.types.Alphabet;
-import cc.mallet.types.RankedFeatureVector;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import cc.mallet.types.*;
+import junit.framework.*;
 
 public class TestRankedFeatureVector extends TestCase
 {
@@ -40,7 +36,7 @@ public class TestRankedFeatureVector extends TestCase
 
 	public static Test suite ()
 	{
-		return new TestSuite(TestRankedFeatureVector.class);
+		return new TestSuite (TestRankedFeatureVector.class);
 	}
 
 	protected void setUp ()

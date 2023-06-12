@@ -10,8 +10,6 @@ package cc.mallet.classify.constraints.ge;
 import cc.mallet.types.MatrixOps;
 import cc.mallet.util.Maths;
 
-import com.carrotsearch.hppc.cursors.ObjectCursor;
-
 /**
  * Expectation constraint for use with GE.
  * Penalizes KL divergence from target distribution. 
@@ -30,8 +28,8 @@ public class MaxEntKLFLGEConstraints extends MaxEntFLGEConstraints {
 
   public double getValue() {
     double value = 0.0;
-    for (ObjectCursor<MaxEntFLGEConstraint> fi : constraints.values()) {
-      MaxEntFLGEConstraint constraint = fi.value;
+    for (int fi : constraints.keys()) {
+      MaxEntFLGEConstraint constraint = constraints.get(fi);
       if (constraint.count > 0.0) {
         double constraintValue = 0.0;
         for (int labelIndex = 0; labelIndex < numLabels; ++labelIndex) {

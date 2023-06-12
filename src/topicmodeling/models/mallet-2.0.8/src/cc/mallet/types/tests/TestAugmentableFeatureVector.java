@@ -10,9 +10,7 @@ import cc.mallet.types.Alphabet;
 import cc.mallet.types.AugmentableFeatureVector;
 import cc.mallet.types.FeatureVector;
 import cc.mallet.types.SparseVector;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import junit.framework.*;
 
 /**
  * Created: Dec 30, 2004
@@ -29,7 +27,7 @@ public class TestAugmentableFeatureVector extends TestCase {
 
   public static Test suite ()
   {
-    return new TestSuite(TestAugmentableFeatureVector.class);
+    return new TestSuite (TestAugmentableFeatureVector.class);
   }
 
   public void testDotProductBinaryToSV ()

@@ -1,14 +1,7 @@
 package cc.mallet.util.tests;
 
-import com.google.errorprone.annotations.Var;
-
-import cc.mallet.util.search.AStar;
-import cc.mallet.util.search.AStarState;
-import cc.mallet.util.search.SearchNode;
-import cc.mallet.util.search.SearchState;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import cc.mallet.util.search.*;
+import junit.framework.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -81,22 +74,19 @@ public class TestAStar extends TestCase {
     paths[5] = new State[] { node5, node2, node0 };
     costs[5] = 8;
     AStar s = new AStar(new State[] {node0, node1}, 7);
-    @Var
     int i = 0;
     while (s.hasNext()) {
       assertTrue("number of answers > " + i, i < 6);
-      @Var
       SearchNode n = s.nextAnswer();
       assertEquals("costs[" + i + "] != " + n.getPriority(), costs[i],
               n.getPriority(), 1e-5);
-      @Var
       int j = 0;
       while (n != null) {
         assertTrue("path length > " + j, j < 3);
         assertTrue("path[" + i + "][" + j + "] != " + n,
                 paths[i][j] == n.getState());
         j++;
-        n = n.getParent();
+        n = (SearchNode)n.getParent();
       }
       assertTrue("path length != " + j, j == 3);
       i++;

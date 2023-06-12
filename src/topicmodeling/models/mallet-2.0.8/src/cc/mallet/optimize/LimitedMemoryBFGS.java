@@ -16,11 +16,12 @@
  */
 package cc.mallet.optimize;
 
+import java.util.logging.*;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
-import com.google.errorprone.annotations.Var;
-
+import cc.mallet.optimize.BackTrackLineSearch;
+import cc.mallet.optimize.LineOptimizer;
+import cc.mallet.optimize.Optimizable;
 import cc.mallet.types.MatrixOps;
 import cc.mallet.util.MalletLogger;
 
@@ -168,9 +169,7 @@ public class LimitedMemoryBFGS implements Optimizer {
 					" oldg.twoNorm: "+MatrixOps.twoNorm(oldg));
 			
 			// get difference between previous 2 gradients and parameters
-			@Var
 			double sy = 0.0;
-			@Var
 			double yy = 0.0;
 			
 			for (int i=0; i < oldParameters.length; i++) {

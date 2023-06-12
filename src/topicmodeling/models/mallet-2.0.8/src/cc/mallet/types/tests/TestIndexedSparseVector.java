@@ -13,11 +13,13 @@
 */
 
 package cc.mallet.types.tests;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Test;
+
+import junit.framework.*;
+
 import java.io.IOException;
 import java.util.Arrays;
+
+import cc.mallet.types.DenseVector;
 import cc.mallet.types.IndexedSparseVector;
 import cc.mallet.types.SparseVector;
 

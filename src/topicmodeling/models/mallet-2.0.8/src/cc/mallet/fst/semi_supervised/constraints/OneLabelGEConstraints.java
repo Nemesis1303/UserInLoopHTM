@@ -7,13 +7,11 @@
 
 package cc.mallet.fst.semi_supervised.constraints;
 
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
+
 import java.util.ArrayList;
 import java.util.BitSet;
-
-import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.cursors.ObjectCursor;
-import com.google.errorprone.annotations.Var;
 
 import cc.mallet.fst.SumLattice;
 import cc.mallet.fst.semi_supervised.StateLabelMap;
@@ -37,22 +35,22 @@ import cc.mallet.types.InstanceList;
 public abstract class OneLabelGEConstraints implements GEConstraint {
 
   // maps between input feature indices and constraints
-  protected IntObjectHashMap<OneLabelGEConstraint> constraints;
+  protected TIntObjectHashMap<OneLabelGEConstraint> constraints;
   protected StateLabelMap map;
   
   // cache of set of constrained features that fire at last FeatureVector
   // provided in preprocess call
-  protected IntArrayList cache;
+  protected TIntArrayList cache;
 
   public OneLabelGEConstraints() {
-    this.constraints = new IntObjectHashMap<OneLabelGEConstraint>();
-    this.cache = new IntArrayList();
+    this.constraints = new TIntObjectHashMap<OneLabelGEConstraint>();
+    this.cache = new TIntArrayList();
   }
   
-  protected OneLabelGEConstraints(IntObjectHashMap<OneLabelGEConstraint> constraints, StateLabelMap map) {
+  protected OneLabelGEConstraints(TIntObjectHashMap<OneLabelGEConstraint> constraints, StateLabelMap map) {
     this.constraints = constraints;
     this.map = map;
-    this.cache = new IntArrayList();
+    this.cache = new TIntArrayList();
   }
   
   public abstract void addConstraint(int fi, double[] target, double weight);
@@ -66,8 +64,7 @@ public abstract class OneLabelGEConstraints implements GEConstraint {
   }
   
   public void preProcess(FeatureVector fv) {
-    cache.clear();
-    @Var
+    cache.resetQuick();
     int fi;
     // cache constrained input features
     for (int loc = 0; loc < fv.numLocations(); loc++) {
@@ -84,11 +81,8 @@ public abstract class OneLabelGEConstraints implements GEConstraint {
   // find examples that contain constrained input features
   public BitSet preProcess(InstanceList data) {
     // count
-    @Var
     int ii = 0;
-    @Var
     int fi;
-    @Var
     FeatureVector fv;
     BitSet bitSet = new BitSet(data.size());
     for (Instance instance : data) {
@@ -114,11 +108,10 @@ public abstract class OneLabelGEConstraints implements GEConstraint {
   }    
   
   public double getCompositeConstraintFeatureValue(FeatureVector fv, int ip, int si1, int si2) {
-    @Var
     double value = 0;
     int li2 = map.getLabelIndex(si2);
     for (int i = 0; i < cache.size(); i++) {
-      value += constraints.get(cache.get(i)).getValue(li2);
+      value += constraints.get(cache.getQuick(i)).getValue(li2);
     }
     return value;
   }
@@ -126,24 +119,22 @@ public abstract class OneLabelGEConstraints implements GEConstraint {
   public abstract double getValue();
 
   public void zeroExpectations() {
-    for (ObjectCursor<OneLabelGEConstraint> cursor : constraints.values()) {
-      cursor.value.expectation = new double[map.getNumLabels()];
+    for (int fi : constraints.keys()) {
+      constraints.get(fi).expectation = new double[map.getNumLabels()];
     }
   }
   
   public void computeExpectations(ArrayList<SumLattice> lattices) {
-    @Var
     double[][] gammas;    
-    IntArrayList cache = new IntArrayList();
+    TIntArrayList cache = new TIntArrayList();
     for (int i = 0; i < lattices.size(); i++) {
       if (lattices.get(i) == null) { continue; }
       SumLattice lattice = lattices.get(i);
       FeatureVectorSequence fvs = (FeatureVectorSequence)lattice.getInput();
       gammas = lattice.getGammas();
       for (int ip = 0; ip < fvs.size(); ++ip) {
-        cache.clear();
+        cache.resetQuick();
         FeatureVector fv = fvs.getFeatureVector(ip);
-        @Var
         int fi;
         for (int loc = 0; loc < fv.numLocations(); loc++) {
           fi = fv.indexAtLocation(loc);
@@ -160,7 +151,7 @@ public abstract class OneLabelGEConstraints implements GEConstraint {
           if (li != StateLabelMap.START_LABEL) {
             double gammaProb = Math.exp(gammas[ip+1][s]);
             for (int j = 0; j < cache.size(); j++) {
-              constraints.get(cache.get(j)).expectation[li] += gammaProb;
+              constraints.get(cache.getQuick(j)).expectation[li] += gammaProb;
             }
           }
         }

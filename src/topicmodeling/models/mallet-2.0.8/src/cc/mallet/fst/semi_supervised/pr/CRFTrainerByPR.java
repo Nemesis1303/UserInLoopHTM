@@ -10,8 +10,6 @@ package cc.mallet.fst.semi_supervised.pr;
 import java.util.ArrayList;
 import java.util.BitSet;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.fst.CRF;
 import cc.mallet.fst.Transducer;
 import cc.mallet.fst.TransducerTrainer;
@@ -93,8 +91,7 @@ public class CRFTrainerByPR extends TransducerTrainer implements TransducerTrain
   	return train(train,minIter,maxIter,Integer.MAX_VALUE);
   }
   
-  public boolean train(@Var InstanceList train, int minIter, int maxIter, int maxIterPerStep) {
-    @Var
+  public boolean train(InstanceList train, int minIter, int maxIter, int maxIterPerStep) {
     double oldValue = 0;
     int max = iter + maxIter;
     
@@ -103,8 +100,7 @@ public class CRFTrainerByPR extends TransducerTrainer implements TransducerTrain
       constrainedInstances.or(constraint.preProcess(train));
       constraint.setStateLabelMap(stateLabelMap);
     }
-
-    @Var
+    
     int removed = 0;
     InstanceList tempTrain = train.cloneEmpty();
     for (int ii = 0; ii < train.size(); ii++) {

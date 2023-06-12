@@ -13,11 +13,10 @@
  */
 
 package cc.mallet.types.tests;
-import cc.mallet.types.SparseVector;
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
+import cc.mallet.types.DenseVector;
+import cc.mallet.types.SparseVector;
+import junit.framework.*;
 
 public class TestMatrix extends TestCase
 {
@@ -36,7 +35,7 @@ public class TestMatrix extends TestCase
 
 	public static Test suite ()
 	{
-		return new TestSuite(TestMatrix.class);
+		return new TestSuite (TestMatrix.class);
 	}
 
 	protected void setUp ()

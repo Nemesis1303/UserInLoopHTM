@@ -51,7 +51,7 @@ public class MultiInstanceList extends InstanceList {
             this.i = lists.length == 0 ? null : lists[0].iterator ();
         }
         
-        @Override public boolean hasNext () {
+        public boolean hasNext () {
             if (this.index < lists.length) {
                 if (this.i.hasNext ()) {
                     return true;
@@ -68,7 +68,7 @@ public class MultiInstanceList extends InstanceList {
             return false;
         }
 
-        @Override public Instance next () {
+        public Instance next () {
             if (this.index < lists.length) {
                 if (this.i.hasNext ()) {
                     return this.i.next ();
@@ -85,7 +85,7 @@ public class MultiInstanceList extends InstanceList {
             throw new NoSuchElementException ();
         }
 
-        @Override public void remove () {
+        public void remove () {
             throw new UnsupportedOperationException ();
         }
         
@@ -124,23 +124,23 @@ public class MultiInstanceList extends InstanceList {
         this (lists.toArray (EMPTY_ARRAY));
     }
     
-    @Override public boolean add (Instance instance, double instanceWeight) {
+    public boolean add (Instance instance, double instanceWeight) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override public boolean add (Instance instance) {
+    public boolean add (Instance instance) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override public void add (int index, Instance element) {
+    public void add (int index, Instance element) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override public void clear () {
+    public void clear () {
         throw new UnsupportedOperationException ();
     }
 
-    @Override public Object clone () {
+    public Object clone () {
         InstanceList[] newLists = new InstanceList[this.lists.length];
         for (int i = 0; i < this.lists.length; i++) {
             newLists[i] = (InstanceList) this.lists[i].clone ();
@@ -149,7 +149,7 @@ public class MultiInstanceList extends InstanceList {
         return new MultiInstanceList (newLists);
     }
 
-    @Override public InstanceList cloneEmpty () {
+    public InstanceList cloneEmpty () {
         InstanceList[] newLists = new InstanceList[this.lists.length];
         for (int i = 0; i < this.lists.length; i++) {
             newLists[i] = this.lists[i].cloneEmpty ();
@@ -158,11 +158,11 @@ public class MultiInstanceList extends InstanceList {
         return new MultiInstanceList (newLists);
     }
 
-    @Override protected InstanceList cloneEmptyInto (InstanceList ret) {
+    protected InstanceList cloneEmptyInto (InstanceList ret) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override public boolean contains (Object elem) {
+    public boolean contains (Object elem) {
         for (InstanceList list : this.lists) {
             if (list != null && list.contains (elem)) {
                 return true;
@@ -171,19 +171,19 @@ public class MultiInstanceList extends InstanceList {
         return false;
     }
 
-    @Override public CrossValidationIterator crossValidationIterator (int nfolds, int seed) {
+    public CrossValidationIterator crossValidationIterator (int nfolds, int seed) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override public CrossValidationIterator crossValidationIterator (int nfolds) {
+    public CrossValidationIterator crossValidationIterator (int nfolds) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override public void ensureCapacity (int minCapacity) {
+    public void ensureCapacity (int minCapacity) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override public boolean equals (Object o) {
+    public boolean equals (Object o) {
         if (o instanceof MultiInstanceList) {
             MultiInstanceList tmp = (MultiInstanceList) o;
             if (tmp.lists.length != this.lists.length) {
@@ -206,7 +206,8 @@ public class MultiInstanceList extends InstanceList {
         return false;
     }
 
-    @Override public Instance get (int index) {
+    //@Override
+    public Instance get (int index) {
         int i = getOffsetIndex (index);
         return this.lists[i].get (index - this.offsets[i]);
     }
@@ -225,7 +226,8 @@ public class MultiInstanceList extends InstanceList {
         return i;
     }
     
-    @Override public int hashCode () {
+    //@Override
+    public int hashCode () {
         int hashCode = 1;
         for (InstanceList list : this.lists) {
             hashCode = 31*hashCode + (list==null ? 0 : list.hashCode ());
@@ -233,7 +235,8 @@ public class MultiInstanceList extends InstanceList {
         return hashCode;
     }
 
-    @Override public int indexOf (Object elem) {
+    //@Override
+    public int indexOf (Object elem) {
         for (int i = 0; i < this.lists.length; i++) {
             int index = this.lists[i].indexOf (elem);
             if (index != -1) {
@@ -243,7 +246,8 @@ public class MultiInstanceList extends InstanceList {
         return -1;
     }
 
-    @Override public boolean isEmpty () {
+    //@Override
+    public boolean isEmpty () {
         for (InstanceList list : this.lists) {
             if (list != null && !list.isEmpty ()) {
                 return true;
@@ -252,11 +256,12 @@ public class MultiInstanceList extends InstanceList {
         return false;
     }
 
-    @Override public Iterator<Instance> iterator () {
+    //@Override
+    public Iterator<Instance> iterator () {
         return new MultiIterator ();
     }
 
-    @Override
+    //@Override
     public int lastIndexOf (Object elem) {
         for (int i = this.lists.length - 1; i >= 0; i--) {
             int index = this.lists[i].lastIndexOf (elem);
@@ -267,44 +272,44 @@ public class MultiInstanceList extends InstanceList {
         return -1;
     }
 
-    @Override
+    //@Override
     public ListIterator<Instance> listIterator () {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public ListIterator<Instance> listIterator (int index) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public boolean remove (Instance instance) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public Instance remove (int index) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public boolean remove (Object o) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public Instance set (int index, Instance instance) {
         int i = getOffsetIndex (index);
         return this.lists[i].set (index - this.offsets[i], instance);
     }
 
-    @Override
+    //@Override
     public void setInstance (int index, Instance instance) {
         int i = getOffsetIndex (index);
         this.lists[i].setInstance (index - this.offsets[i], instance);
     }
 
-    @Override
+    //@Override
     public void setInstanceWeight (Instance instance, double weight) {
         super.setInstanceWeight (instance, weight);
         int index = indexOf (instance);
@@ -312,7 +317,7 @@ public class MultiInstanceList extends InstanceList {
         this.lists[i].setInstanceWeight (index - this.offsets[i], weight);
     }
 
-    @Override
+    //@Override
     public InstanceList shallowClone () {
         InstanceList[] newLists = new InstanceList[this.lists.length];
         for (int i = 0; i < this.lists.length; i++) {
@@ -322,12 +327,12 @@ public class MultiInstanceList extends InstanceList {
         return new MultiInstanceList (newLists);
     }
 
-    @Override
+    //@Override
     public void shuffle (Random r) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public int size () {
         int size = 0;
         for (InstanceList list : this.lists) {
@@ -338,42 +343,42 @@ public class MultiInstanceList extends InstanceList {
         return size;
     }
 
-    @Override
+    //@Override
     public InstanceList[] split (double[] proportions) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public InstanceList[] split (Random r, double[] proportions) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public InstanceList[] splitInOrder (double[] proportions) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public InstanceList[] splitInOrder (int[] counts) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public InstanceList[] splitInTwoByModulo (int m) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public InstanceList subList (double proportion) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public InstanceList subList (int start, int end) {
         throw new UnsupportedOperationException ();
     }
 
-    @Override
+    //@Override
     public Object[] toArray () {
         Object[] result = new Object[size ()];
         int i = 0;
@@ -388,7 +393,7 @@ public class MultiInstanceList extends InstanceList {
     }
 
     @SuppressWarnings("unchecked")
-    @Override
+    //@Override
     public <T> T[] toArray (T[] a) {
         int size = size ();
         if (a.length < size) {
@@ -410,9 +415,9 @@ public class MultiInstanceList extends InstanceList {
         return a;
     }
 
-    @Override
+    //@Override
     public String toString () {
-        StringBuilder buf = new StringBuilder ();
+        StringBuffer buf = new StringBuffer ();
         buf.append ("[");
 
         for (int listIndex = 0; listIndex < this.lists.length; listIndex++) {
@@ -434,7 +439,7 @@ public class MultiInstanceList extends InstanceList {
         return buf.toString ();
     }
 
-    @Override
+    //@Override
     public void trimToSize () {
         for (InstanceList list : this.lists) {
             list.trimToSize ();

@@ -68,7 +68,7 @@ public class AdaBoostM2 extends Classifier implements Serializable
         return new AdaBoostM2(instancePipe, newWeakClassifiers, newAlphas);
     }
 
-    @Override public Classification classify (Instance inst)
+    public Classification classify (Instance inst)
     {
         return classify(inst, weakClassifiers.length);
     }

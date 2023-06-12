@@ -7,11 +7,9 @@ import java.io.*;
 import cc.mallet.types.*;
 import cc.mallet.util.Randoms;
 
-import com.carrotsearch.hppc.ObjectDoubleHashMap;
-import com.carrotsearch.hppc.IntIntHashMap;
-import com.carrotsearch.hppc.cursors.IntIntCursor;
+import gnu.trove.*;
 
-public class HierarchicalLDA implements Serializable {
+public class HierarchicalLDA {
 
     InstanceList instances;
     InstanceList testing;
@@ -165,8 +163,8 @@ public class HierarchicalLDA implements Serializable {
 
 		documentLeaves[doc].dropPath();
 
-		ObjectDoubleHashMap<NCRPNode> nodeWeights = 
-			new ObjectDoubleHashMap<NCRPNode>();
+		TObjectDoubleHashMap<NCRPNode> nodeWeights = 
+			new TObjectDoubleHashMap<NCRPNode>();
 	
 		// Calculate p(c_m | c_{-m})
 		calculateNCRP(nodeWeights, rootNode, 0.0);
@@ -177,12 +175,12 @@ public class HierarchicalLDA implements Serializable {
 		//  be unavailable, but it should still exist since we haven't
 		//  reset documentLeaves[doc] yet...
 	
-		IntIntHashMap[] typeCounts = new IntIntHashMap[numLevels];
+		TIntIntHashMap[] typeCounts = new TIntIntHashMap[numLevels];
 
 		int[] docLevels;
 
 		for (level = 0; level < numLevels; level++) {
-			typeCounts[level] = new IntIntHashMap();
+			typeCounts[level] = new TIntIntHashMap();
 		}
 
 		docLevels = levels[doc];
@@ -199,7 +197,7 @@ public class HierarchicalLDA implements Serializable {
 				typeCounts[level].put(type, 1);
 			}
 			else {
-				typeCounts[level].addTo(type, 1);
+				typeCounts[level].increment(type);
 			}
 
 			path[level].typeCounts[type]--;
@@ -212,10 +210,11 @@ public class HierarchicalLDA implements Serializable {
 		// Calculate the weight for a new path at a given level.
 		double[] newTopicWeights = new double[numLevels];
 		for (level = 1; level < numLevels; level++) {  // Skip the root...
+			int[] types = typeCounts[level].keys();
 			int totalTokens = 0;
 
-			for (IntIntCursor keyVal : typeCounts[level]) {
-				for (int i=0; i< keyVal.value; i++) {
+			for (int t: types) {
+				for (int i=0; i<typeCounts[level].get(t); i++) {
 					newTopicWeights[level] += 
 						Math.log((eta + i) / (etaSum + totalTokens));
 					totalTokens++;
@@ -227,8 +226,7 @@ public class HierarchicalLDA implements Serializable {
 	
 		calculateWordLikelihood(nodeWeights, rootNode, 0.0, typeCounts, newTopicWeights, 0, iteration);
 
-		Object[] objectArray = nodeWeights.keys().toArray();
-		NCRPNode[] nodes = Arrays.copyOf(objectArray, objectArray.length, NCRPNode[].class);
+		NCRPNode[] nodes = nodeWeights.keys(new NCRPNode[] {});
 		double[] weights = new double[nodes.length];
 		double sum = 0.0;
 		double max = Double.NEGATIVE_INFINITY;
@@ -271,17 +269,18 @@ public class HierarchicalLDA implements Serializable {
 		documentLeaves[doc] = node;
 
 		for (level = numLevels - 1; level >= 0; level--) {
+			int[] types = typeCounts[level].keys();
 
-			for (IntIntCursor keyVal: typeCounts[level]) {
-				node.typeCounts[keyVal.key] += keyVal.value;
-				node.totalTokens += keyVal.value;
+			for (int t: types) {
+				node.typeCounts[t] += typeCounts[level].get(t);
+				node.totalTokens += typeCounts[level].get(t);
 			}
 
 			node = node.parent;
 		}
     }
 
-    public void calculateNCRP(ObjectDoubleHashMap<NCRPNode> nodeWeights, 
+    public void calculateNCRP(TObjectDoubleHashMap<NCRPNode> nodeWeights, 
 							  NCRPNode node, double weight) {
 		for (NCRPNode child: node.children) {
 			calculateNCRP(nodeWeights, child,
@@ -291,22 +290,23 @@ public class HierarchicalLDA implements Serializable {
 		nodeWeights.put(node, weight + Math.log(gamma / (node.customers + gamma)));
     }
 
-    public void calculateWordLikelihood(ObjectDoubleHashMap<NCRPNode> nodeWeights,
+    public void calculateWordLikelihood(TObjectDoubleHashMap<NCRPNode> nodeWeights,
 										NCRPNode node, double weight, 
-										IntIntHashMap[] typeCounts, double[] newTopicWeights,
+										TIntIntHashMap[] typeCounts, double[] newTopicWeights,
 										int level, int iteration) {
 	
 		// First calculate the likelihood of the words at this level, given
 		//  this topic.
 		double nodeWeight = 0.0;
+		int[] types = typeCounts[level].keys();
 		int totalTokens = 0;
 	
 		//if (iteration > 1) { System.out.println(level + " " + nodeWeight); }
 
-		for (IntIntCursor keyVal: typeCounts[level]) {
-			for (int i=0; i<keyVal.value; i++) {
+		for (int type: types) {
+			for (int i=0; i<typeCounts[level].get(type); i++) {
 				nodeWeight +=
-					Math.log((eta + node.typeCounts[keyVal.key] + i) /
+					Math.log((eta + node.typeCounts[type] + i) /
 							 (etaSum + node.totalTokens + totalTokens));
 				totalTokens++;
 
@@ -339,14 +339,14 @@ public class HierarchicalLDA implements Serializable {
 			level++;
 		}
 
-		nodeWeights.addTo(node, nodeWeight);
+		nodeWeights.adjustValue(node, nodeWeight);
 
     }
 
     /** Propagate a topic weight to a node and all its children.
 		weight is assumed to be a log.
 	*/
-    public void propagateTopicWeight(ObjectDoubleHashMap<NCRPNode> nodeWeights,
+    public void propagateTopicWeight(TObjectDoubleHashMap<NCRPNode> nodeWeights,
 									 NCRPNode node, double weight) {
 		if (! nodeWeights.containsKey(node)) {
 			// calculating the NCRP prior proceeds from the
@@ -364,7 +364,7 @@ public class HierarchicalLDA implements Serializable {
 			propagateTopicWeight(nodeWeights, child, weight);
 		}
 
-		nodeWeights.addTo(node, weight);
+		nodeWeights.adjustValue(node, weight);
     }
 
     public void sampleTopics(int doc) {
@@ -559,28 +559,6 @@ public class HierarchicalLDA implements Serializable {
 		return averageLogLikelihood;
     }
 
-	public void write (File serializedModelFile) {
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream (new FileOutputStream(serializedModelFile));
-			oos.writeObject(this);
-			oos.close();
-		} catch (IOException e) {
-			System.err.println("Problem serializing HierarchicalLDA to file " +
-					serializedModelFile + ": " + e);
-		}
-	}
-
-	public static HierarchicalLDA read (File f) throws Exception {
-
-		HierarchicalLDA topicModel;
-
-		ObjectInputStream ois = new ObjectInputStream (new FileInputStream(f));
-		topicModel = (HierarchicalLDA) ois.readObject();
-		ois.close();
-
-		return topicModel;
-	}
-
 	/** 
 	 *  This method is primarily for testing purposes. The {@link cc.mallet.topics.tui.HierarchicalLDATUI}
 	 *   class has a more flexible interface for command-line use.
@@ -598,7 +576,7 @@ public class HierarchicalLDA implements Serializable {
 		}
     }
 
-    class NCRPNode implements Serializable {
+    class NCRPNode {
 		int customers;
 		ArrayList<NCRPNode> children;
 		NCRPNode parent;

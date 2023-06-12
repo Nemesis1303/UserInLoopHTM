@@ -7,9 +7,8 @@
 
 package cc.mallet.fst.semi_supervised.constraints;
 
-import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.cursors.ObjectCursor;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -37,22 +36,22 @@ import cc.mallet.types.InstanceList;
 public class OneLabelL2RangeGEConstraints implements GEConstraint {
 
   // maps between input feature indices and constraints
-  protected IntObjectHashMap<OneLabelL2IndGEConstraint> constraints;
+  protected TIntObjectHashMap<OneLabelL2IndGEConstraint> constraints;
   protected StateLabelMap map;
   
   // cache of set of constrained features that fire at last FeatureVector
   // provided in preprocess call
-  protected IntArrayList cache;
+  protected TIntArrayList cache;
 
   public OneLabelL2RangeGEConstraints() {
-    this.constraints = new IntObjectHashMap<OneLabelL2IndGEConstraint>();
-    this.cache = new IntArrayList();
+    this.constraints = new TIntObjectHashMap<OneLabelL2IndGEConstraint>();
+    this.cache = new TIntArrayList();
   }
   
-  protected OneLabelL2RangeGEConstraints(IntObjectHashMap<OneLabelL2IndGEConstraint> constraints, StateLabelMap map) {
+  protected OneLabelL2RangeGEConstraints(TIntObjectHashMap<OneLabelL2IndGEConstraint> constraints, StateLabelMap map) {
     this.constraints = constraints;
     this.map = map;
-    this.cache = new IntArrayList();
+    this.cache = new TIntArrayList();
   }
   
   public void addConstraint(int fi, int li, double lower, double upper, double weight) {
@@ -71,7 +70,7 @@ public class OneLabelL2RangeGEConstraints implements GEConstraint {
   }
   
   public void preProcess(FeatureVector fv) {
-    cache.clear();
+    cache.resetQuick();
     int fi;
     // cache constrained input features
     for (int loc = 0; loc < fv.numLocations(); loc++) {
@@ -118,15 +117,15 @@ public class OneLabelL2RangeGEConstraints implements GEConstraint {
     double value = 0;
     int li2 = map.getLabelIndex(si2);
     for (int i = 0; i < cache.size(); i++) {
-      value += constraints.get(cache.get(i)).getGradientContribution(li2);
+      value += constraints.get(cache.getQuick(i)).getGradientContribution(li2);
     }
     return value;
   }
 
   public double getValue() {
     double value = 0.0;
-    for (ObjectCursor<OneLabelL2IndGEConstraint> fi : constraints.values()) {
-      OneLabelL2IndGEConstraint constraint = fi.value;
+    for (int fi : constraints.keys()) {
+      OneLabelL2IndGEConstraint constraint = constraints.get(fi);
       if ( constraint.count > 0.0) {
         // value due to current constraint
         for (int labelIndex = 0; labelIndex < map.getNumLabels(); ++labelIndex) {
@@ -139,21 +138,21 @@ public class OneLabelL2RangeGEConstraints implements GEConstraint {
   }
 
   public void zeroExpectations() {
-    for (ObjectCursor<OneLabelL2IndGEConstraint> fi : constraints.values()) {
-      fi.value.expectation = new double[fi.value.getNumConstrainedLabels()];
+    for (int fi : constraints.keys()) {
+      constraints.get(fi).expectation = new double[constraints.get(fi).getNumConstrainedLabels()];
     }
   }
   
   public void computeExpectations(ArrayList<SumLattice> lattices) {
     double[][] gammas;    
-    IntArrayList cache = new IntArrayList();
+    TIntArrayList cache = new TIntArrayList();
     for (int i = 0; i < lattices.size(); i++) {
       if (lattices.get(i) == null) { continue; }
       SumLattice lattice = lattices.get(i);
       FeatureVectorSequence fvs = (FeatureVectorSequence)lattice.getInput();
       gammas = lattice.getGammas();
       for (int ip = 0; ip < fvs.size(); ++ip) {
-        cache.clear();
+        cache.resetQuick();
         FeatureVector fv = fvs.getFeatureVector(ip);
         int fi;
         for (int loc = 0; loc < fv.numLocations(); loc++) {
@@ -171,7 +170,7 @@ public class OneLabelL2RangeGEConstraints implements GEConstraint {
           if (li != StateLabelMap.START_LABEL) {
             double gammaProb = Math.exp(gammas[ip+1][s]);
             for (int j = 0; j < cache.size(); j++) {
-              constraints.get(cache.get(j)).incrementExpectation(li,gammaProb);
+              constraints.get(cache.getQuick(j)).incrementExpectation(li,gammaProb);
             }
           }
         }

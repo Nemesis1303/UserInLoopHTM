@@ -16,13 +16,15 @@ package cc.mallet.pipe.iterator;
 
 import java.net.URI;
 import java.util.Iterator;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import com.google.errorprone.annotations.Var;
-
+import cc.mallet.pipe.Pipe;
+import cc.mallet.pipe.iterator.PipeInputIterator;
 import cc.mallet.types.Alphabet;
 import cc.mallet.types.Dirichlet;
 import cc.mallet.types.Instance;
+import cc.mallet.types.Label;
+import cc.mallet.types.Multinomial;
 import cc.mallet.types.TokenSequence;
 import cc.mallet.util.MalletLogger;
 import cc.mallet.util.Randoms;
@@ -128,7 +130,6 @@ public class RandomTokenSequenceIterator implements Iterator<Instance>
 			currentClassIndex--;
 			currentInstanceIndex = numInstancesPerClass[currentClassIndex] - 1;
 		}
-		@Var
 		URI uri = null;
 		try { uri = new URI ("random:" + classNames[currentClassIndex] + "/" + currentInstanceIndex); }
 		catch (Exception e) {e.printStackTrace(); throw new IllegalStateException (); }

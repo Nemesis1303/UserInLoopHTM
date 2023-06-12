@@ -1,6 +1,6 @@
 package cc.mallet.cluster.tui;
 
-import com.carrotsearch.hppc.IntHashSet;
+import gnu.trove.TIntHashSet;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,7 +86,7 @@ public class Clusterings2Clusterings {
 				throw new IllegalArgumentException("Expect one clustering to do train/test split, not " + clusterings.size());
 			Clustering clustering = clusterings.get(0);
 			int targetTrainSize = (int)(trainingProportion.value * clustering.getNumInstances());
-			IntHashSet clustersSampled = new IntHashSet();
+			TIntHashSet clustersSampled = new TIntHashSet();
 			Randoms random = new Randoms(123);
 			LabelAlphabet lalph = new LabelAlphabet();
 			InstanceList trainingInstances = new InstanceList(new Noop(null, lalph));

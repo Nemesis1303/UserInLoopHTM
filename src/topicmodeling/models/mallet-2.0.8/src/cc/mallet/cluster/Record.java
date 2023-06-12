@@ -1,7 +1,6 @@
 package cc.mallet.cluster;
 
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import gnu.trove.TIntObjectHashMap;
 
 import java.io.Serializable;
 
@@ -17,12 +16,12 @@ public class Record implements Serializable {
 
 	Alphabet valueAlph;
 
-	IntObjectHashMap<FeatureVector> field2values;
+	TIntObjectHashMap<FeatureVector> field2values;
 
 	public Record (Alphabet fieldAlph, Alphabet valueAlph) {
 		this.fieldAlph = fieldAlph;
 		this.valueAlph = valueAlph;
-		field2values = new IntObjectHashMap<FeatureVector>();
+		field2values = new TIntObjectHashMap<FeatureVector>();
 	}
 
 	public Record (Alphabet fieldAlph, Alphabet valueAlph, String[][] vals) {
@@ -52,7 +51,7 @@ public class Record implements Serializable {
 		return (fv == null) ? -1 : fv.indexAtLocation(0);
 	}
 	
-	public int[] fields () { return field2values.keys().toArray(); }
+	public int[] fields () { return field2values.keys(); }
 	
 	public Alphabet fieldAlphabet () { return this.fieldAlph; }
 	
@@ -62,9 +61,10 @@ public class Record implements Serializable {
 	
 	public String toString (boolean oneLine) {
 		StringBuffer b = new StringBuffer();
-		for (IntObjectCursor<FeatureVector> fi : field2values) {
-			b.append(fieldAlph.lookupIndex(fi.key) + "=");
-			FeatureVector v = fi.value;
+		int[] keys = field2values.keys();
+		for (int i = 0; i < keys.length; i++) {
+			b.append(fieldAlph.lookupObject(keys[i]) + "=");
+			FeatureVector v = (FeatureVector) field2values.get(keys[i]);
 			for (int j = 0; j < v.numLocations(); j++)
 				b.append(valueAlph.lookupObject(v.indexAtLocation(j)) + ",");
 			if (!oneLine) b.append("\n");

@@ -18,8 +18,7 @@ import cc.mallet.topics.*;
 import cc.mallet.types.*;
 import cc.mallet.util.*;
 
-import com.carrotsearch.hppc.IntIntHashMap;
-import com.carrotsearch.hppc.cursors.IntCursor;
+import gnu.trove.*;
 
 /**
  * A non-parametric topic model that uses the "minimal path" assumption
@@ -57,12 +56,12 @@ public class NPTopicModel implements Serializable {
 	public static final double DEFAULT_BETA = 0.01;
 	
 	// Statistics needed for sampling.
-	protected IntIntHashMap[] typeTopicCounts; // indexed by <feature index, topic index>
-	protected IntIntHashMap tokensPerTopic; // indexed by <topic index>
+	protected TIntIntHashMap[] typeTopicCounts; // indexed by <feature index, topic index>
+	protected TIntIntHashMap tokensPerTopic; // indexed by <topic index>
 
 	// The number of documents that contain at least one
 	//  token with a given topic.
-	protected IntIntHashMap docsPerTopic;
+	protected TIntIntHashMap docsPerTopic;
 	protected int totalDocTopics = 0;
 	
 	public int showTopicsInterval = 50;
@@ -88,8 +87,8 @@ public class NPTopicModel implements Serializable {
 		this.beta = beta;
 		this.random = new Randoms();
 		
-		tokensPerTopic = new IntIntHashMap();
-		docsPerTopic = new IntIntHashMap();
+		tokensPerTopic = new TIntIntHashMap();
+		docsPerTopic = new TIntIntHashMap();
 		
 		formatter = NumberFormat.getInstance();
 		formatter.setMaximumFractionDigits(5);
@@ -113,9 +112,9 @@ public class NPTopicModel implements Serializable {
 		
 		betaSum = beta * numTypes;
 		
-		typeTopicCounts = new IntIntHashMap[numTypes];
+		typeTopicCounts = new TIntIntHashMap[numTypes];
 		for (int type=0; type < numTypes; type++) {
-			typeTopicCounts[type] = new IntIntHashMap();
+			typeTopicCounts[type] = new TIntIntHashMap();
 		}
 
 		numTopics = initialTopics;
@@ -125,7 +124,7 @@ public class NPTopicModel implements Serializable {
 		for (Instance instance : training) {
 			doc++;
 
-			IntIntHashMap topicCounts = new IntIntHashMap();
+			TIntIntHashMap topicCounts = new TIntIntHashMap();
 
 			FeatureSequence tokens = (FeatureSequence) instance.getData();
 			LabelSequence topicSequence =
@@ -135,22 +134,22 @@ public class NPTopicModel implements Serializable {
 			for (int position = 0; position < tokens.size(); position++) {
 
 				int topic = random.nextInt(numTopics);
-				tokensPerTopic.putOrAdd(topic, 1, 1);
+				tokensPerTopic.adjustOrPutValue(topic, 1, 1);
 				topics[position] = topic;
 
 				// Keep track of the number of docs with at least one token
 				//  in a given topic.
 				if (! topicCounts.containsKey(topic)) {
-					docsPerTopic.putOrAdd(topic, 1, 1);
+					docsPerTopic.adjustOrPutValue(topic, 1, 1);
 					totalDocTopics++;
 					topicCounts.put(topic, 1);
 				}
 				else {
-					topicCounts.addTo(topic, 1);
+					topicCounts.adjustValue(topic, 1);
 				}
 				
 				int type = tokens.getIndexAtPosition(position);
-				typeTopicCounts[type].putOrAdd(topic, 1, 1);
+				typeTopicCounts[type].adjustOrPutValue(topic, 1, 1);
 			}
 
 			TopicAssignment t = new TopicAssignment (instance, topicSequence);
@@ -194,23 +193,23 @@ public class NPTopicModel implements Serializable {
 
 		int[] topics = topicSequence.getFeatures();
 
-		IntIntHashMap currentTypeTopicCounts;
+		TIntIntHashMap currentTypeTopicCounts;
 		int type, oldTopic, newTopic;
 		double topicWeightsSum;
 		int docLength = tokenSequence.getLength();
 
-		IntIntHashMap localTopicCounts = new IntIntHashMap();
+		TIntIntHashMap localTopicCounts = new TIntIntHashMap();
 
 		//		populate topic counts
 		for (int position = 0; position < docLength; position++) {
-			localTopicCounts.putOrAdd(topics[position], 1, 1);
+			localTopicCounts.adjustOrPutValue(topics[position], 1, 1);
 		}
 
 		double score, sum;
 		double[] topicTermScores = new double[numTopics + 1];
 
 		// Store a list of all the topics that currently exist.
-		int[] allTopics = docsPerTopic.keys().toArray();
+		int[] allTopics = docsPerTopic.keys();
 			
 		//	Iterate over the positions (words) in the document 
 		for (int position = 0; position < docLength; position++) {
@@ -240,28 +239,28 @@ public class NPTopicModel implements Serializable {
 					tokensPerTopic.remove(oldTopic);
 					numTopics--;
 
-					allTopics = docsPerTopic.keys().toArray();
+					allTopics = docsPerTopic.keys();
 					topicTermScores = new double[numTopics + 1];
 				}
 				else {
 					// This is the last in the doc, but the topic still exists
-					docsPerTopic.addTo(oldTopic, -1);
+					docsPerTopic.adjustValue(oldTopic, -1);
 					totalDocTopics--;
-					tokensPerTopic.addTo(oldTopic, -1);
+					tokensPerTopic.adjustValue(oldTopic, -1);
 				}
 			}
 			else {
 				// There is at least one other token in this doc
 				//  with this topic.
-				localTopicCounts.addTo(oldTopic, -1);
-				tokensPerTopic.addTo(oldTopic, -1);
+				localTopicCounts.adjustValue(oldTopic, -1);
+				tokensPerTopic.adjustValue(oldTopic, -1);
 			}
 
 			if (currentTypeTopicCounts.get(oldTopic) == 1) {
 				currentTypeTopicCounts.remove(oldTopic);
 			}
 			else {
-				currentTypeTopicCounts.addTo(oldTopic, -1);
+				currentTypeTopicCounts.adjustValue(oldTopic, -1);
 			}
 
 			// Now calculate and add up the scores for each topic for this word
@@ -303,16 +302,16 @@ public class NPTopicModel implements Serializable {
 				newTopic = allTopics[i];
 
 				topics[position] = newTopic;
-				currentTypeTopicCounts.putOrAdd(newTopic, 1, 1);
-				tokensPerTopic.addTo(newTopic, 1);
+				currentTypeTopicCounts.adjustOrPutValue(newTopic, 1, 1);
+				tokensPerTopic.adjustValue(newTopic, 1);
 				
 				if (localTopicCounts.containsKey(newTopic)) {
-					localTopicCounts.addTo(newTopic, 1);
+					localTopicCounts.adjustValue(newTopic, 1);
 				}
 				else {
 					// This is not a new topic, but it is new for this doc.
 					localTopicCounts.put(newTopic, 1);
-					docsPerTopic.addTo(newTopic, 1);
+					docsPerTopic.adjustValue(newTopic, 1);
 					totalDocTopics++;
 				}
 			}
@@ -333,7 +332,7 @@ public class NPTopicModel implements Serializable {
 				currentTypeTopicCounts.put(newTopic, 1);
                 tokensPerTopic.put(newTopic, 1);
 				
-				allTopics = docsPerTopic.keys().toArray();
+				allTopics = docsPerTopic.keys();
 			    topicTermScores = new double[numTopics + 1];
 			}
 		}
@@ -349,8 +348,7 @@ public class NPTopicModel implements Serializable {
 
 		IDSorter[] sortedWords = new IDSorter[numTypes];
 
-		for (IntCursor cursor: docsPerTopic.keys()) {
-			int topic = cursor.value;
+		for (int topic: docsPerTopic.keys()) {
 			for (int type = 0; type < numTypes; type++) {
 				sortedWords[type] = new IDSorter(type, typeTopicCounts[type].get(topic));
 			}

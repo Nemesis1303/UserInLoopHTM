@@ -7,13 +7,11 @@
 
 package cc.mallet.fst.semi_supervised.constraints;
 
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntIntHashMap;
+
 import java.util.ArrayList;
 import java.util.BitSet;
-
-import com.carrotsearch.hppc.IntArrayList;
-import com.carrotsearch.hppc.IntIntHashMap;
-import com.carrotsearch.hppc.cursors.IntIntCursor;
-import com.google.errorprone.annotations.Var;
 
 import cc.mallet.fst.SumLattice;
 import cc.mallet.fst.semi_supervised.StateLabelMap;
@@ -36,22 +34,22 @@ import cc.mallet.types.InstanceList;
 public abstract class TwoLabelGEConstraints implements GEConstraint {
 
   protected ArrayList<TwoLabelGEConstraint> constraintsList;
-  protected IntIntHashMap constraintsMap;
+  protected TIntIntHashMap constraintsMap;
   protected StateLabelMap map;
-  protected IntArrayList cache;
+  protected TIntArrayList cache;
 
   public TwoLabelGEConstraints() {
     this.constraintsList = new ArrayList<TwoLabelGEConstraint>();
-    this.constraintsMap = new IntIntHashMap();
+    this.constraintsMap = new TIntIntHashMap();
     this.map = null;
-    this.cache = new IntArrayList();
+    this.cache = new TIntArrayList();
   }
   
-  protected TwoLabelGEConstraints(ArrayList<TwoLabelGEConstraint> constraintsList, IntIntHashMap constraintsMap, StateLabelMap map) {
+  protected TwoLabelGEConstraints(ArrayList<TwoLabelGEConstraint> constraintsList, TIntIntHashMap constraintsMap, StateLabelMap map) {
     this.constraintsList = constraintsList;
     this.constraintsMap = constraintsMap;
     this.map = map;
-    this.cache = new IntArrayList();
+    this.cache = new TIntArrayList();
   }
   
   /**
@@ -70,8 +68,7 @@ public abstract class TwoLabelGEConstraints implements GEConstraint {
   }
   
   public void preProcess(FeatureVector fv) {
-    cache.clear();
-    @Var
+    cache.resetQuick();
     int fi;
     for (int loc = 0; loc < fv.numLocations(); loc++) {
       fi = fv.indexAtLocation(loc);
@@ -84,15 +81,14 @@ public abstract class TwoLabelGEConstraints implements GEConstraint {
   public BitSet preProcess(InstanceList data) {
     // count
     BitSet bitSet = new BitSet(data.size());
-    @Var
     int ii = 0;
     for (Instance instance : data) {
       FeatureVectorSequence fvs = (FeatureVectorSequence)instance.getData();
       for (int ip = 1; ip < fvs.size(); ip++) {
-        for (IntIntCursor keyVal : constraintsMap) {
+        for (int fi : constraintsMap.keys()) {
           // binary constraint features
-          if (fvs.get(ip).location(keyVal.key) >= 0) {
-            constraintsList.get(keyVal.value).count += 1;
+          if (fvs.get(ip).location(fi) >= 0) {
+            constraintsList.get(constraintsMap.get(fi)).count += 1;
             bitSet.set(ii);
           }
         }
@@ -109,8 +105,7 @@ public abstract class TwoLabelGEConstraints implements GEConstraint {
     if (ip == 0) {
       return 0;
     }
-
-    @Var
+    
     double value = 0;
     int li1 = map.getLabelIndex(si1);
     if (li1 == StateLabelMap.START_LABEL) {
@@ -119,7 +114,7 @@ public abstract class TwoLabelGEConstraints implements GEConstraint {
     
     int li2 = map.getLabelIndex(si2);
     for (int i = 0; i < cache.size(); i++) {
-      value += constraintsList.get(cache.get(i)).getValue(li1,li2);
+      value += constraintsList.get(cache.getQuick(i)).getValue(li1,li2);
     }
     return value;
   }
@@ -133,18 +128,16 @@ public abstract class TwoLabelGEConstraints implements GEConstraint {
   }
   
   public void computeExpectations(ArrayList<SumLattice> lattices) {
-    @Var
     double[][][] xis;
-    IntArrayList cache = new IntArrayList();
+    TIntArrayList cache = new TIntArrayList();
     for (int i = 0; i < lattices.size(); i++) {
       if (lattices.get(i) == null) { continue; }
       FeatureVectorSequence fvs = (FeatureVectorSequence)lattices.get(i).getInput();
       SumLattice lattice = lattices.get(i);
       xis = lattice.getXis();
       for (int ip = 1; ip < fvs.size(); ++ip) {
-        cache.clear();
+        cache.resetQuick();
         FeatureVector fv = fvs.getFeatureVector(ip);
-        @Var
         int fi;
         for (int loc = 0; loc < fv.numLocations(); loc++) {
           fi = fv.indexAtLocation(loc);
@@ -161,7 +154,7 @@ public abstract class TwoLabelGEConstraints implements GEConstraint {
               if (liCurr != StateLabelMap.START_LABEL) {
                 double prob = Math.exp(xis[ip][prev][curr]);
                 for (int j = 0; j < cache.size(); j++) {
-                  constraintsList.get(cache.get(j)).expectation[liPrev][liCurr] += prob;
+                  constraintsList.get(cache.getQuick(j)).expectation[liPrev][liCurr] += prob;
                 }
               }
             }

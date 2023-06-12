@@ -1,8 +1,7 @@
 package cc.mallet.topics;
 
 import cc.mallet.types.*;
-import com.carrotsearch.hppc.IntIntHashMap;
-import com.carrotsearch.hppc.cursors.IntCursor;
+import gnu.trove.TIntIntHashMap;
 import java.io.*;
 
 /** A wrapper for a topic model to be used from the R statistical package through rJava.
@@ -84,22 +83,23 @@ public class RTopicModel extends ParallelTopicModel {
 
 		double[][] result = new double[ numTypes ][ 2 ];
 
-		IntIntHashMap docCounts = new IntIntHashMap();
+		TIntIntHashMap docCounts = new TIntIntHashMap();
 		
 		for (Instance instance: instances) {
 			FeatureSequence features = (FeatureSequence) instance.getData();
             
 			for (int i=0; i<features.getLength(); i++) {
-				docCounts.putOrAdd(features.getIndexAtPosition(i), 1, 1);
+				docCounts.adjustOrPutValue(features.getIndexAtPosition(i), 1, 1);
 			}
-
-			for (IntCursor cursor : docCounts.values()) {
-				int feature = cursor.value;
+            
+			int[] keys = docCounts.keys();
+			for (int i = 0; i < keys.length; i++) {
+				int feature = keys[i];
 				result[feature][0] += docCounts.get(feature);
 				result[feature][1]++;
 			}
             
-			docCounts = new IntIntHashMap();
+			docCounts = new TIntIntHashMap();
             
 		}
 		

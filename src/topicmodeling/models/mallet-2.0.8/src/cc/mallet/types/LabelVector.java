@@ -14,115 +14,129 @@
 
 package cc.mallet.types;
 
-import com.google.errorprone.annotations.Var;
+import cc.mallet.types.Label;
+import cc.mallet.types.RankedFeatureVector;
 
-public class LabelVector extends RankedFeatureVector implements Labeling {
-    public LabelVector (LabelAlphabet dict, int[] features, double[] values) {
-        super (dict, features, values);
-    }
+public class LabelVector extends RankedFeatureVector implements Labeling
+{
+	public LabelVector (LabelAlphabet dict,
+											int[] features,
+											double[] values)
+	{
+		super (dict, features, values);
+	}
 
-    private static int[] indicesForLabels (Label[] labels) {
-        int[] indices = new int[labels.length];
-        for (int i = 0; i < labels.length; i++)
-            indices[i] = labels[i].getIndex();
-        return indices;
-    }
+	private static int[] indicesForLabels (Label[] labels)
+	{
+		int[] indices = new int[labels.length];
+		for (int i = 0; i < labels.length; i++)
+			indices[i] = labels[i].getIndex();
+		return indices;
+	}
 
-    public LabelVector (Label[] labels, double[] values) {
-        super (labels[0].dictionary, indicesForLabels(labels), values);
-    }
+	public LabelVector (Label[] labels,
+											double[] values)
+	{
+		super (labels[0].dictionary, indicesForLabels(labels), values);
+	}
 
-    public LabelVector (LabelAlphabet dict, double[] values) {
-        super (dict, values);
-    }
+	public LabelVector (LabelAlphabet dict, double[] values)
+	{
+		super (dict, values);
+	}
 
-    @Override public final Label labelAtLocation (int loc) {
-        return ((LabelAlphabet)dictionary).lookupLabel(indexAtLocation (loc));
-    }
+	public final Label labelAtLocation (int loc)
+	{
+		return ((LabelAlphabet)dictionary).lookupLabel(indexAtLocation (loc));
+	}
 
-    @Override public LabelAlphabet getLabelAlphabet () {
-        return (LabelAlphabet) dictionary;
-    }
-    
-    // Labeling interface
+	public LabelAlphabet getLabelAlphabet ()
+	{
+		return (LabelAlphabet) dictionary;
+	}
 
-    // xxx Change these names to better match RankedFeatureVector?
 
-    @Override public int getBestIndex () {
-        if (rankOrder == null) {
-            setRankOrder ();
-        }
-        return rankOrder[0];
-    }
+	// Labeling interface
 
-    @Override public Label getBestLabel () {
-        return ((LabelAlphabet)dictionary).lookupLabel (getBestIndex());
-    }
+	// xxx Change these names to better match RankedFeatureVector?
 
-    @Override public double getBestValue () {
-        if (rankOrder == null) {
-            setRankOrder ();
-        }
-        return values[rankOrder[0]];
-    }
+	public int getBestIndex ()
+	{
+		if (rankOrder == null)
+			setRankOrder ();
+		return rankOrder[0];
+	}
 
-    @Override public double value (Label label) {
-        assert (label.dictionary  == this.dictionary);
-        return values[this.location (label.toString ())];
-    }
+	public Label getBestLabel ()
+	{
+		return ((LabelAlphabet)dictionary).lookupLabel (getBestIndex());
+	}
 
-    @Override public int getRank (Label label) {
+	public double getBestValue ()
+	{
+		if (rankOrder == null)
+			setRankOrder ();
+		return values[rankOrder[0]];
+	}
 
-        //throw new UnsupportedOperationException ();
+	public double value (Label label)
+	{
+		assert (label.dictionary  == this.dictionary);
+		return values[this.location (label.toString ())];
+	}
+
+	public int getRank (Label label)
+	{
+
+		//throw new UnsupportedOperationException ();
         // CPAL - Implemented this
         
-        if (rankOrder == null) {
+        if (rankOrder == null)
             setRankOrder();
-        }
 
-        @Var
         int ii=-1;
         int tmpIndex = ((LabelAlphabet)dictionary).lookupIndex(label.entry);
         // Now find this index in the ordered list with a linear search
-        for (ii=0; ii<rankOrder.length; ii++) {
-            if (rankOrder[ii] == tmpIndex) {
-                break;
-            }
+        for(ii=0; ii<rankOrder.length ; ii++) {
+            if (rankOrder[ii] == tmpIndex)
+               break;
         }
 
         // CPAL if ii == -1 we have a problem
         
         return ii;
-    }
+	}
 
-    @Override public int getRank (int labelIndex) {
-        return getRank(((LabelAlphabet)dictionary).lookupLabel(labelIndex));
-    }
+	public int getRank (int labelIndex)
+	{
+		return getRank(((LabelAlphabet)dictionary).lookupLabel(labelIndex));
+	}
 
-    @Override public Label getLabelAtRank (int rank) {
-        if (rankOrder == null){
-            setRankOrder ();
-        }
-        return ((LabelAlphabet)dictionary).lookupLabel (rankOrder[rank]);
-    }
+	public Label getLabelAtRank (int rank)
+	{
+		if (rankOrder == null)
+			setRankOrder ();
+		return ((LabelAlphabet)dictionary).lookupLabel (rankOrder[rank]);
+	}
 
-    @Override public double getValueAtRank (int rank) {
-        if (rankOrder == null) {
-            setRankOrder ();
-        }
-        return values[rankOrder[rank]];
-    }
+	public double getValueAtRank (int rank)
+	{
+		if (rankOrder == null)
+			setRankOrder ();
+		return values[rankOrder[rank]];
+	}
 
-    @Override public LabelVector toLabelVector () {
-        return this;
-    }
+	public LabelVector toLabelVector ()
+	{
+		return this;
+	}
 
 
-    // Inherited from FeatureVector or SparseVector
-    // public void addTo (double[] values)
-    // public void addTo (double[] values, double scale)
-    // public int numLocations ();
-    // public double valueAtLocation (int loc)
+	// Inherited from FeatureVector or SparseVector
+	// public void addTo (double[] values)
+	// public void addTo (double[] values, double scale)
+	// public int numLocations ();
+	// public double valueAtLocation (int loc)
 
-    
+	
 }

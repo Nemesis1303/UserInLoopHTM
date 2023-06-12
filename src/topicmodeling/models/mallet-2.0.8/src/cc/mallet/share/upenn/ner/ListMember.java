@@ -7,7 +7,7 @@ import java.util.*;
 import cc.mallet.pipe.*;
 import cc.mallet.types.*;
 
-import com.carrotsearch.hppc.ObjectHashSet;
+import gnu.trove.*;
 
 /**
  * Checks membership in a lexicon in a text file.  Multi-token items are supported,
@@ -17,7 +17,7 @@ import com.carrotsearch.hppc.ObjectHashSet;
 public class ListMember extends Pipe implements java.io.Serializable {
     
     String name;
-    ObjectHashSet lexicon;
+    Set lexicon;
     boolean ignoreCase;
     int min, max;
 
@@ -29,7 +29,7 @@ public class ListMember extends Pipe implements java.io.Serializable {
             throw new IllegalArgumentException("File "+lexFile+" not found.");
 
         try {
-            lexicon = new ObjectHashSet();
+            lexicon = new THashSet();
             min = 99999;
             max = -1;
             BufferedReader br = new BufferedReader(new FileReader(lexFile));

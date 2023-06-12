@@ -27,7 +27,7 @@ public class ClassifierAccuracyEvaluator extends ClassifierEvaluator
 	}
 
 
-	@Override public void evaluateInstanceList (ClassifierTrainer trainer,	InstanceList instances, String description) 
+	public void evaluateInstanceList (ClassifierTrainer trainer,	InstanceList instances, String description) 
 	{
 		Classifier classifier = trainer.getClassifier();
 		if (classifier.getFeatureSelection() != instances.getFeatureSelection())

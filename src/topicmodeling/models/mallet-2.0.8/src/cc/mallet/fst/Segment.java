@@ -14,8 +14,6 @@ package cc.mallet.fst;
 
 import java.util.ArrayList;
 
-import com.google.errorprone.annotations.Var;
-
 import cc.mallet.types.ArraySequence;
 import cc.mallet.types.Sequence;
 
@@ -112,7 +110,6 @@ public class Segment implements Comparable
 	}
 
 	public String sequenceToString () {
-		@Var
 		String ret = "";
 		for (int i=0; i < input.size(); i++) {
 			if (i <= end && i >= start) // part of segment
@@ -124,7 +121,6 @@ public class Segment implements Comparable
 	}
 
 	public String toString () {
-		@Var
 		String ret = "";
 		ret += "start: " + start + " end: " + end + " confidence: " + confidence + "\n";
 		for (int i=start; i <= end; i++) {
