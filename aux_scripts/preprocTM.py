@@ -37,15 +37,15 @@ def main(nw=0, iter_=0, spark=True):
         "no_above": 0.4,
         "keep_n": 100000,
         "stopwords": [
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/english_generic.json",
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/S2_stopwords.json",
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/S2CS_stopwords.json",
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/cordis_stopwords.json",
+            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/english_generic.json",
+            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/S2_stopwords.json",
+            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/S2CS_stopwords.json",
+            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/cordis_stopwords.json",
         ],
         "equivalences": [
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/S2_equivalences.json",
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/S2CS_equivalences.json",
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/cordis_equivalences.json",
+            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/S2_equivalences.json",
+            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/S2CS_equivalences.json",
+            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/cordis_equivalences.json",
             
         ]
     }
