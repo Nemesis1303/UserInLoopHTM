@@ -4,7 +4,7 @@
 Mallet
 ======
 
-Website: https://mimno.github.io/Mallet/
+Website: http://mallet.cs.umass.edu/index.php
 
 MALLET is a Java-based package for statistical natural language processing, document classification, clustering, topic modeling, information extraction, and other machine learning applications to text.
 
@@ -40,7 +40,7 @@ bin/mallet [command] --option value --option value ...
 ```
 Type `bin/mallet` to get a list of commands, and use the option `--help` with any command to get a description of valid options.
 
-For details about the commands please visit the API documentation and website at: https://mimno.github.io/Mallet/
+For details about the commands please visit the API documentation and website at: http://mallet.cs.umass.edu/
 
 
 ## List of Algorithms:
