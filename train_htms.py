@@ -114,7 +114,8 @@ def train_automatic(path_corpus: str,
                     trainer: str,
                     iters: int,
                     start: int,
-                    model_path: str = None):
+                    model_path: str = None,
+                    only_root: bool = False):
 
     for iter_ in range(iters):
         iter_ += start
@@ -199,88 +200,27 @@ def train_automatic(path_corpus: str,
 
             configFile = model_path.joinpath("config.json")
 
-        # Generate submodels
-        print("#############################")
-        print("Generating submodels")
+        if not only_root:
+            # Generate submodels
+            print("#############################")
+            print("Generating submodels")
 
-        # Save father's config file
-        configFile_parent = configFile
-        model_path_parent = model_path
+            # Save father's config file
+            configFile_parent = configFile
+            model_path_parent = model_path
 
-        # Train submodels
-        num_topics_sub = [6, 8, 10]
-        for j in num_topics_sub:
-            for i in range(ntopics):
-                for version in ["htm-ws", "htm-ds"]:
+            # Train submodels
+            num_topics_sub = [6, 8, 10]
+            for j in num_topics_sub:
+                for i in range(ntopics):
+                    for version in ["htm-ws", "htm-ds"]:
 
-                    if version == "htm-ws":
-                        print("Generating submodel with HTM-WS")
+                        if version == "htm-ws":
+                            print("Generating submodel with HTM-WS")
 
-                        # Create folder for saving node's outputs
-                        model_path = pathlib.Path(model_path_parent).joinpath(
-                            f"submodel_{version}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}")
-
-                        if model_path.exists():
-                            # Remove current backup folder, if it exists
-                            old_model_dir = pathlib.Path(
-                                str(model_path) + '_old/')
-                            if old_model_dir.exists():
-                                shutil.rmtree(old_model_dir)
-
-                            # Copy current model folder to the backup folder.
-                            shutil.move(model_path, old_model_dir)
-                            print(
-                                f'-- -- Creating backup of existing model in {old_model_dir}')
-
-                        model_path.mkdir(parents=True, exist_ok=True)
-
-                        training_params["n_components"] = j
-                        train_config = get_model_config(
-                            trainer=trainer,
-                            TMparam=training_params,
-                            hierarchy_level=1,
-                            htm_version=version,
-                            expansion_tpc=i,
-                            thr=None)
-
-                        configFile = model_path.joinpath("config.json")
-                        with configFile.open("w", encoding="utf-8") as fout:
-                            json.dump(train_config, fout, ensure_ascii=False,
-                                      indent=2, default=str)
-
-                        t_start = time.perf_counter()
-
-                        # Create submodel training corpus
-                        cmd = f'python src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
-                        print(cmd)
-                        try:
-                            logger.info(f'-- -- Running command {cmd}')
-                            output = check_output(args=cmd, shell=True)
-                        except:
-                            logger.error('-- -- Command execution failed')
-
-                        # Train submodel
-                        cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
-                        print(cmd)
-                        try:
-                            logger.info(f'-- -- Running command {cmd}')
-                            output = check_output(args=cmd, shell=True)
-                        except:
-                            logger.error('-- -- Command execution failed')
-
-                        t_end = time.perf_counter()
-
-                        t_total = t_end - t_start
-                        logger.info(
-                            f"Total training {model_path.as_posix()} --> {t_total}")
-
-                    else:
-                        print("Generating submodel with HTM-DS")
-                        for thr in np.arange(0.1, 1, 0.1):
                             # Create folder for saving node's outputs
-                            thr_f = "{:.1f}".format(thr)
                             model_path = pathlib.Path(model_path_parent).joinpath(
-                                f"submodel_{version}_thr_{thr_f}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}")
+                                f"submodel_{version}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}")
 
                             if model_path.exists():
                                 # Remove current backup folder, if it exists
@@ -303,12 +243,12 @@ def train_automatic(path_corpus: str,
                                 hierarchy_level=1,
                                 htm_version=version,
                                 expansion_tpc=i,
-                                thr=thr)
+                                thr=None)
 
                             configFile = model_path.joinpath("config.json")
                             with configFile.open("w", encoding="utf-8") as fout:
                                 json.dump(train_config, fout, ensure_ascii=False,
-                                          indent=2, default=str)
+                                        indent=2, default=str)
 
                             t_start = time.perf_counter()
 
@@ -335,6 +275,68 @@ def train_automatic(path_corpus: str,
                             t_total = t_end - t_start
                             logger.info(
                                 f"Total training {model_path.as_posix()} --> {t_total}")
+
+                        else:
+                            print("Generating submodel with HTM-DS")
+                            for thr in np.arange(0.1, 1, 0.1):
+                                # Create folder for saving node's outputs
+                                thr_f = "{:.1f}".format(thr)
+                                model_path = pathlib.Path(model_path_parent).joinpath(
+                                    f"submodel_{version}_thr_{thr_f}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}")
+
+                                if model_path.exists():
+                                    # Remove current backup folder, if it exists
+                                    old_model_dir = pathlib.Path(
+                                        str(model_path) + '_old/')
+                                    if old_model_dir.exists():
+                                        shutil.rmtree(old_model_dir)
+
+                                    # Copy current model folder to the backup folder.
+                                    shutil.move(model_path, old_model_dir)
+                                    print(
+                                        f'-- -- Creating backup of existing model in {old_model_dir}')
+
+                                model_path.mkdir(parents=True, exist_ok=True)
+
+                                training_params["n_components"] = j
+                                train_config = get_model_config(
+                                    trainer=trainer,
+                                    TMparam=training_params,
+                                    hierarchy_level=1,
+                                    htm_version=version,
+                                    expansion_tpc=i,
+                                    thr=thr)
+
+                                configFile = model_path.joinpath("config.json")
+                                with configFile.open("w", encoding="utf-8") as fout:
+                                    json.dump(train_config, fout, ensure_ascii=False,
+                                            indent=2, default=str)
+
+                                t_start = time.perf_counter()
+
+                                # Create submodel training corpus
+                                cmd = f'python src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
+                                print(cmd)
+                                try:
+                                    logger.info(f'-- -- Running command {cmd}')
+                                    output = check_output(args=cmd, shell=True)
+                                except:
+                                    logger.error('-- -- Command execution failed')
+
+                                # Train submodel
+                                cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+                                print(cmd)
+                                try:
+                                    logger.info(f'-- -- Running command {cmd}')
+                                    output = check_output(args=cmd, shell=True)
+                                except:
+                                    logger.error('-- -- Command execution failed')
+
+                                t_end = time.perf_counter()
+
+                                t_total = t_end - t_start
+                                logger.info(
+                                    f"Total training {model_path.as_posix()} --> {t_total}")
 
 
 def main():
