@@ -357,8 +357,9 @@ def main():
                         default=0,
                         help="Iter number to start the naming of the root models.")
     parser.add_argument('--model_path', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt",
                         help="Path to the root model if it exists.")
+    parser.add_argument('--only_root', default=False, required=False,
+                        action='store_true', help="Flag to activate training of only one root model")
     args = parser.parse_args()
 
     train_automatic(path_corpus=args.path_corpus,
@@ -366,7 +367,8 @@ def main():
                     trainer=args.trainer,
                     iters=args.iters,
                     start=args.start,
-                    model_path=args.model_path)
+                    model_path=args.model_path,
+                    only_root=args.only_root)
 
 
 if __name__ == "__main__":
