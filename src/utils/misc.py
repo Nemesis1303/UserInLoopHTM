@@ -1,6 +1,7 @@
 import json
 import os
 import colored
+import pickle
 
 
 def printgr(text):
@@ -45,7 +46,7 @@ def is_float(user_str):
         return None
 
 
-def var_num_keyboard(vartype,default,question):
+def var_num_keyboard(vartype, default, question):
     """Read a numeric variable from the keyboard
 
     Parameters
@@ -56,7 +57,7 @@ def var_num_keyboard(vartype,default,question):
         Default value for the variable
     question:
         Text for querying the user the variable value
-    
+
     Returns
     -------
     :
@@ -77,7 +78,8 @@ def var_num_keyboard(vartype,default,question):
         else:
             print('The value you provided is not valid. Using default value.')
             return default
-            
+
+
 def var_string_keyboard(option, default, question):
     """Read a string variable from the keyboard
 
@@ -89,13 +91,13 @@ def var_string_keyboard(option, default, question):
         Default value for the variable
     question: str
         Text for querying the user the variable value
-    
+
     Returns
     -------
     :
         The value provided by the user, or the default value
     """
-    
+
     aux = input(question + ' [' + str(default) + ']: ')
     if option == "comma_separated":
         aux2 = [el.strip() for el in aux.split(',') if len(el)]
@@ -130,6 +132,7 @@ def var_string_keyboard(option, default, question):
     else:
         return aux2
 
+
 def request_confirmation(msg="     Are you sure?"):
 
     # Iterate until an admissible response is got
@@ -157,7 +160,7 @@ def query_options(options, msg):
 
     count = 0
     for n in range(len(options)):
-        #Print active options without numbering lags
+        # Print active options without numbering lags
         print(' {}. '.format(count) + options[n])
         count += 1
 
@@ -177,10 +180,21 @@ def query_options(options, msg):
 
 
 def format_title(tgt_str):
-    #sentences = sent_tokenize(tgt_str)
-    #capitalized_title = ' '.join([sent.capitalize() for sent in sentences])
+    # sentences = sent_tokenize(tgt_str)
+    # capitalized_title = ' '.join([sent.capitalize() for sent in sentences])
     capitalized_title = tgt_str
-    #Quitamos " y retornos de carro
-    return capitalized_title.replace('"','').replace('\n','')
+    # Quitamos " y retornos de carro
+    return capitalized_title.replace('"', '').replace('\n', '')
 
 
+def unpickler(file: str):
+    """Unpickle file"""
+    with open(file, 'rb') as f:
+        return pickle.load(f)
+
+
+def pickler(file: str, ob):
+    """Pickle object to file"""
+    with open(file, 'wb') as f:
+        pickle.dump(ob, f)
+    return

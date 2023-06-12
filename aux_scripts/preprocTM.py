@@ -28,7 +28,7 @@ def main(nw=0, iter_=0, spark=True):
 
     # Create folder structure
     models = Path(
-        "/export/usuarios_ml4ds/lbartolome/Datasets/Cancer/models_preproc_cancer_ctm")
+        "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc")
     models.mkdir(parents=True, exist_ok=True)
 
     Preproc = {
@@ -40,12 +40,12 @@ def main(nw=0, iter_=0, spark=True):
             "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/english_generic.json",
             "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/S2_stopwords.json",
             "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/S2CS_stopwords.json",
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/cancer_stopwords.json",
+            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/cordis_stopwords.json",
         ],
         "equivalences": [
             "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/S2_equivalences.json",
             "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/S2CS_equivalences.json",
-            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/cancer_equivalences.json",
+            "/export/usuarios_ml4ds/lbartolome/UserInLoopHTM/wordlists/cordis_equivalences.json",
             
         ]
     }
@@ -57,17 +57,17 @@ def main(nw=0, iter_=0, spark=True):
     model_stats.mkdir(parents=True, exist_ok=True)  
 
     # Save dataset json file
-    Dtset = "S2CS"
+    Dtset = "Cordis"
     DtsetConfig = model_path.joinpath(Dtset+'.json')
     parquetFile = Path(
-        "/export/clusterdata/jarenas/Datasets/semanticscholar/20230418/parquet/papers_Cancer_NLP_embeddings.parquet")
+        "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/cordis_lemmas_embeddings.parquet")
     TrDtset = {
-        "name": "S2CS",
+        "name": "Cordis",
         "Dtsets": [
             {
                 "parquet": parquetFile,
-                "source": "S2CS",
-                "idfld": "corpusid",
+                "source": "Cordis",
+                "idfld": "projectID",
                 "lemmasfld": [
                     "lemmas"
                 ],
@@ -85,7 +85,7 @@ def main(nw=0, iter_=0, spark=True):
         "name": Dtset,
         "description": "",
         "visibility": "Public",
-        "trainer": "ctm",
+        "trainer": "mallet",
         "TrDtSet": DtsetConfig.resolve().as_posix(),
         "Preproc": Preproc,
         "TMparam": {},

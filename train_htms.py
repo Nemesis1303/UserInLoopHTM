@@ -7,6 +7,7 @@ import pathlib
 import shutil
 import sys
 import time
+from distutils.dir_util import copy_tree
 from subprocess import check_output
 
 import numpy as np
@@ -47,7 +48,7 @@ training_params = {
     "num_epochs": 100,
     "num_samples": 20,
     "doc_topic_thr": 0.0,
-    "mallet_path": "/export/usuarios_ml4ds/jarenas/github/IntelComp/ITMT/topicmodeler/src/topicmodeling/mallet-2.0.8/bin/mallet",
+    "mallet_path": "src/topicmodeling/models/mallet-2.0.8/bin/mallet",
     "thetas_thr": 0.003,
     "token_regexp": "[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{P}]*\\p{L}",
     "alpha": 5.0,
@@ -112,74 +113,91 @@ def train_automatic(path_corpus: str,
                     models_folder: str,
                     trainer: str,
                     iters: int,
-                    start: int):
+                    start: int,
+                    model_path: str = None):
 
     for iter_ in range(iters):
         iter_ += start
         logger.info(f'-- -- Running iter {iter_}')
 
-        # Create folder for saving HTM (root models and its descendents)
-        model_path = pathlib.Path(models_folder).joinpath(
-            f"root_model_{str(iter_)}_{DT.datetime.now().strftime('%Y%m%d')}")
+        if model_path is None:
 
-        if model_path.exists():
-            # Remove current backup folder, if it exists
-            old_model_dir = pathlib.Path(str(model_path) + '_old/')
-            if old_model_dir.exists():
-                shutil.rmtree(old_model_dir)
+            # Create folder for saving HTM (root models and its descendents)
+            model_path = pathlib.Path(models_folder).joinpath(
+                f"root_model_{str(iter_)}_{DT.datetime.now().strftime('%Y%m%d')}")
 
-            # Copy current model folder to the backup folder.
-            shutil.move(model_path, old_model_dir)
-            print(
-                f'-- -- Creating backup of existing model in {old_model_dir}')
+            if model_path.exists():
+                # Remove current backup folder, if it exists
+                old_model_dir = pathlib.Path(str(model_path) + '_old/')
+                if old_model_dir.exists():
+                    shutil.rmtree(old_model_dir)
 
-        model_path.mkdir(parents=True, exist_ok=True)
+                # Copy current model folder to the backup folder.
+                shutil.move(model_path, old_model_dir)
+                print(
+                    f'-- -- Creating backup of existing model in {old_model_dir}')
 
-        # Copy training corpus (already preprocessed) to HTM folder (root)
-        corpusFile = pathlib.Path(path_corpus)
-        print(corpusFile)
-        if not corpusFile.is_dir() and not corpusFile.is_file:
-            sys.exit(
-                "The provided corpus file does not exist.")
+            model_path.mkdir(parents=True, exist_ok=True)
 
-        if corpusFile.is_dir():
-            print(f'-- -- Copying corpus.parquet.')
-            dest = shutil.copytree(
-                corpusFile, model_path.joinpath("corpus.parquet"))
+            # Copy training corpus (already preprocessed) to HTM folder (root)
+            corpusFile = pathlib.Path(path_corpus)
+            print(corpusFile)
+            if not corpusFile.is_dir() and not corpusFile.is_file:
+                sys.exit(
+                    "The provided corpus file does not exist.")
+
+            if corpusFile.is_dir():
+                print(f'-- -- Copying corpus.parquet.')
+                dest = shutil.copytree(
+                    corpusFile, model_path.joinpath("corpus.parquet"))
+            else:
+                dest = shutil.copy(corpusFile, model_path)
+            print(f'-- -- Corpus file copied in {dest}')
+
+            # Generate root model
+            print("#############################")
+            print("Generating root model")
+
+            # Train root model
+            train_config = get_model_config(
+                trainer=trainer,
+                TMparam=training_params,
+                hierarchy_level=0,
+                htm_version=None,
+                expansion_tpc=None,
+                thr=None)
+
+            configFile = model_path.joinpath("config.json")
+            with configFile.open("w", encoding="utf-8") as fout:
+                json.dump(train_config, fout, ensure_ascii=False,
+                          indent=2, default=str)
+
+            t_start = time.perf_counter()
+            cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+            print(cmd)
+            try:
+                logger.info(f'-- -- Running command {cmd}')
+                output = check_output(args=cmd, shell=True)
+            except:
+                logger.error('-- -- Command execution failed')
+            t_end = time.perf_counter()
+
+            t_total = t_end - t_start
+            logger.info(f"Total training time root model --> {t_total}")
+
         else:
-            dest = shutil.copy(corpusFile, model_path)
-        print(f'-- -- Corpus file copied in {dest}')
+            # If model_path exists we already have the root model
+            old_model_path = pathlib.Path(model_path)
 
-        # Generate root model
-        print("#############################")
-        print("Generating root model")
+            # Create folder for saving HTM (root models and its descendents)
+            model_path = pathlib.Path(models_folder).joinpath(
+                f"root_model_{str(iter_)}_{DT.datetime.now().strftime('%Y%m%d')}")
 
-        # Train root model
-        train_config = get_model_config(
-            trainer=trainer,
-            TMparam=training_params,
-            hierarchy_level=0,
-            htm_version=None,
-            expansion_tpc=None,
-            thr=None)
+            logger.info(
+                '-- -- Copying existing root model into {model_path.as_posix()}')
+            copy_tree(old_model_path, model_path)
 
-        configFile = model_path.joinpath("config.json")
-        with configFile.open("w", encoding="utf-8") as fout:
-            json.dump(train_config, fout, ensure_ascii=False,
-                      indent=2, default=str)
-
-        t_start = time.perf_counter()
-        cmd = f'python /export/usuarios_ml4ds/lbartolome/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
-        print(cmd)
-        try:
-            logger.info(f'-- -- Running command {cmd}')
-            output = check_output(args=cmd, shell=True)
-        except:
-            logger.error('-- -- Command execution failed')
-        t_end = time.perf_counter()
-
-        t_total = t_end - t_start
-        logger.info(f"Total training time root model --> {t_total}")
+            configFile = model_path.joinpath("config.json")
 
         # Generate submodels
         print("#############################")
@@ -233,7 +251,7 @@ def train_automatic(path_corpus: str,
                         t_start = time.perf_counter()
 
                         # Create submodel training corpus
-                        cmd = f'python /export/usuarios_ml4ds/lbartolome/UserInLoopHTM/src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
+                        cmd = f'python src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
                         print(cmd)
                         try:
                             logger.info(f'-- -- Running command {cmd}')
@@ -242,7 +260,7 @@ def train_automatic(path_corpus: str,
                             logger.error('-- -- Command execution failed')
 
                         # Train submodel
-                        cmd = f'python /export/usuarios_ml4ds/lbartolome/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+                        cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
                         print(cmd)
                         try:
                             logger.info(f'-- -- Running command {cmd}')
@@ -304,7 +322,7 @@ def train_automatic(path_corpus: str,
                                 logger.error('-- -- Command execution failed')
 
                             # Train submodel
-                            cmd = f'python /export/usuarios_ml4ds/lbartolome/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+                            cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
                             print(cmd)
                             try:
                                 logger.info(f'-- -- Running command {cmd}')
@@ -336,22 +354,18 @@ def main():
     parser.add_argument('--start', type=int,
                         default=0,
                         help="Iter number to start the naming of the root models.")
+    parser.add_argument('--model_path', type=str,
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt",
+                        help="Path to the root model if it exists.")
     args = parser.parse_args()
 
     train_automatic(path_corpus=args.path_corpus,
                     models_folder=args.models_folder,
                     trainer=args.trainer,
                     iters=args.iters,
-                    start=args.start)
+                    start=args.start,
+                    model_path=args.model_path)
 
 
 if __name__ == "__main__":
     main()
-
-# --path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm --iters 2 --start 0 --> hator05
-
-# --path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_mallet/iter_0/corpus.txt --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm --iters 2 --start 2 --> hator00
-
-# -----
-
-# --path_corpus /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_preproc_ctm/iter_0/corpus.parquet --models_folder /export/usuarios_ml4ds/lbartolome/Datasets/S2CS/models_htm_ctm --trainer ctm --iters 5 --start 0 --> kumo

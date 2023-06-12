@@ -1,9 +1,12 @@
+import json
 import pathlib
 
 import numpy as np
+import pandas as pd
 from scipy.spatial.distance import jensenshannon
 from sklearn.preprocessing import normalize
 from tqdm import tqdm
+
 from src.topicmodeling.manageModels import TMmodel
 
 
@@ -48,13 +51,17 @@ class Alignment(object):
 
     def _explote_matrix(self, matrix, init_size, id2token1, id2token2):
 
+        # Initialize matrix of dims (n_topics, n_words)
         exp_matrix = np.zeros(init_size, dtype=np.float64)
-        for i in tqdm(np.arange(init_size[0])):
-            for idx, word1 in id2token1.items():
-                for j in np.arange(len(id2token2.values())):
-                    if list(id2token2.values())[j] == word1:
-                        exp_matrix[i, j] = matrix[i][int(idx)]
-                        break
+
+        # Get idx of the words in initial vocabulary (id2token2) that are in the new vocabulary (id2token1)
+        matching_ids = [
+            int(key) for key, value in id2token2.items() if value in id2token1.values()]
+
+        # Fill in betas of matching words
+        exp_matrix[:, matching_ids] = matrix
+
+        # Normalize matrix
         exp_matrix = normalize(exp_matrix, axis=1, norm='l1')
 
         return exp_matrix
@@ -77,46 +84,51 @@ class Alignment(object):
         thr : float
             Threshold for removing words with low probability
 
-        Notes
-        -----
-        In order sim_word_comp to be computed, both topic models should have been trained on the same corpus, using the same vocabulary, i.e., they should have the associated the same words
-
         Returns
         -------
         selected_worddesc : list(tuple(int, int, float))
             List of tuples with the indices of the topics with the highest similarity and their similarity score
         """
 
-        assert betas1.shape[0] == betas2.shape[0], "Both topic models should have been trained on the same corpus and vocabulary"
-
         ntopics = betas1.shape[0]
-        betas1_aux = betas1[:, np.where(betas1.max(axis=0) > thr)[0]]
-        betas2_aux = betas2[:, np.where(betas2.max(axis=0) > thr)[0]]
-        js_mat = np.zeros((ntopics, ntopics))
+        ntopics2 = betas2.shape[0]
+
+        js_mat = np.zeros((ntopics, ntopics2))
         for k in range(ntopics):
-            for kk in range(ntopics):
+            for kk in range(ntopics2):
                 js_mat[k, kk] = jensenshannon(
-                    betas1_aux[k, :], betas2_aux[kk, :])
+                    betas1[k, :], betas2[kk, :])
         JSsim = 1 - js_mat
-        selected_worddesc = self._largest_indices(
-            JSsim, ntopics + 2 * npairs)
-        selected_worddesc = [(el[0], el[1], el[2].astype(float))
-                             for el in selected_worddesc]
 
-        return selected_worddesc
+        return JSsim
 
-    def _wmd(self, ref_topics, model_topics, n_words: int = 50):
+    def _wmd(self, model_topics, n_words: int = 15):
 
         import gensim.downloader as api
         model = api.load('word2vec-google-news-300')
 
-        model_topics = [el[1].split(', ') for el in model_topics]
+        with open("/Users/lbartolome/Documents/GitHub/UserInLoopHTM/src/evaluateMatching/ai_reference_topics.json", "r") as f:
+            data = json.load(f)
+        df = pd.DataFrame.from_records(data)
+        ref_topics = df["words"].values.tolist()
+        from nltk.corpus import stopwords
+        from nltk import download
+        download('stopwords')  # Download stopwords list.
+        stop_words = stopwords.words('english')
+        
+        def preprocess(sentence):
+            return [w.lower() for w in sentence if w not in stop_words]
+        
+        ref_topics = [preprocess(tpc) for tpc in ref_topics]
         all_dist = np.zeros((len(ref_topics), len(model_topics)))
         for idx1, tpc1 in enumerate(ref_topics):
             for idx2, tpc2 in enumerate(model_topics):
+                
                 all_dist[idx1, idx2] = model.wmdistance(
                     tpc1[:n_words], tpc2[:n_words])
+        all_dist[np.isinf(all_dist)] = 2
 
+        #distances = np.mean(all_dist, axis=0)
         return all_dist
 
     def do_one_to_one_matching(self,
@@ -144,14 +156,14 @@ class Alignment(object):
             distrib1 = tm1.get_betas()
             distrib1 = self._explote_matrix(
                 matrix=distrib1,
-                init_size=tmModelFather.get_betas().shape,
+                init_size=(len(distrib1), tmModelFather.get_betas().shape[1]),
                 id2token1=tm1.get_vocab(),
                 id2token2=tmModelFather.get_vocab())
 
             distrib2 = tm2.get_betas()
             distrib2 = self._explote_matrix(
                 matrix=distrib2,
-                init_size=tmModelFather.get_betas().shape,
+                init_size=(len(distrib2), tmModelFather.get_betas().shape[1]),
                 id2token1=tm2.get_vocab(),
                 id2token2=tmModelFather.get_vocab())
         else:
@@ -159,15 +171,18 @@ class Alignment(object):
                 "Method for calculating similarity not supported")
 
         # Get topic descriptions
-        topic_desc1 = tmModel1.get_tpc_word_descriptions()
-        topic_desc2 = tmModel2.get_tpc_word_descriptions()
+        topic_desc1 = [el[1].split(', ')
+                       for el in tm1.get_tpc_word_descriptions()]
+        topic_desc2 = [el[1].split(', ')
+                       for el in tm2.get_tpc_word_descriptions()]
+
+        wmd1 = self._wmd(topic_desc1, n_words=15)
+        wmd2 = self._wmd(topic_desc2, n_words=15)
 
         # Calculate similarity
-        pairs = self._sim_word_comp(betas1=distrib1,
+        # Between both submodels
+        vs_sims = self._sim_word_comp(betas1=distrib1,
                                     betas2=distrib2,
                                     npairs=len(distrib1))
 
-        new_pairs = [(pair[0], pair[1], pair[2], topic_desc1[i], topic_desc2[i])
-                     for i, pair in enumerate(pairs)]
-
-        return new_pairs
+        return vs_sims, wmd1, wmd2
