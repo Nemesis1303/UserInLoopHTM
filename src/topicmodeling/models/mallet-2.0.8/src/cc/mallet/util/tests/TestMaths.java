@@ -6,9 +6,13 @@
    information, see the file `LICENSE' included with this distribution. */
 package cc.mallet.util.tests;
 
+import com.google.errorprone.annotations.Var;
+
 import cc.mallet.types.MatrixOps;
 import cc.mallet.util.Maths;
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Created: Oct 31, 2004
@@ -45,6 +49,7 @@ public class TestMaths extends TestCase {
 
     double sum = MatrixOps.sum (vals);
 
+    @Var
     double lsum2 = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < logVals.length; i++) {
       lsum2 = Maths.sumLogProb (lsum2, logVals [i]);
@@ -68,7 +73,7 @@ public class TestMaths extends TestCase {
 
   public static Test suite ()
   {
-    return new TestSuite (TestMaths.class);
+    return new TestSuite(TestMaths.class);
   }
 
 

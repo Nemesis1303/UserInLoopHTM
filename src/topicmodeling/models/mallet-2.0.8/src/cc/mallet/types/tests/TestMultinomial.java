@@ -13,11 +13,12 @@
  */
 
 package cc.mallet.types.tests;
-
 import cc.mallet.types.Alphabet;
 import cc.mallet.types.FeatureSequence;
 import cc.mallet.types.Multinomial;
-import junit.framework.*;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.framework.Test;
 
 public class TestMultinomial extends TestCase
 {
@@ -53,7 +54,6 @@ public class TestMultinomial extends TestCase
 		fs.add (dict.lookupIndex ("l"));
 		fs.add (dict.lookupIndex ("u"));
 		fs.add (dict.lookupIndex ("m"));
-		//System.out.println (fs.toString());
 		e.increment (fs);
 		assertTrue (e.size() == 10);
 
@@ -67,7 +67,7 @@ public class TestMultinomial extends TestCase
 
 	public static Test suite ()
 	{
-		return new TestSuite (TestMultinomial.class);
+		return new TestSuite(TestMultinomial.class);
 	}
 
 	protected void setUp ()

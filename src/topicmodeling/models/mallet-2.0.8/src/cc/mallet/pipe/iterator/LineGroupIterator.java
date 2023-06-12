@@ -11,12 +11,15 @@
 
 package cc.mallet.pipe.iterator;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
 import java.util.Iterator;
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
-import cc.mallet.pipe.Pipe;
-import cc.mallet.types.*;
+import com.google.errorprone.annotations.Var;
+
+import cc.mallet.types.Instance;
 
 /** Iterate over groups of lines of text, separated by lines that
 		match a regular expression.  For example, the WSJ BaseNP data
@@ -51,9 +54,10 @@ public class LineGroupIterator implements Iterator<Instance>
 	private void setNextLineGroup ()
 	{
 		StringBuffer sb = new StringBuffer ();
+		@Var
 		String line;
 		if (!skipBoundary && nextBoundary != null)
-			sb.append(nextBoundary + '\n');
+			sb.append(nextBoundary + System.getProperty("line.separator"));
 		while (true) {
 			try {
 				line = reader.readLine();
@@ -69,12 +73,12 @@ public class LineGroupIterator implements Iterator<Instance>
 					this.nextNextBoundary = line;
 					break;
 				} else { // The first line of the file.
-					if (!skipBoundary) sb.append(line + '\n');
+					if (!skipBoundary) sb.append(line + System.getProperty("line.separator"));
 					this.nextNextBoundary = line;
 				}
 			} else {
 				sb.append(line);
-				sb.append('\n');
+				sb.append(System.getProperty("line.separator"));
 			}
 		}
 		if (sb.length() == 0)

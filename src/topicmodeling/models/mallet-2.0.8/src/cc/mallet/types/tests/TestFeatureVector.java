@@ -17,7 +17,9 @@ package cc.mallet.types.tests;
 import cc.mallet.types.Alphabet;
 import cc.mallet.types.FeatureSequence;
 import cc.mallet.types.FeatureVector;
-import junit.framework.*;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.framework.Test;
 
 public class TestFeatureVector extends TestCase
 {
@@ -48,10 +50,7 @@ public class TestFeatureVector extends TestCase
 		fs.add (dict.lookupIndex ("l"));
 		fs.add (dict.lookupIndex ("u"));
 		fs.add (dict.lookupIndex ("m"));
-		//System.out.println (fs.toString());
 		fv = new FeatureVector (fs);
-		//System.out.println (fs.toString());
-		//System.out.println (fv.toString());
 	}
 
 	public void testDuplicateValueFromFeatureSequence ()
