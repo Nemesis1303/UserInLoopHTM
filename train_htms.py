@@ -48,7 +48,7 @@ training_params = {
     "num_epochs": 100,
     "num_samples": 20,
     "doc_topic_thr": 0.0,
-    "mallet_path": "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeling/models/mallet-2.0.8/bin/mallet",
+    "mallet_path": "/export/usuarios_ml4ds/lbartolome/mallet-2.0.8/bin/mallet",
     "thetas_thr": 0.003,
     "token_regexp": "[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{P}]*\\p{L}",
     "alpha": 5.0,
@@ -174,7 +174,7 @@ def train_automatic(path_corpus: str,
                           indent=2, default=str)
 
             t_start = time.perf_counter()
-            cmd = f'python /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+            cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
             print(cmd)
             try:
                 logger.info(f'-- -- Running command {cmd}')
@@ -253,7 +253,7 @@ def train_automatic(path_corpus: str,
                             t_start = time.perf_counter()
 
                             # Create submodel training corpus
-                            cmd = f'python /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
+                            cmd = f'python src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
                             print(cmd)
                             try:
                                 logger.info(f'-- -- Running command {cmd}')
@@ -262,7 +262,7 @@ def train_automatic(path_corpus: str,
                                 logger.error('-- -- Command execution failed')
 
                             # Train submodel
-                            cmd = f'python /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+                            cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
                             print(cmd)
                             try:
                                 logger.info(f'-- -- Running command {cmd}')
@@ -315,7 +315,7 @@ def train_automatic(path_corpus: str,
                                 t_start = time.perf_counter()
 
                                 # Create submodel training corpus
-                                cmd = f'python /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
+                                cmd = f'python src/topicmodeling/topicmodeling.py --hierarchical --config {configFile_parent.as_posix()} --config_child {configFile.as_posix()}'
                                 print(cmd)
                                 try:
                                     logger.info(f'-- -- Running command {cmd}')
@@ -324,7 +324,7 @@ def train_automatic(path_corpus: str,
                                     logger.error('-- -- Command execution failed')
 
                                 # Train submodel
-                                cmd = f'python /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
+                                cmd = f'python src/topicmodeling/topicmodeling.py --train --config {configFile.as_posix()}'
                                 print(cmd)
                                 try:
                                     logger.info(f'-- -- Running command {cmd}')
