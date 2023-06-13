@@ -196,7 +196,7 @@ def train_automatic(path_corpus: str,
 
             logger.info(
                 '-- -- Copying existing root model into {model_path.as_posix()}')
-            copy_tree(old_model_path, model_path)
+            copy_tree(old_model_path.as_posix(), model_path.as_posix())
 
             configFile = model_path.joinpath("config.json")
 

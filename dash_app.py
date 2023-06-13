@@ -168,7 +168,7 @@ app.layout = dbc.Container([
                                 html.Div(
                                     [
                                         dbc.RadioItems(
-                                            id="radios",
+                                            id="radios-metric",
                                             className="btn-group",
                                             inputClassName="btn-check",
                                             labelClassName="btn btn-outline-primary",
@@ -310,14 +310,15 @@ def update_radio_options(selected_corpus):
 
 # Callback to check with checklists have been selected
 @app.callback(
-    Output("radioitems-checklist-output", "children"),
+    Output('submodel-vs-graph', 'figure'),
     [
-        Input("radioitems-input", "value"),
-        Input("checklist-input", "value"),
-        Input("switches-input", "value"),
-    ],
+        Input("radio-items", "value"),
+        Input("radios-metric", "value"),
+    ]   
 )
 def on_form_change(radio_items_value, checklist_value, switches_value):
+    
+    # TODO HERE
     template = "Radio button {}, {} checklist item{} and {} switch{} selected."
 
     n_checkboxes = len(checklist_value)
