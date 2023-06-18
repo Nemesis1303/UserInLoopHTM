@@ -1,0 +1,14 @@
+# Specify format for the log outputs
+[logformat]
+filename = msgs.log
+datefmt = %%Y-%%d-%%m %%H:%%M:%%S
+file_format= %%(asctime)s | %%(levelname)-8s | %%(message)s
+file_level = INFO
+cons_level = DEBUG
+cons_format = %%(levelname)-8s | %%(message)s
+
+[paths]
+path_df_info = /Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/info.pkl
+path_df_sims = /Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/sims_wmds.pkl
+path_ref_topics = /Users/lbartolome/Documents/GitHub/UserInLoopHTM/src/evaluateMatching/ai_reference_topics.json
+

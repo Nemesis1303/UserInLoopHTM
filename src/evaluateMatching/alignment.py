@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import jensenshannon
 from sklearn.preprocessing import normalize
-from tqdm import tqdm
 
 from src.topicmodeling.manageModels import TMmodel
 
@@ -59,7 +58,7 @@ class Alignment(object):
             int(key) for key, value in id2token2.items() if value in id2token1.values()]
 
         # Fill in betas of matching words
-        exp_matrix[:, matching_ids] = matrix
+        exp_matrix[:, matching_ids] = matrix[:, :len(matching_ids)]
 
         # Normalize matrix
         exp_matrix = normalize(exp_matrix, axis=1, norm='l1')
@@ -111,24 +110,24 @@ class Alignment(object):
             data = json.load(f)
         df = pd.DataFrame.from_records(data)
         ref_topics = df["words"].values.tolist()
-        from nltk.corpus import stopwords
         from nltk import download
+        from nltk.corpus import stopwords
         download('stopwords')  # Download stopwords list.
         stop_words = stopwords.words('english')
-        
+
         def preprocess(sentence):
             return [w.lower() for w in sentence if w not in stop_words]
-        
+
         ref_topics = [preprocess(tpc) for tpc in ref_topics]
         all_dist = np.zeros((len(ref_topics), len(model_topics)))
         for idx1, tpc1 in enumerate(ref_topics):
             for idx2, tpc2 in enumerate(model_topics):
-                
+
                 all_dist[idx1, idx2] = model.wmdistance(
                     tpc1[:n_words], tpc2[:n_words])
         all_dist[np.isinf(all_dist)] = 2
 
-        #distances = np.mean(all_dist, axis=0)
+        # distances = np.mean(all_dist, axis=0)
         return all_dist
 
     def do_one_to_one_matching(self,
@@ -182,7 +181,7 @@ class Alignment(object):
         # Calculate similarity
         # Between both submodels
         vs_sims = self._sim_word_comp(betas1=distrib1,
-                                    betas2=distrib2,
-                                    npairs=len(distrib1))
+                                      betas2=distrib2,
+                                      npairs=len(distrib1))
 
         return vs_sims, wmd1, wmd2
