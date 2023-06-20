@@ -2,6 +2,8 @@ import json
 import os
 import colored
 import pickle
+import pathlib
+import pandas as pd
 
 
 def printgr(text):
@@ -197,4 +199,52 @@ def pickler(file: str, ob):
     """Pickle object to file"""
     with open(file, 'wb') as f:
         pickle.dump(ob, f)
+    return
+
+
+def mallet_corpus_to_df(corpusFile: pathlib.Path):
+    """Converts a Mallet corpus file (i.e., file required for the Mallet import command) to a pandas DataFrame
+
+    Parameters
+    ----------
+    corpusFile: pathlib.Path
+        Path to the Mallet corpus file
+
+    Returns
+    -------
+    :   pandas.DataFrame
+        DataFrame with the corpus
+    """
+
+    corpus = [line.rsplit(' 0 ')[1].strip() for line in open(
+        corpusFile, encoding="utf-8").readlines()]
+    indexes = [line.rsplit(' 0 ')[0].strip() for line in open(
+        corpusFile, encoding="utf-8").readlines()]
+    corpus_dict = {
+        'id': indexes,
+        'text': corpus
+    }
+    return pd.DataFrame(corpus_dict)
+
+
+def corpus_df_to_mallet(corpus_df: pd.DataFrame,
+                        outFile: str,
+                        id_column: str = 'id',
+                        text_column: str = 'text') -> None:
+    """Converts a pandas DataFrame to a Mallet corpus file (i.e., file required for the Mallet import command)
+
+    Parameters
+    ----------
+    corpus_df: pandas.DataFrame
+        DataFrame with the corpus
+    outFile: str
+        Path to the output file
+    id_column: str
+        Name of the column with the document ids
+    """
+    corpus_df['2mallet'] = corpus_df[id_column].astype(
+        str) + " 0 " + corpus_df[text_column]
+    corpus_df = corpus_df[['2mallet']]
+    corpus_df.to_csv(outFile, index=False, header=False)
+
     return

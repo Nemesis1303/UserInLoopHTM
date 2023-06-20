@@ -1,3 +1,6 @@
 [submodule "src/NLPipe"]
 	path = src/NLPipe
 	url = https://github.com/Nemesis1303/NLPipe.git
+[submodule "src/topicmodeler"]
+	path = src/topicmodeler
+	url = https://github.com/IntelCompH2020/topicmodeler
