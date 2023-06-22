@@ -97,8 +97,8 @@ def train_automatic(path_corpus: str,
 
         if not only_root:
             # Generate submodels
-            print("#############################")
-            print("Generating submodels")
+            logger.info("#############################")
+            logger.info("Generating submodels")
 
             # Save father's model path
             model_path_parent = model_path
@@ -111,7 +111,7 @@ def train_automatic(path_corpus: str,
                     for version in ["htm-ws", "htm-ds"]:
 
                         if version == "htm-ws":
-                            print("Generating submodel with HTM-WS")
+                            logger.info("Generating submodel with HTM-WS")
 
                             name = f"submodel_{version}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}"
 
@@ -126,7 +126,7 @@ def train_automatic(path_corpus: str,
                             )
 
                         else:
-                            print("Generating submodel with HTM-DS")
+                            logger.info("Generating submodel with HTM-DS")
                             for thr in np.arange(0.1, 1, 0.1):
 
                                 thr_f = "{:.1f}".format(thr)

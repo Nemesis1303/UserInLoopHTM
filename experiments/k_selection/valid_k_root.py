@@ -91,9 +91,9 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 
-                print("#"*15)
-                print(f"Fold {j} of {rkf.get_n_splits()}")
-                print("#"*15)
+                print("#"*80)
+                print(f"Fold {j} of {rkf.get_n_splits()} with hyperparameter combination {i} of {len(list(itertools.product(*grid_params)))}")
+                print("#"*80)
             
                 corpus_train_copy = corpus_train.copy() 
                 X_train, X_test = corpus_train_copy.iloc[train_index], corpus_train_copy.iloc[test_index]
@@ -104,7 +104,7 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
                 
                 # Train model
                 tm_wrapper = TMWrapper()
-                name = f"ntopics_{ntopics}_alpha_{alpha}_optint_{opt_int}_fold_{i}"
+                name = f"ntopics_{ntopics}_alpha_{alpha}_optint_{opt_int}_fold_{j}"
                 model_path = tm_wrapper.train_root_model(
                     models_folder=models_folder,
                     name=name,
