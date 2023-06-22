@@ -116,7 +116,7 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
                 # Calculate coherence score with test corpus
                 tm = TMmodel(model_path.joinpath("TMmodel"))
                 cohr = tm.calculate_topic_coherence(
-                    metrics="c_npmi",
+                    metrics=["c_npmi"],
                     reference_text = X_test.text.values.tolist(),
                     aggregated=True,
                 )
