@@ -267,6 +267,23 @@ def read_config_experiments(file_path):
             # Retrieve the value of each option
             value = config.get(section, option)
             # Store the option-value pair in the section dictionary
-            config_dict[option] = value
+            if option in ['ntopics', 'num_iterations', 'batch_size', 'num_threads', 'optimize_interval', 'num_epochs', 'num_samples']:
+                
+                config_dict[option] = int(value)
+            elif option in ['thetas_thr', 'doc_topic_thr',
+                            'alpha', 'dropout', 'lr',
+                            'momentum', 'topic_prior_mean']:
+                config_dict[option] = float(value)
+            elif option == "labels":
+                config_dict[option] = ""
+            elif option == "topic_prior_variance":
+                config_dict[option] = None
+            elif option in ["learn_priors", "reduce_on_plateau"]:
+                config_dict[option] = True if value == "True" else False
+            elif option == "hidden_sizes":
+                config_dict[option] = tuple(map(int, value[1:-1].split(',')))
+                
+            
+            # TODO: Make converisons
             
     return config_dict
