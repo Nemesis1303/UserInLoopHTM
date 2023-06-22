@@ -1,3 +1,4 @@
+import configparser
 import json
 import os
 import colored
@@ -248,3 +249,24 @@ def corpus_df_to_mallet(corpus_df: pd.DataFrame,
     corpus_df.to_csv(outFile, index=False, header=False)
 
     return
+
+def read_config_experiments(file_path):
+    config = configparser.ConfigParser()
+    config.read(file_path)
+
+    # Initialize an empty dictionary
+    config_dict = {}
+
+    # Loop through each section in the configuration file
+    for section in config.sections():
+        # Retrieve the options and values within each section
+        options = config.options(section)
+    
+        # Loop through each option in the section
+        for option in options:
+            # Retrieve the value of each option
+            value = config.get(section, option)
+            # Store the option-value pair in the section dictionary
+            config_dict[option] = value
+            
+    return config_dict

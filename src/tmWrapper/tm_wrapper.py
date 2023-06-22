@@ -140,7 +140,51 @@ class TMWrapper(object):
         self._logger.info(
             f"Total training time --> {t_total}")
 
-        #self._logger.info(f"THIS IS THE OUTPUT{output}")
+        return
+
+    def _do_preproc(self, configFile, nw):
+
+        cmd = f'python {self._path_topic_modeler} --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}'
+        self._logger.info(cmd)
+
+        t_start = time.perf_counter()
+        try:
+            self._logger.info(f'-- -- Running command {cmd}')
+            output = check_output(args=cmd, shell=True)
+        except:
+            self._logger.error('-- -- Command execution failed')
+
+        self._logger.info(
+            f"Total preprocessing time --> {time.perf_counter() - t_start}")
+
+        return
+
+    def preproc_corpus_tm(self,
+                          path_preproc,
+                          Dtset,
+                          TrDtset,
+                          train_config,
+                          nw):
+
+        # Create folder structure
+        path_preproc.mkdir(parents=True, exist_ok=True)
+        model_stats = path_preproc.joinpath("stats")
+        model_stats.mkdir(parents=True, exist_ok=True)
+
+        # Save dataset json file
+        DtsetConfig = path_preproc.joinpath(Dtset)
+        with DtsetConfig.open('w', encoding='utf-8') as outfile:
+            json.dump(TrDtset, outfile,
+                      ensure_ascii=False, indent=2, default=str)
+
+        # Save training config file
+        configFile = path_preproc.joinpath("trainconfig.json")
+        train_config["TrDtSet"] = DtsetConfig.resolve().as_posix()
+        with configFile.open('w', encoding='utf-8') as outfile:
+            json.dump(train_config, outfile,
+                      ensure_ascii=False, indent=2, default=str)
+
+        self._do_preproc(configFile, nw)
 
         return
 
@@ -209,7 +253,7 @@ class TMWrapper(object):
             htm_version=None,
             expansion_tpc=None,
             thr=None)
-        
+
         configFile = model_path.joinpath("config.json")
         with configFile.open("w", encoding="utf-8") as fout:
             json.dump(train_config, fout, ensure_ascii=False,

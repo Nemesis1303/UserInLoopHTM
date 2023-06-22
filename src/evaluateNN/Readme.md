@@ -8,5 +8,3 @@ This directory contains a submodule of the [OCTIS](https://github.com/MIND-Lab/O
    * ``get_partitioned_embeddings`` to get the corpus corresponding partitions of the documents if provided in the input parquet file.
    * ``get_embeddings`` to get the array of embeddings,
 2. ``OCTIS/octis/models/CTM.py`` has been modified so as to include two dropounts as hyperparameters: one for the thetas, and another one for the encoder. Changes in the CTM module has been added accordingly in order to support the latter.
-
-The script ``evaluate.py`` carries out the evaluation, which can be customized as needed.

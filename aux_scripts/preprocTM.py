@@ -1,73 +1,107 @@
 """
 Carries out specific preprocessing for TM.
 """
-
 import argparse
 import datetime as DT
-import json
-import logging
-import multiprocessing as mp
 import os
+import pathlib
 import sys
-import time
 import warnings
-from pathlib import Path
-from subprocess import check_output
 
 sys.path.append('../')
 warnings.filterwarnings(action="ignore")
+from src.tmWrapper.tm_wrapper import TMWrapper
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.INFO)
-logger.addHandler(handler)
+def select_file_from_directory(directory_path: str):
+    """Prints the files in a directory and prompts the user to select one of them.
+    """
+    files = os.listdir(directory_path)
+    # Print the list of available stopwords/equivalences
+    print("Available stopwords/equivalences:")
+    for index, file_name in enumerate(files):
+        print(f"{index + 1}. {file_name}")
+
+    # Prompt the user for input
+    while True:
+        selection = input(
+            "Enter the numbers of the files you want to select (comma-separated): ")
+        selections = selection.split(",")
+        selected_files = []
+        try:
+            for s in selections:
+                file_index = int(s.strip())
+                if 1 <= file_index <= len(files):
+                    selected_files.append(os.path.join(directory_path, files[file_index - 1]))
+                else:
+                    print(f"Invalid selection: {file_index}. Ignoring.")
+            break
+        except ValueError:
+            print("Invalid input. Please enter comma-separated numbers.")
+
+    return selected_files
 
 
-def main(nw=0, iter_=0, spark=True):
-
-    # Create folder structure
-    models = Path(
-        "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc")
-    models.mkdir(parents=True, exist_ok=True)
-
-    Preproc = {
+def get_preproc_params(wordlists_path: str):
+    preproc = {
         "min_lemas": 15,
         "no_below": 15,
         "no_above": 0.4,
         "keep_n": 100000,
-        "stopwords": [
-            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/english_generic.json",
-            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/S2_stopwords.json",
-            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/S2CS_stopwords.json",
-            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/cordis_stopwords.json",
-        ],
-        "equivalences": [
-            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/S2_equivalences.json",
-            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/S2CS_equivalences.json",
-            "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/wordlists/cordis_equivalences.json",
-            
-        ]
+        "stopwords": [],
+        "equivalences": []
     }
 
-    # Create model folder
-    model_path = models.joinpath("iter_" + str(iter_))
-    model_path.mkdir(parents=True, exist_ok=True)
-    model_stats = model_path.joinpath("stats")
-    model_stats.mkdir(parents=True, exist_ok=True)  
+    # Get stopwords from selected files
+    print("#"*40)
+    print("Select stopwords files:")
+    print("#"*40)
+    preproc["stopwords"]  = select_file_from_directory(wordlists_path)
 
-    # Save dataset json file
-    Dtset = "Cordis"
-    DtsetConfig = model_path.joinpath(Dtset+'.json')
-    parquetFile = Path(
-        "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/cordis_lemmas_embeddings.parquet")
+    # Get equivalences from selected files
+    print("\n")
+    print("#"*40)
+    print("Select equivalences files:")
+    print("#"*40)
+    preproc["equivalences"] = select_file_from_directory(wordlists_path)
+       
+    # Prompt user to modify initial values
+    preproc["min_lemas"] = int(input(
+        "Enter the minimum lemmas value (default, 15): ") or preproc["min_lemas"])
+    preproc["no_below"] = int(input(
+        "Enter the no_below value (default, 15): ") or preproc["no_below"])
+    preproc["no_above"] = float(input(
+        "Enter the no_above value (default, 0.4): ") or preproc["no_above"])
+    preproc["keep_n"] = int(input(
+        "Enter the keep_n value (default, 100000):") or preproc["keep_n"])
+
+    return preproc
+
+
+def main(path_preproc: str,
+         wordlists_path: str,
+         parquetFile: str,
+         idfld: str,
+         trainer: str,
+         nw=0,
+         iter_=0):
+
+    # Create preproc corpora folder
+    models = pathlib.Path(path_preproc)
+    models.mkdir(parents=True, exist_ok=True)
+    model_path = models.joinpath("iter_" + str(iter_))
+
+    # Get preproc parameters
+    Preproc = get_preproc_params(wordlists_path)
+
+    # Create configuration dictionary for dataset
+    Dtset = pathlib.Path(parquetFile).stem
     TrDtset = {
-        "name": "Cordis",
+        "name": Dtset,
         "Dtsets": [
             {
                 "parquet": parquetFile,
-                "source": "Cordis",
-                "idfld": "projectID",
+                "source": Dtset,
+                "idfld": idfld,
                 "lemmasfld": [
                     "lemmas"
                 ],
@@ -75,83 +109,65 @@ def main(nw=0, iter_=0, spark=True):
             }
         ]
     }
-    with DtsetConfig.open('w', encoding='utf-8') as outfile:
-        json.dump(TrDtset, outfile,
-                  ensure_ascii=False, indent=2, default=str)
 
-    # Save configuration file
-    configFile = model_path.joinpath("trainconfig.json")
+    # Create training (preprocessing) configuration dictionary
     train_config = {
         "name": Dtset,
         "description": "",
         "visibility": "Public",
-        "trainer": "mallet",
-        "TrDtSet": DtsetConfig.resolve().as_posix(),
+        "trainer": trainer,
         "Preproc": Preproc,
         "TMparam": {},
         "creation_date": DT.datetime.now(),
         "hierarchy-level": 0,
         "htm-version": None,
     }
-    with configFile.open('w', encoding='utf-8') as outfile:
-        json.dump(train_config, outfile,
-                  ensure_ascii=False, indent=2, default=str)
 
-    path_topic_modeler = \
-        os.path.dirname(os.path.dirname(os.getcwd()))
-    topicmodeling_path = os.path.join(path_topic_modeler, 'UserInLoopHTM', 'src', 'topicmodeling', 'topicmodeling.py')
-    
-    # Execute command
-    if spark:
-        script_spark = "/export/usuarios_ml4ds/lbartolome/spark/script-spark"
-        token_spark = "/export/usuarios_ml4ds/lbartolome/spark/tokencluster.json"
-        machines = 10
-        cores = 5
-        options = '"--spark --preproc --config ' + configFile.resolve().as_posix() + '"'
-        cmd = script_spark + ' -C ' + token_spark + \
-            ' -c ' + str(cores) + ' -N ' + str(machines) + \
-            ' -S ' + topicmodeling_path + ' -P ' + options
-        print(cmd)
-        try:
-            logger.info(f'-- -- Running command {cmd}')
-            output = check_output(args=cmd, shell=True)
-        except:
-            logger.error('-- -- Execution of script failed')
-    else:
-        # Run command for corpus preprocessing using gensim
-        # Preprocessing will be accelerated with Dask using the number of
-        # workers indicated in the configuration file for the project
-        cmd = f'python {topicmodeling_path} --preproc --config {configFile.resolve().as_posix()} --nw {str(nw)}'
-        print(cmd)
+    # Preprocess
+    tm_wrapper = TMWrapper()
+    tm_wrapper.preproc_corpus_tm(
+        path_preproc=model_path,
+        Dtset=Dtset,
+        TrDtset=TrDtset,
+        train_config=train_config,
+        nw=nw,
+    )
 
-        try:
-            logger.info(f'-- -- Running command {cmd}')
-            output = check_output(args=cmd, shell=True)
-        except:
-            logger.error('-- -- Command execution failed')
-
-    # cmd = f"python src/topicmodeling/topicmodeling.py --preproc --config #{configFile.resolve().as_posix()} --nw {str(nw)}"
-    # logger.info(f"Running command '{cmd}'")
-
-    t_start = time.perf_counter()
-    check_output(args=cmd, shell=True)
-    t_end = time.perf_counter()
-    t_total = t_end - t_start
-
-    logger.info(f"Total time --> {t_total}")
-    print("\n")
-    print("-" * 100)
-    print("\n")
+    return
 
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Preprocessing for TM')
+    parser.add_argument('--path_preproc', type=str,
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/S2CS-AI/models_preproc",
+                        help="Path to the folder to save the preprocessed training datasets in the topicmodeler format.")
+    parser.add_argument('--parquetFile', type=str,
+                        default="/export/clusterdata/jarenas/Datasets/semanticscholar/20230418/parquet/papers_AI_Kwds_NLP_embeddings.parquet",
+                        help="Path to corpus to preprocess.")
+    parser.add_argument('--idfld', type=str, required=False, 
+                        default="corpusid",
+                        help="Field to use as id.")
+    parser.add_argument('--trainer', type=str, required=False, 
+                        default="mallet",
+                        help="TM Trainer to use.")
     parser.add_argument('--nw', type=int, required=False, default=0,
                         help="Number of workers when preprocessing data with Dask. Use 0 to use Dask default")
     parser.add_argument('--iter_', type=int, required=False, default=0,
                         help="Preprocessing number of this file.")
-    parser.add_argument('--spark', type=int, required=False, default=False,
-                        help="Whether to use spark or Dash.")
+
     args = parser.parse_args()
-    main(args.nw, args.iter_, args.spark)
+    
+    path_wordlists = os.path.dirname(os.path.dirname(os.getcwd()))
+    if path_wordlists.endswith("UserInLoopHTM"):
+        path_wordlists = os.path.join(path_wordlists, "wordlists")
+    else:
+        path_wordlists = os.path.join(path_wordlists,
+                                      "UserInLoopHTM", "wordlists")
+    main(path_preproc=args.path_preproc,
+        wordlists_path=path_wordlists,
+        parquetFile=args.parquetFile,
+        idfld=args.idfld,
+        trainer=args.trainer,
+        nw=args.nw,
+        iter_=args.iter_)

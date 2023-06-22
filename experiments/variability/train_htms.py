@@ -2,15 +2,16 @@ import argparse
 import datetime as DT
 import logging
 import multiprocessing as mp
+import os
 import pathlib
 import sys
 from distutils.dir_util import copy_tree
-
 import numpy as np
 
 # Add src to path and make imports
 sys.path.append('../..')
 from src.tmWrapper.tm_wrapper import TMWrapper
+from src.utils.misc import read_config_experiments
 
 ################### LOGGER #################
 logger = logging.getLogger()
@@ -20,51 +21,16 @@ handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 ############################################
 
-# ======================================================
-# Default training parameters
-# ======================================================
-training_params = {
-    "activation": "softplus",
-    "batch_size": 64,
-    "dropout": 0.2,
-    "hidden_sizes": (50, 50),
-    "labels": "",
-    "learn_priors": True,
-    "lr": 2e-3,
-    "momentum": 0.99,
-    "num_data_loader_workers": mp.cpu_count(),
-    "num_threads": 4,
-    "optimize_interval": 10,
-    "reduce_on_plateau": False,
-    "sbert_model_to_load": "paraphrase-distilroberta-base-v1",
-    "solver": "adam",
-    "thetas_thr": 0.003,
-    "topic_prior_mean": 0.0,
-    "topic_prior_variance": None,
-    "ctm_model_type": "CombinedTM",
-    "model_type": "prodLDA",
-    "ntopics": 10,
-    "num_epochs": 100,
-    "num_samples": 20,
-    "doc_topic_thr": 0.0,
-    "mallet_path": "/export/usuarios_ml4ds/lbartolome/mallet-2.0.8/bin/mallet",
-    "thetas_thr": 0.003,
-    "token_regexp": "[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{P}]*\\p{L}",
-    "alpha": 5.0,
-    "num_threads": 4,
-    "num_iterations": 1000,
-}
-
-
 def train_automatic(path_corpus: str,
                     models_folder: str,
                     trainer: str,
                     iters: int,
                     start: int,
+                    training_params:dict,
                     model_path: str = None,
                     only_root: bool = False,
                     ntopics_root: int = 10):
-
+    
     tm_wrapper = TMWrapper()
 
     for iter_ in range(iters):
@@ -165,12 +131,32 @@ def main():
     parser.add_argument('--only_root', default=False, required=False,
                         action='store_true', help="Flag to activate training of only one root model")
     args = parser.parse_args()
+    
+    # Read training_params
+    config_file = os.path.dirname(os.path.dirname(os.getcwd()))
+    if config_file.endswith("UserInLoopHTM"):
+        config_file = os.path.join(
+                config_file,
+                'experiments',
+                'config',
+                'dft_params.cf',
+            )
+    else:
+        config_file = os.path.join(
+                config_file,
+                'UserInLoopHTM',
+                'experiments',
+                'config',
+                'dft_params.cf',
+            )
+    training_params = read_config_experiments(config_file)
 
     train_automatic(path_corpus=args.path_corpus,
                     models_folder=args.models_folder,
                     trainer=args.trainer,
                     iters=args.iters,
                     start=args.start,
+                    training_params=training_params,
                     model_path=args.model_path,
                     only_root=args.only_root)
 

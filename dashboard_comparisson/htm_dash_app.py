@@ -17,6 +17,7 @@ import plotly.graph_objects as go
 import plotly.subplots as sp
 from dash import Dash, Input, Output, dcc, html
 import sys
+
 sys.path.append('..')
 from src.utils.misc import unpickler
 
@@ -39,8 +40,18 @@ app.title = "Hierarchical Topic Modeling Comparisson Dashboard"
 cf = configparser.ConfigParser()
 current_path = \
     os.path.dirname(os.path.dirname(os.getcwd()))
-cf.read(os.path.join(current_path, 'UserInLoopHTM', 'dashboard_comparisson', 'config', 'config.cf'))
-
+if current_path.endswith("UserInLoopHTM"):
+    cf.read(os.path.join(current_path,
+                         'dashboard_comparisson',
+                         'config',
+                         'config.cf'))
+else:
+    cf.read(os.path.join(current_path,
+                         'UserInLoopHTM',
+                         'dashboard_comparisson',
+                         'config',
+                         'config.cf'))
+    
 # Unpickle model info dataframe
 # We assume dataframe with the following format:
 # # MODEL | MODEL_TYPE | FATHER_MODEL | CORPUS | ALPHAS | COHRS | KEYS
