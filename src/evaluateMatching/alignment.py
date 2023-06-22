@@ -6,7 +6,7 @@ import pandas as pd
 from scipy.spatial.distance import jensenshannon
 from sklearn.preprocessing import normalize
 
-from src.topicmodeling.manageModels import TMmodel
+from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 
 
 class Alignment(object):
