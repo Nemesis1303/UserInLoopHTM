@@ -282,8 +282,7 @@ def read_config_experiments(file_path):
                 config_dict[option] = True if value == "True" else False
             elif option == "hidden_sizes":
                 config_dict[option] = tuple(map(int, value[1:-1].split(',')))
-                
-            
-            # TODO: Make converisons
+            else:
+                config_dict[option] = value
             
     return config_dict
