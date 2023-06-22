@@ -4,13 +4,7 @@ import pathlib
 import sys
 import warnings
 from matplotlib import pyplot as plt
-
-import pandas as pd
-from gensim.corpora import Dictionary
-from gensim.models import CoherenceModel
 from sklearn.model_selection import RepeatedKFold, train_test_split
-from tqdm import tqdm
-
 
 # Add src to path and make imports
 sys.path.append('../..')
