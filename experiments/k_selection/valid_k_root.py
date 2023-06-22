@@ -159,44 +159,6 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
 
     return
 
-
-def _gen_measure_name(coherence_measure, window_size, top_n):
-    """
-    Make a unique measure name from the arguments
-    """
-    measure_name = f"{coherence_measure}_win{window_size}_top{top_n}"
-    return measure_name
-
-
-def coherence(
-    topics,
-    vocab,
-    reference_text,
-    coherence_measure,
-    window_size,
-    top_n,
-):
-    """
-    Calculates coherence for a single model
-    """
-    data_dict = Dictionary([vocab])
-    topics = [t[:top_n] for t in topics]
-
-    cm = CoherenceModel(
-        topics=topics,
-        texts=tqdm(reference_text),
-        dictionary=data_dict,
-        coherence=coherence_measure,
-        window_size=window_size,
-    )
-
-    confirmed_measures = cm.get_coherence_per_topic()
-    mean = cm.aggregate_measures(confirmed_measures)
-
-    measure_name = _gen_measure_name(coherence_measure, cm.window_size, top_n)
-    return measure_name, float(mean), [float(i) for i in confirmed_measures]
-
-
 def main():
 
     models_folder = "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_val_mallet"
@@ -208,9 +170,9 @@ def main():
     #]
     
     grid_params = [
-        [5, 10, 20]# 30, 40, 50, 60, 70, 80, 90, 100, 150], 
-        [0.1, 0.5]# 1, 5, 10, 20, 50], 
-        [0]# 10]
+        [5, 10, 20],
+        [0.1, 0.5],
+        [0]
     ]
     run_k_fold(
         models_folder = models_folder, 
