@@ -198,7 +198,7 @@ class TMWrapper(object):
             dest = shutil.copytree(
                 corpusFile, model_path.joinpath("corpus.parquet"))
         else:
-            dest = shutil.copy(corpusFile, model_path)
+            dest = shutil.copy(corpusFile, model_path.joinpath("corpus.txt"))
         self._logger.info(f'-- -- Corpus file copied in {dest}')
 
         # Create train config

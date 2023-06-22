@@ -120,7 +120,6 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
                 
                 # Delete train file
                 corpus_train_file.unlink()
-                os.remove(corpus_train_file)
         
         #avg_score = sum(scores)/len(scores)
         #if avg_score > best_score:
