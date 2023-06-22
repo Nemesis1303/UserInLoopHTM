@@ -1,9 +1,9 @@
 import itertools
 import multiprocessing as mp
-import os
 import pathlib
 import sys
 import warnings
+from matplotlib import pyplot as plt
 
 import pandas as pd
 from gensim.corpora import Dictionary
@@ -16,7 +16,7 @@ from tqdm import tqdm
 sys.path.append('../..')
 from src.utils.misc import corpus_df_to_mallet, mallet_corpus_to_df
 from src.tmWrapper.tm_wrapper import TMWrapper
-#from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
+from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 
 # ======================================================
 # Default training parameters
@@ -71,15 +71,21 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
     # Initialize the RepeatedKFold cross-validation object:
     rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
     
-    print("Validating hyperparameters")
     # Iterate over the hyperparameters and perform cross-validation:
+    print("-- -- Validation starts...")
+    
+    best_score = 0
+    best_params = {}
+    scores = []
+    hyperparams = []
+    
     for i, (ntopics, alpha, opt_int) in enumerate(itertools.product(*grid_params)):
+        
+        fold_scores = []
         
         print("*"*80)
         print(f"-- -- Training model with hyperparameter combination {i} of {len(list(itertools.product(*grid_params)))}")
         print("*"*80)
-        
-        scores = []
         
         # Set training parameters
         training_params['ntopics'] = ntopics
@@ -100,6 +106,7 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
                 corpus_train_file = \
                     corpusFile.parent.joinpath(f'corpus_train_{i}_{j}.txt')
                 corpus_df_to_mallet(X_train, corpus_train_file)
+                X_test['text'] = X_test['text'].apply(lambda x: x.split())
                 
                 # Train model
                 tm_wrapper = TMWrapper()
@@ -113,29 +120,44 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
                 )
                 
                 # Calculate coherence score with test corpus
-                #tm = TMmodel(model_path.joinpath("TMmodel"))
-                # cohr = calculate_cohr()
+                tm = TMmodel(model_path.joinpath("TMmodel"))
+                cohr = tm.calculate_topic_coherence(
+                    metrics="c_npmi",
+                    reference_text = X_test.text.values.tolist(),
+                    aggregated=True,
+                )
                 
-                #scores.append(cohr)
+                fold_scores.append(cohr)
                 
                 # Delete train file
                 corpus_train_file.unlink()
         
-        #avg_score = sum(scores)/len(scores)
-        #if avg_score > best_score:
-        #    best_score = avg_score
-        #    best_params = (ntopics, alpha, opt_int)
-                
-        
-        
-        # knn.fit(X_train, y_train)
-        # scores.append(knn.score(X_test, y_test))
-    # knn.fit(X_train,y_train)
-    # print(np.mean(scores))
-    # scores.append(knn.score(X_test,y_test))
-    # cross_val_score(knn, X, y, cv=10)
+        # Fold average score
+        avg_score = sum(fold_scores)/len(fold_scores)
+        if avg_score > best_score:
+            best_score = avg_score
+            best_params = {'ntopics': ntopics,
+                           'alpha': alpha,
+                           'optimize_interval': opt_int}
+            
+        scores.append(fold_scores)
+        hyperparams.append({'ntopics': ntopics,
+                            'alpha': alpha,
+                            'optimize_interval': opt_int})
+    
+    
+    plt.figure(figsize=(10, 6))
 
-    pass
+    for i, score in enumerate(scores):
+        plt.plot(range(1, len(score)+1), score, label=f'Combination {i+1}')
+
+    plt.xlabel('Fold')
+    plt.ylabel('Accuracy Score')
+    plt.title('Cross-Validation Scores for Hyperparameter Combinations')
+    plt.legend()
+    plt.savefig(models_folder.joinpath("plot.png"))  
+
+    return
 
 
 def _gen_measure_name(coherence_measure, window_size, top_n):
@@ -179,10 +201,16 @@ def main():
 
     models_folder = "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_val_mallet"
     corpusFile = '/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt'
+    #grid_params = [
+    #    [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150], 
+    #    [0.1, 0.5, 1, 5, 10, 20, 50], 
+    #    [0, 10]
+    #]
+    
     grid_params = [
-        [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150], 
-        [0.1, 0.5, 1, 5, 10, 20, 50], 
-        [0, 10]
+        [5, 10, 20]# 30, 40, 50, 60, 70, 80, 90, 100, 150], 
+        [0.1, 0.5]# 1, 5, 10, 20, 50], 
+        [0]# 10]
     ]
     run_k_fold(
         models_folder = models_folder, 
