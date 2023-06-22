@@ -140,9 +140,9 @@ class TMWrapper(object):
         self._logger.info(
             f"Total training time --> {t_total}")
 
-        self._logger.info(f"THIS IS THE OUTPUT{output}")
+        #self._logger.info(f"THIS IS THE OUTPUT{output}")
 
-        return output
+        return
 
     def train_root_model(self,
                          models_folder: str,

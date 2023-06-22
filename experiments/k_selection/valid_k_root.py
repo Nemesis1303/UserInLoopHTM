@@ -16,7 +16,7 @@ from tqdm import tqdm
 sys.path.append('../..')
 from src.utils.misc import corpus_df_to_mallet, mallet_corpus_to_df
 from src.tmWrapper.tm_wrapper import TMWrapper
-from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
+#from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 
 # ======================================================
 # Default training parameters
@@ -61,7 +61,7 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
     corpus_df = mallet_corpus_to_df(corpusFile)
 
     # Create validation corpus and save it to folder with original corpus
-    print("Creating validation corpus")
+    print("-- -- Creating validation corpus")
     corpus_train, corpus_val = train_test_split(
         corpus_df, test_size=val_size, random_state=42)
     corpus_train.reset_index(drop=True, inplace=True)
@@ -76,7 +76,7 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
     for i, (ntopics, alpha, opt_int) in enumerate(itertools.product(*grid_params)):
         
         print("*"*80)
-        print(f"Training model with hyperparameter combination {i} of {len(list(itertools.product(*grid_params)))}")
+        print(f"-- -- Training model with hyperparameter combination {i} of {len(list(itertools.product(*grid_params)))}")
         print("*"*80)
         
         scores = []
@@ -114,10 +114,18 @@ def run_k_fold(models_folder, trainer, corpusFile, grid_params, val_size=0.3):
                 
                 # Calculate coherence score with test corpus
                 #tm = TMmodel(model_path.joinpath("TMmodel"))
+                # cohr = calculate_cohr()
+                
+                #scores.append(cohr)
                 
                 # Delete train file
                 corpus_train_file.unlink()
                 os.remove(corpus_train_file)
+        
+        #avg_score = sum(scores)/len(scores)
+        #if avg_score > best_score:
+        #    best_score = avg_score
+        #    best_params = (ntopics, alpha, opt_int)
                 
         
         
