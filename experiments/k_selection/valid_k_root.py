@@ -170,8 +170,8 @@ def coherence(
 
 def main():
 
-    models_folder = "/Volumes/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_val_mallet"
-    corpusFile = '/Volumes/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt'
+    models_folder = "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_val_mallet"
+    corpusFile = '/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt'
     grid_params = [
         [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150], 
         [0.1, 0.5, 1, 5, 10, 20, 50], 
