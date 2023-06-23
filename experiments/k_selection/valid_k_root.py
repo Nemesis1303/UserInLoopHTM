@@ -1,3 +1,7 @@
+from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
+from src.tmWrapper.tm_wrapper import TMWrapper
+from src.utils.misc import (
+    corpus_df_to_mallet, mallet_corpus_to_df, read_config_experiments)
 import argparse
 import itertools
 import os
@@ -5,14 +9,13 @@ import pathlib
 import sys
 import warnings
 from matplotlib import pyplot as plt
+import numpy as np
+import pandas as pd
 from sklearn.model_selection import RepeatedKFold, train_test_split
 
 # Add src to path and make imports
 sys.path.append('../..')
-from src.utils.misc import (
-    corpus_df_to_mallet, mallet_corpus_to_df, read_config_experiments)
-from src.tmWrapper.tm_wrapper import TMWrapper
-from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
+
 
 def run_k_fold(models_folder: str,
                trainer: str,
@@ -51,7 +54,7 @@ def run_k_fold(models_folder: str,
     corpus_df_to_mallet(corpus_val, outFile)
 
     # Initialize the RepeatedKFold cross-validation object:
-    rkf = RepeatedKFold(n_splits=3, n_repeats=1, random_state=42)#10,5
+    rkf = RepeatedKFold(n_splits=3, n_repeats=1, random_state=42)  # 10,5
 
     # Iterate over the hyperparameters and perform cross-validation:
     print("-- -- Validation starts...")
@@ -129,22 +132,51 @@ def run_k_fold(models_folder: str,
                             'alpha': alpha,
                             'optimize_interval': opt_int})
 
-    plt.figure(figsize=(10, 6))
+    # Create dataframe to save the results
+    data = {'hyperparameters': hyperparams, 'fold_cohrs': scores}
+    df = pd.DataFrame(data)
+    df[['ntopics', 'alpha', 'optimize_interval']] = pd.DataFrame(
+        df['hyperparameters'].tolist(), index=df.index)
+    df["avg_cohr"] = df["fold_cohrs"].apply(lambda x: sum(x) / len(x))
+    df['std_cohr'] = df['fold_cohrs'].apply(lambda x: np.std(x))
+    df = df.drop('hyperparameters', axis=1)
+    df.to_csv(pathlib.Path(models_folder).joinpath("results.csv"))
 
+    # Figure with coherence scores per fold and hyperparameter combination
+    plt.figure(figsize=(10, 6))
     for i, score in enumerate(scores):
         plt.plot(range(1, len(score)+1), score, label=f'Combination {i+1}')
-
     plt.xlabel('Fold')
-    plt.ylabel('Accuracy Score')
+    plt.ylabel('Coherence Score')
     plt.title('Cross-Validation Scores for Hyperparameter Combinations')
     plt.legend()
     plt.savefig(pathlib.Path(models_folder).joinpath("plot.png"))
+
+    # Figure with average coherence scores per hyperparameter combination
+    # Create the line plot with error bars
+    plt.figure(figsize=(10, 6))
+    plt.errorbar(df['ntopics'], df['avg_cohr'],
+                 yerr=df['std_cohr'], marker='o')
+    plt.xlabel('Number of Topics')
+    plt.ylabel('Average Score')
+    plt.title(
+        'Average Fold Score with Standard Deviation per Hyperparameter Combination')
+    plt.tight_layout()
+    plt.show()
+    plt.savefig(pathlib.Path(models_folder).joinpath("plot2.png"))
+    
+    # Print results
+    print("Best hyperparameter values:")
+    print(f"Number of Topics (ntopics): {best_params['ntopics']}")
+    print(f"Alpha: {best_params['alpha']}")
+    print(f"Optimize Interval: {best_params['optimize_interval']}")
+    print(f"Best coherence: {best_score}")
 
     return
 
 
 def main():
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_corpus', type=str,
                         default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt",
@@ -156,26 +188,26 @@ def main():
                         default="mallet",
                         help="Name of the underlying topic modeling algorithm to be used: mallet|ctm")
     args = parser.parse_args()
-    
+
     # Read training_params
     config_file = os.path.dirname(os.path.dirname(os.getcwd()))
     if config_file.endswith("UserInLoopHTM"):
         config_file = os.path.join(
-                config_file,
-                'experiments',
-                'config',
-                'dft_params.cf',
-            )
+            config_file,
+            'experiments',
+            'config',
+            'dft_params.cf',
+        )
     else:
         config_file = os.path.join(
-                config_file,
-                'UserInLoopHTM',
-                'experiments',
-                'config',
-                'dft_params.cf',
-            )
+            config_file,
+            'UserInLoopHTM',
+            'experiments',
+            'config',
+            'dft_params.cf',
+        )
     training_params = read_config_experiments(config_file)
-    
+
     # grid_params = [
     #    [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150],
     #    [0.1, 0.5, 1, 5, 10, 20, 50],

@@ -112,10 +112,10 @@ def train_automatic(path_corpus: str,
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_corpus', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/S2CS-AI/models_preproc/iter_0/corpus.txt",
                         help="Path to the training data.")
     parser.add_argument('--models_folder', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_htm",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/S2CS-AI/models_preproc/iter_0",
                         help="Path where the models are going to be saved.")
     parser.add_argument('--trainer', type=str,
                         default="mallet",
