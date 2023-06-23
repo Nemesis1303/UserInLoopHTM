@@ -139,6 +139,7 @@ def run_k_fold(models_folder: str,
     df["avg_cohr"] = df["fold_cohrs"].apply(lambda x: sum(x) / len(x))
     df['std_cohr'] = df['fold_cohrs'].apply(lambda x: np.std(x))
     df = df.drop('hyperparameters', axis=1)
+    df = df.reset_index(drop=True)
     df.to_csv(pathlib.Path(models_folder).joinpath("results.csv"))
 
     # Figure with coherence scores per fold and hyperparameter combination
@@ -154,9 +155,15 @@ def run_k_fold(models_folder: str,
     # Figure with average coherence scores per hyperparameter combination
     # Create the line plot with error bars
     plt.figure(figsize=(10, 6))
-    plt.errorbar(df['ntopics'], df['avg_cohr'],
-                 yerr=df['std_cohr'], marker='o')
-    plt.xlabel('Number of Topics')
+    plt.errorbar(df.index,
+                 df['avg_cohr'],
+                 yerr=df['std_cohr'],
+                 fmt='x-',
+                 ecolor='gray',
+                 color='#36AE7C',
+                 capsize=2,
+                 lw=1)
+    plt.xlabel('Hyperparameter combination')
     plt.ylabel('Average Score')
     plt.title(
         'Average Fold Score with Standard Deviation per Hyperparameter Combination')
