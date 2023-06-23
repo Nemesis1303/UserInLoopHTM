@@ -138,7 +138,7 @@ def run_k_fold(models_folder: str,
     plt.ylabel('Accuracy Score')
     plt.title('Cross-Validation Scores for Hyperparameter Combinations')
     plt.legend()
-    plt.savefig(models_folder.joinpath("plot.png"))
+    plt.savefig(pathlib.Path(models_folder).joinpath("plot.png"))
 
     return
 
