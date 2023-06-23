@@ -53,7 +53,7 @@ def run_k_fold(models_folder: str,
     corpus_df_to_mallet(corpus_val, outFile)
 
     # Initialize the RepeatedKFold cross-validation object:
-    rkf = RepeatedKFold(n_splits=3, n_repeats=1, random_state=42)  # 10,5
+    rkf = RepeatedKFold(n_splits=10, n_repeats=6, random_state=42)
 
     # Iterate over the hyperparameters and perform cross-validation:
     print("-- -- Validation starts...")
