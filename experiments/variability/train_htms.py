@@ -40,7 +40,7 @@ def train_automatic(path_corpus: str,
         if model_path is None:
 
             name = f"root_model_{str(iter_)}_{DT.datetime.now().strftime('%Y%m%d')}"
-            training_params['ntopics'] = training_params
+            training_params['ntopics'] = ntopics_root
             model_path = tm_wrapper.train_root_model(
                 models_folder=models_folder,
                 name=name,
