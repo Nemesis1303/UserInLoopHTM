@@ -1,0 +1,11 @@
+{
+  "name": "AI_eqs",
+  "description": "Some equivalent terms for AI Semantic Scholar",
+  "valid_for": "equivalences",
+  "visibility": "Public",
+  "wordlist": [
+    "2d:2D"
+    
+  ],
+  "creation_date": "2022-06-09 00:12:47.783659"
+}

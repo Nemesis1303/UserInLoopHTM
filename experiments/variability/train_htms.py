@@ -130,6 +130,8 @@ def main():
                         help="Path to the root model if it exists.")
     parser.add_argument('--only_root', default=False, required=False,
                         action='store_true', help="Flag to activate training of only one root model")
+    parser.add_argument('--ntopics_root', type=int, default=10,
+                        help="Number of topics in the root model.")
     args = parser.parse_args()
     
     # Read training_params
@@ -158,7 +160,8 @@ def main():
                     start=args.start,
                     training_params=training_params,
                     model_path=args.model_path,
-                    only_root=args.only_root)
+                    only_root=args.only_root,
+                    ntopics_root=args.ntopics_root)
 
 
 if __name__ == "__main__":

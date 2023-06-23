@@ -1,0 +1,10 @@
+{
+  "name": "AI",
+  "description": "List of AI stopwords",
+  "valid_for": "stopwords",
+  "visibility": "Public",
+  "wordlist": [
+    
+  ],
+  "creation_date": "2022-06-08 21:03:46.983949"
+}
