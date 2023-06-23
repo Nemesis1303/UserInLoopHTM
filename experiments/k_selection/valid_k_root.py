@@ -141,9 +141,50 @@ def run_k_fold(models_folder: str,
     df = df.drop('hyperparameters', axis=1)
     df = df.reset_index(drop=True)
     df.to_csv(pathlib.Path(models_folder).joinpath("results.csv"))
+    
+    # Define style for figures
+    fig_width = 6.9  # inches
+    fig_height = 3.5  # inches
+    fig_dpi = 300
+
+    plt.rcParams.update({
+        'figure.figsize': (fig_width, fig_height),
+        'figure.dpi': fig_dpi,
+        
+        # Fonts
+        'font.size': 10,
+        
+        # Axes
+        'axes.labelsize': 10,
+        'axes.titlesize': 10,
+        'axes.linewidth': 0.5,
+        'axes.grid': True,
+        'grid.linestyle': ':',
+        'grid.linewidth': 0.5,
+        'grid.color': 'gray',
+        
+        # Legend
+        'legend.fontsize': 8,
+        'legend.frameon': True,
+        'legend.framealpha': 0.8,
+        'legend.fancybox': False,
+        'legend.edgecolor': 'gray',
+        'legend.facecolor': 'white',
+        'legend.borderaxespad': 0.5,
+        'legend.borderpad': 0.4,
+        'legend.labelspacing': 0.5,
+        
+        # Lines
+        'lines.linewidth': 1.0, 
+        'lines.markersize': 4, 
+        'axes.labelsize': 10, 
+        'axes.titlesize': 12, 
+        'xtick.labelsize': 8, 
+        'ytick.labelsize': 8,
+    })
 
     # Figure with coherence scores per fold and hyperparameter combination
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 5))
     for i, score in enumerate(scores):
         plt.plot(range(1, len(score)+1), score, label=f'Combination {i+1}')
     plt.xlabel('Fold')
@@ -154,7 +195,7 @@ def run_k_fold(models_folder: str,
 
     # Figure with average coherence scores per hyperparameter combination
     # Create the line plot with error bars
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 5))
     plt.errorbar(df.index,
                  df['avg_cohr'],
                  yerr=df['std_cohr'],
@@ -214,17 +255,12 @@ def main():
         )
     training_params = read_config_experiments(config_file)
 
-    # grid_params = [
-    #    [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150],
-    #    [0.1, 0.5, 1, 5, 10, 20, 50],
-    #    [0, 10]
-    # ]
-
     grid_params = [
-        [5, 10, 20],
-        [0.1, 0.5],
-        [0]
-    ]
+        [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150],
+        [0.1, 0.5, 1, 5, 10, 20, 50],
+        [0, 10]
+     ]
+
     run_k_fold(
         models_folder=args.models_folder,
         trainer=args.trainer,
