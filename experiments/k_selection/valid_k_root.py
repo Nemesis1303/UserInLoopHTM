@@ -16,6 +16,17 @@ from src.tmWrapper.tm_wrapper import TMWrapper
 from src.utils.misc import (
     corpus_df_to_mallet, mallet_corpus_to_df, read_config_experiments)
 
+# Mirar alpha que maximice la coherencia y más dispersion. Teniendo cohrencia, cuanto más dispersión mejor, porque los tópicos están más relacionadados con un número pequeño de documentos.
+
+# Analziar el modelo en cuanto a la distancia de los tóppicos con los documentos
+
+# Buscar salidads de los modelos dónde los modelos discrepen en cuanto prestaciones para evaluar qué modelo caracteriza mejor el documento
+# Te enseño un documento dónde uno es alto y otro bajo y te digo que modelo es mejor. Para sacar la máxima info me interesa sacar documentos que sean muy diferentes entre modelos
+
+# proporción original: pertenencia a nivel 3 de nivel 1 \times pertencnica a segundo nivel 
+#--> recuperar documentos más importantes de tópico 1.3
+
+# topic intrusion / word intrusion. Para que sea más challenging coger una palabra que arranqué en un tópico de arriba para que sea más disimilar al de abajo
 def run_k_fold(models_folder: str,
                trainer: str,
                corpusFile: str,
@@ -220,7 +231,6 @@ def run_k_fold(models_folder: str,
     print(f"Best coherence: {best_score}")
 
     return
-
 
 def main():
 

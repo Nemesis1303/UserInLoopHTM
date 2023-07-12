@@ -23,6 +23,15 @@ from src.utils.misc import unpickler
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+# Get path to project
+if os.path.dirname(os.path.dirname(os.getcwd())).endswith('UserInLoopHTM'):
+    path_dir = os.path.dirname(os.path.dirname(os.getcwd()))
+else:
+    path_dir = os.path.join(
+        os.path.dirname(os.path.dirname(os.getcwd())),
+        'UserInLoopHTM'
+    )
+
 # ======================================================
 # Initialize the app - incorporate css
 # ======================================================
@@ -38,33 +47,24 @@ app.title = "Hierarchical Topic Modeling Comparisson Dashboard"
 # ======================================================
 # Get config with path to data
 cf = configparser.ConfigParser()
-current_path = \
-    os.path.dirname(os.path.dirname(os.getcwd()))
-if current_path.endswith("UserInLoopHTM"):
-    cf.read(os.path.join(current_path,
-                         'dashboard_comparisson',
-                         'config',
-                         'config.cf'))
-else:
-    cf.read(os.path.join(current_path,
-                         'UserInLoopHTM',
-                         'dashboard_comparisson',
-                         'config',
-                         'config.cf'))
-    
+cf.read(os.path.join(path_dir,
+                    'dashboard_comparisson',
+                    'config',
+                    'config.cf'))
+
 # Unpickle model info dataframe
 # We assume dataframe with the following format:
 # # MODEL | MODEL_TYPE | FATHER_MODEL | CORPUS | ALPHAS | COHRS | KEYS
-df = unpickler(cf.get("paths", "path_df_info"))
+df = unpickler(os.path.join(path_dir,cf.get("paths", "path_df_info")))
 
 # Unpickle model sims and wmds dataframe
 # We assume dataframe with the following format:
 #  # MODEL_1 | MODEL_2 | VS_SIMS | WMD_1 | WMD_2
 # # Note that there will ba as many rows as combinations of second level submodels belonging to the same first level model
-df_sims_wmds = unpickler(cf.get("paths", "path_df_sims"))
+df_sims_wmds = unpickler(os.path.join(path_dir,cf.get("paths", "path_df_sims")))
 
 # Read reference topics
-with open(cf.get("paths", "path_ref_topics"), "r") as f:
+with open(os.path.join(path_dir, cf.get("paths", "path_ref_topics")), "r") as f:
     data = json.load(f)
 df_ref = pd.DataFrame.from_records(data)
 ref_titles = df_ref.title.values.tolist()

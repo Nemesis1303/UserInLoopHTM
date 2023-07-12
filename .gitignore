@@ -129,7 +129,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-data
+#data
+data/Scholar_AI_mallet_5_topics
+data/info.xlsx
 
 mallet-2.0.8
 

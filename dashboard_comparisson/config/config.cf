@@ -8,7 +8,7 @@ cons_level = DEBUG
 cons_format = %%(levelname)-8s | %%(message)s
 
 [paths]
-path_df_info = /Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/info.pkl
-path_df_sims = /Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/sims_wmds.pkl
-path_ref_topics = /Users/lbartolome/Documents/GitHub/UserInLoopHTM/src/evaluateMatching/ai_reference_topics.json
+path_df_info = data/info.pkl
+path_df_sims = data/sims_wmds.pkl
+path_ref_topics = src/evaluateMatching/ai_reference_topics.json
 
