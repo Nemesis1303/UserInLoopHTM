@@ -1,8 +1,8 @@
-from octis.models.model import AbstractModel
+from src.evaluateNN.OCTIS.octis.models.model import AbstractModel
 from gensim.models import lsimodel
 import numpy as np
 import gensim.corpora as corpora
-import octis.configuration.defaults as defaults
+import src.evaluateNN.OCTIS.octis.configuration.defaults as defaults
 
 
 class LSI(AbstractModel):

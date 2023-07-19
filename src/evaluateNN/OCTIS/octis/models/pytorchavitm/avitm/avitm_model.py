@@ -10,8 +10,8 @@ from torch import optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 
-from OCTIS.octis.models.early_stopping.pytorchtools import EarlyStopping
-from OCTIS.octis.models.pytorchavitm.avitm.decoder_network import DecoderNetwork
+from src.evaluateNN.OCTIS.octis.models.early_stopping.pytorchtools import EarlyStopping
+from src.evaluateNN.OCTIS.octis.models.pytorchavitm.avitm.decoder_network import DecoderNetwork
 
 
 class AVITM_model(object):

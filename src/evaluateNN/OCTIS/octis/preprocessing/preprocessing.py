@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from tqdm.contrib.concurrent import process_map  # or thread_map
 from pathlib import Path
-from octis.dataset.dataset import Dataset
+from src.evaluateNN.OCTIS.octis.dataset.dataset import Dataset
 from collections import Counter
 
 """

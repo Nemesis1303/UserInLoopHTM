@@ -4,9 +4,9 @@ from collections import defaultdict
 
 import numpy as np
 import torch
-from OCTIS.octis.models.contextualized_topic_models.networks.decoding_network import \
+from src.evaluateNN.OCTIS.octis.models.contextualized_topic_models.networks.decoding_network import \
     DecoderNetwork
-from OCTIS.octis.models.early_stopping.pytorchtools import EarlyStopping
+from src.evaluateNN.OCTIS.octis.models.early_stopping.pytorchtools import EarlyStopping
 from torch import optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader

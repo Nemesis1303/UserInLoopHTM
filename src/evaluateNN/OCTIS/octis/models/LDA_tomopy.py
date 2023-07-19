@@ -1,7 +1,7 @@
 import numpy as np
 import tomotopy as tp
 
-from octis.models.model import AbstractModel
+from src.evaluateNN.OCTIS.octis.models.model import AbstractModel
 
 """
 Experimental integration of tomotopy's implementation of LDA

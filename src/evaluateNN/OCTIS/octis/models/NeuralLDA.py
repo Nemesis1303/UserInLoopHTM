@@ -1,4 +1,4 @@
-from octis.models.pytorchavitm.AVITM import AVITM
+from src.evaluateNN.OCTIS.octis.models.pytorchavitm.AVITM import AVITM
 
 
 class NeuralLDA(AVITM):

@@ -1,6 +1,6 @@
 import numpy as np
-import octis.configuration.citations as citations
-from octis.evaluation_metrics.metrics import AbstractMetric
+import src.evaluateNN.OCTIS.octis.configuration.citations as citations
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.metrics import AbstractMetric
 
 
 def _KL(P, Q):

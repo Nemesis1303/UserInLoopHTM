@@ -4,11 +4,11 @@ import time
 from pathlib import Path
 
 import numpy as np
-from OCTIS.octis.dataset.dataset import Dataset
+from src.evaluateNN.OCTIS.octis.dataset.dataset import Dataset
 # utils from other files of the framework
-from OCTIS.octis.models.model import save_model_output
-from OCTIS.octis.optimization.optimizer_evaluation import OptimizerEvaluation
-from OCTIS.octis.optimization.optimizer_tool import (
+from src.evaluateNN.OCTIS.octis.models.model import save_model_output
+from src.evaluateNN.OCTIS.octis.optimization.optimizer_evaluation import OptimizerEvaluation
+from src.evaluateNN.OCTIS.octis.optimization.optimizer_tool import (
     choose_optimizer, early_condition, load_model, load_search_space,
     plot_bayesian_optimization, plot_model_runs, select_metric)
 # utils from skopt and sklearn

@@ -5,7 +5,7 @@ from sklearn.metrics import (
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 
-import octis.configuration.citations as citations
+import src.evaluateNN.OCTIS.octis.configuration.citations as citations
 from octis.evaluation_metrics.metrics import AbstractMetric
 from sklearn.preprocessing import MultiLabelBinarizer
 

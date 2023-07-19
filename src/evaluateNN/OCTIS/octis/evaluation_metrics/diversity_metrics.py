@@ -2,13 +2,13 @@ import itertools
 
 import gensim.downloader as api
 import numpy as np
-import OCTIS.octis.configuration.citations as citations
+import src.evaluateNN.OCTIS.octis.configuration.citations as citations
 from gensim.models import KeyedVectors
-from OCTIS.octis.evaluation_metrics.metrics import AbstractMetric
-from OCTIS.octis.evaluation_metrics.rbo import rbo
-from OCTIS.octis.evaluation_metrics.word_embeddings_rbo import \
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.metrics import AbstractMetric
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.rbo import rbo
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.word_embeddings_rbo import \
     word_embeddings_rbo
-from OCTIS.octis.evaluation_metrics.word_embeddings_rbo_centroid import \
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.word_embeddings_rbo_centroid import \
     word_embeddings_rbo as weirbo_centroid
 
 

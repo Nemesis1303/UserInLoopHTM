@@ -1,5 +1,5 @@
-import octis.preprocessing.sources.source_tools as nu
-import octis.configuration.citations as citations
+import src.evaluateNN.OCTIS.octis.preprocessing.sources.source_tools as nu
+import src.evaluateNN.OCTIS.octis.configuration.citations as citations
 
 
 def retrieve_m10():

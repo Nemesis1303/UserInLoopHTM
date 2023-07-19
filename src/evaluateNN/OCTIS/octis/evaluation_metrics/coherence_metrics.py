@@ -3,11 +3,11 @@ from operator import add
 
 import gensim.downloader as api
 import numpy as np
-import OCTIS.octis.configuration.citations as citations
+import src.evaluateNN.OCTIS.octis.configuration.citations as citations
 from gensim.corpora.dictionary import Dictionary
 from gensim.models import CoherenceModel, KeyedVectors
-from OCTIS.octis.dataset.dataset import Dataset
-from OCTIS.octis.evaluation_metrics.metrics import AbstractMetric
+from src.evaluateNN.OCTIS.octis.dataset.dataset import Dataset
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.metrics import AbstractMetric
 from scipy import spatial
 from sklearn.metrics import pairwise_distances
 

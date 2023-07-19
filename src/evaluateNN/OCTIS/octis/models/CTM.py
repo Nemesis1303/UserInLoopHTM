@@ -1,9 +1,9 @@
 from sklearn.feature_extraction.text import CountVectorizer
 
-from OCTIS.octis.models.model import AbstractModel
-from OCTIS.octis.models.contextualized_topic_models.datasets import dataset
-from OCTIS.octis.models.contextualized_topic_models.models import ctm
-from OCTIS.octis.models.contextualized_topic_models.utils.data_preparation import (
+from src.evaluateNN.OCTIS.octis.models.model import AbstractModel
+from src.evaluateNN.OCTIS.octis.models.contextualized_topic_models.datasets import dataset
+from src.evaluateNN.OCTIS.octis.models.contextualized_topic_models.models import ctm
+from src.evaluateNN.OCTIS.octis.models.contextualized_topic_models.utils.data_preparation import (
     bert_embeddings_from_list)
 
 import os

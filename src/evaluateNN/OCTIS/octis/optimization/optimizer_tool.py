@@ -5,7 +5,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import OCTIS.octis.configuration.defaults as defaults
+import src.evaluateNN.OCTIS.octis.configuration.defaults as defaults
 from skopt import Optimizer as skopt_optimizer
 from skopt.learning import (ExtraTreesRegressor, GaussianProcessRegressor,
                             RandomForestRegressor)

@@ -1,7 +1,7 @@
 import json
 import numpy as np
 import pandas as pd
-from OCTIS.octis.optimization.optimizer_tool import (
+from src.evaluateNN.OCTIS.octis.optimization.optimizer_tool import (
     check_instance, save_search_space, convert_type)
 
 

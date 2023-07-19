@@ -1,4 +1,4 @@
-from octis.models.model import AbstractModel
+from src.evaluateNN.OCTIS.octis.models.model import AbstractModel
 import pickle as pkl
 import numpy as np
 from torch import optim

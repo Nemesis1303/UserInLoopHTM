@@ -1,8 +1,8 @@
 from sklearn.feature_extraction.text import CountVectorizer
 
-from OCTIS.octis.models.model import AbstractModel
-from OCTIS.octis.models.pytorchavitm import datasets
-from OCTIS.octis.models.pytorchavitm.avitm import avitm_model
+from src.evaluateNN.OCTIS.octis.models.model import AbstractModel
+from src.evaluateNN.OCTIS.octis.models.pytorchavitm import datasets
+from src.evaluateNN.OCTIS.octis.models.pytorchavitm.avitm import avitm_model
 
 
 class AVITM(AbstractModel):

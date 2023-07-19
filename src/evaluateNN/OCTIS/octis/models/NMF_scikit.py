@@ -1,4 +1,4 @@
-from octis.models.model import AbstractModel
+from src.evaluateNN.OCTIS.octis.models.model import AbstractModel
 import numpy as np
 from sklearn.decomposition import NMF
 from sklearn.feature_extraction.text import TfidfVectorizer

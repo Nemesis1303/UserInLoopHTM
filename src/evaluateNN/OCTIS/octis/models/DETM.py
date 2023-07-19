@@ -1,6 +1,6 @@
-from octis.models.DETM_model import detm
-from octis.models.base_etm import BaseETM
-from octis.models.DETM_model import data
+from src.evaluateNN.OCTIS.octis.models.DETM_model import detm
+from src.evaluateNN.OCTIS.octis.models.base_etm import BaseETM
+from src.evaluateNN.OCTIS.octis.models.DETM_model import data
 import torch
 import warnings
 

@@ -1,9 +1,9 @@
-from octis.models.model import AbstractModel
+from src.evaluateNN.OCTIS.octis.models.model import AbstractModel
 import numpy as np
 from gensim.models import nmf
 import gensim.corpora as corpora
-import octis.configuration.citations as citations
-import octis.configuration.defaults as defaults
+import src.evaluateNN.OCTIS.octis.configuration.citations as citations
+import src.evaluateNN.OCTIS.octis.configuration.defaults as defaults
 
 
 class NMF(AbstractModel):

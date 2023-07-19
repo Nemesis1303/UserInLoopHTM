@@ -1,12 +1,12 @@
 from __future__ import print_function
-from octis.models.early_stopping.pytorchtools import EarlyStopping
+from src.evaluateNN.OCTIS.octis.models.early_stopping.pytorchtools import EarlyStopping
 import torch
 import numpy as np
-from octis.models.ETM_model import data
+from src.evaluateNN.OCTIS.octis.models.ETM_model import data
 from sklearn.feature_extraction.text import CountVectorizer
 from torch import nn, optim
-from octis.models.ETM_model import etm
-from octis.models.base_etm import BaseETM
+from src.evaluateNN.OCTIS.octis.models.ETM_model import etm
+from src.evaluateNN.OCTIS.octis.models.base_etm import BaseETM
 import pickle as pkl
 
 

@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 import pandas as pd
-from OCTIS.octis.dataset.downloader import (_pkl_filepath, download_dataset,
+from src.evaluateNN.OCTIS.octis.dataset.downloader import (_pkl_filepath, download_dataset,
                                             get_data_home)
 from sklearn.model_selection import train_test_split
 

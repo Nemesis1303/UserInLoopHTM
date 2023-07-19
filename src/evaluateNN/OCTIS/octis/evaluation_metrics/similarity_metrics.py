@@ -1,9 +1,9 @@
-from octis.evaluation_metrics.diversity_metrics import WordEmbeddingsInvertedRBO, \
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.diversity_metrics import WordEmbeddingsInvertedRBO, \
     WordEmbeddingsInvertedRBOCentroid, InvertedRBO
 import numpy as np
 from itertools import combinations
 from scipy.spatial.distance import cosine
-from octis.evaluation_metrics.metrics import AbstractMetric
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.metrics import AbstractMetric
 from gensim.models import KeyedVectors
 import gensim.downloader as api
 
