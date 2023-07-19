@@ -1,3 +1,9 @@
+import argparse
+import sys
+
+# Add src to path and make imports
+sys.path.append('../..')
+
 from src.evaluateNN.OCTIS.octis.evaluation_metrics.diversity_metrics import (
     InvertedRBO, TopicDiversity)
 from skopt.space.space import Categorical, Integer, Real
@@ -6,12 +12,6 @@ from src.evaluateNN.OCTIS.octis.models.ProdLDA import ProdLDA
 from src.evaluateNN.OCTIS.octis.models.CTM import CTM
 from src.evaluateNN.OCTIS.octis.evaluation_metrics.coherence_metrics import Coherence
 from src.evaluateNN.OCTIS.octis.dataset.dataset import *
-import argparse
-import sys
-
-# Add src to path and make imports
-sys.path.append('../..')
-
 
 def evaluate(corpus: str,
              output_folder: str,
