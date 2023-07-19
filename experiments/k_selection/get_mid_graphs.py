@@ -50,7 +50,7 @@ for entry in path_models.iterdir():
 df_results = pd.DataFrame(values, columns=['ntopics', 'alpha', 'opt_int', 'fold', 'disp_perc', 'cohr'])
 df_results.to_csv(pathlib.Path(path_models).joinpath("mid_results.csv"))    
 
-# Mirar alpha que maximice la coherencia y más dispersion. Teniendo cohrencia, cuanto más dispersión mejor, porque los tópicos están más relacionadados con un número pequeño de documentos.
+
 
 # Analziar el modelo en cuanto a la distancia de los tóppicos con los documentos
 
