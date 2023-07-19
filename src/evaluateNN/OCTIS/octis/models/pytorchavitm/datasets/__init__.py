@@ -1,3 +1,3 @@
 """Init datasets."""
 
-from OCTIS.octis.models.pytorchavitm.datasets.bow import BOWDataset
+from src.evaluateNN.OCTIS.octis.models.pytorchavitm.datasets.bow import BOWDataset
