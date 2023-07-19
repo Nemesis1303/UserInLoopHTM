@@ -1,16 +1,22 @@
-import argparse
-
-from OCTIS.octis.dataset.dataset import *
-from OCTIS.octis.evaluation_metrics.coherence_metrics import Coherence
-from OCTIS.octis.evaluation_metrics.diversity_metrics import (InvertedRBO,
-                                                              TopicDiversity)
-from OCTIS.octis.models.CTM import CTM
-from OCTIS.octis.models.ProdLDA import ProdLDA
-from OCTIS.octis.optimization.optimizer import Optimizer
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.diversity_metrics import (
+    InvertedRBO, TopicDiversity)
 from skopt.space.space import Categorical, Integer, Real
+from src.evaluateNN.OCTIS.octis.optimization.optimizer import Optimizer
+from src.evaluateNN.OCTIS.octis.models.ProdLDA import ProdLDA
+from src.evaluateNN.OCTIS.octis.models.CTM import CTM
+from src.evaluateNN.OCTIS.octis.evaluation_metrics.coherence_metrics import Coherence
+from src.evaluateNN.OCTIS.octis.dataset.dataset import *
+import argparse
+import sys
+
+# Add src to path and make imports
+sys.path.append('../..')
 
 
-def evaluate(corpus: str, output_folder: str, optimization_runs: int = 30, model_runs: int = 1) -> None:
+def evaluate(corpus: str,
+             output_folder: str,
+             optimization_runs: int = 30,
+             model_runs: int = 1) -> None:
     """Evaluate the CTM model on the given corpus.
 
     Parameters:
@@ -43,9 +49,10 @@ def evaluate(corpus: str, output_folder: str, optimization_runs: int = 30, model
     irbo = InvertedRBO(topk=10)
 
     # Define hyperparameters search space
-    search_space = {"num_layers": Categorical({1, 2, 3}),
-                    "num_neurons": Categorical({100, 200, 300}),
-                    "activation": Categorical({'sigmoid', 'relu', 'softplus', 'tanh'}),
+    search_space = {"activation": Categorical({'sigmoid', 'relu',
+                                               'softplus', 'tanh'}),
+                    "solver": Categorical({'adagrad', 'adam',
+                                           'sgd', 'adadelta', 'rmsprop'}),
                     "dropout_thetas": Real(0.0, 0.95),
                     "dropout_inf": Real(0.0, 0.95),
                     "lr": Real(1e-4, 1e-2),
@@ -63,13 +70,13 @@ def evaluate(corpus: str, output_folder: str, optimization_runs: int = 30, model
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_corpus', type=str,
-                        default="/Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/output_nlppipe/cordis_preproc_embeddings",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/cordis_lemmas_embeddings.parquet",
                         help="Path to the corpus.")
     parser.add_argument('--octis_folder', type=str,
-                        default="/Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/output_nlppipe/cordis_octis_data",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/exp_octis",
                         help="Path where OCTIS data will be saved.")
     parser.add_argument('--optimization_runs', type=int,
-                        default=10,
+                        default=90,
                         help="Number of optimization runs.")
     parser.add_argument('--model_runs', type=int,
                         default=1,
