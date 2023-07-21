@@ -49,15 +49,3 @@ for entry in path_models.iterdir():
 
 df_results = pd.DataFrame(values, columns=['ntopics', 'alpha', 'opt_int', 'fold', 'disp_perc', 'cohr'])
 df_results.to_csv(pathlib.Path(path_models).joinpath("mid_results.csv"))    
-
-
-
-# Analziar el modelo en cuanto a la distancia de los tóppicos con los documentos
-
-# Buscar salidads de los modelos dónde los modelos discrepen en cuanto prestaciones para evaluar qué modelo caracteriza mejor el documento
-# Te enseño un documento dónde uno es alto y otro bajo y te digo que modelo es mejor. Para sacar la máxima info me interesa sacar documentos que sean muy diferentes entre modelos
-
-# proporción original: pertenencia a nivel 3 de nivel 1 \times pertencnica a segundo nivel 
-#--> recuperar documentos más importantes de tópico 1.3
-
-# topic intrusion / word intrusion. Para que sea más challenging coger una palabra que arranqué en un tópico de arriba para que sea más disimilar al de abajo

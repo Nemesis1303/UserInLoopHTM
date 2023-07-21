@@ -15,6 +15,7 @@ from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 from src.tmWrapper.tm_wrapper import TMWrapper
 from src.utils.misc import (
     corpus_df_to_mallet, mallet_corpus_to_df, read_config_experiments)
+
 def run_k_fold(models_folder: str,
                trainer: str,
                corpusFile: str,
