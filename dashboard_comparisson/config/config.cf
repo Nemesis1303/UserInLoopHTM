@@ -10,5 +10,6 @@ cons_format = %%(levelname)-8s | %%(message)s
 [paths]
 path_df_info = data/info.pkl
 path_df_sims = data/sims_wmds.pkl
+path_df_model = data/._dummy.pkl
 path_ref_topics = src/evaluateMatching/ai_reference_topics.json
 

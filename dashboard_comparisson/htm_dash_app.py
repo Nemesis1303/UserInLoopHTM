@@ -17,6 +17,7 @@ import plotly.graph_objects as go
 import plotly.subplots as sp
 from dash import Dash, Input, Output, dcc, html
 import sys
+import flask
 
 sys.path.append('..')
 from src.utils.misc import unpickler
@@ -35,10 +36,15 @@ else:
 # ======================================================
 # Initialize the app - incorporate css
 # ======================================================
+server = flask.Flask('app')
+server.secret_key = os.environ.get('secret_key', 'secret')
+
 app = Dash(
     __name__,
     meta_tags=[{"name": "viewport",
                 "content": "width=device-width, initial-scale=1"}],
+    server=server,
+    url_base_pathname='/dash/'
 )
 app.title = "Hierarchical Topic Modeling Comparisson Dashboard"
 
@@ -69,12 +75,10 @@ with open(os.path.join(path_dir, cf.get("paths", "path_ref_topics")), "r") as f:
 df_ref = pd.DataFrame.from_records(data)
 ref_titles = df_ref.title.values.tolist()
 
-
 # ======================================================
 # AUX VARS
 # ======================================================
 n_clicks = 0
-
 
 # ======================================================
 # AUX FUNCTIONS
@@ -123,6 +127,7 @@ def generate_control_card():
             dcc.Graph(
                 id='root_cohr_graph',
             ),
+            
             html.Br(),
 
             # SECOND LEVEL TOPIC MODELS
@@ -163,6 +168,22 @@ def get_buttons_metrics():
         ],
     )
 
+def get_root_options():
+    """Returns a Div containing buttons for root model options.
+    """
+    return html.Div(
+        [
+            dbc.RadioItems(
+                id="radios-root",
+                options=[
+                    {"label": "Cohr vs Size",
+                     "value":  "cohr"},
+                    {"label": "Intertopic Distribution", "value": "Intertopic Distribution"}],
+                value='Topic Alignment',
+                inline=True,
+                labelStyle={"display": "inline-block", "margin-right": "10px"}),
+        ],
+    )
 
 def Table(dataframe):
     """Out of a one-row dataframe, it returns a table where each column in the dataframe is a row in the table.
@@ -255,7 +276,7 @@ app.layout = html.Div(
                         html.B("Topic Information"),
                         html.Hr(),
                         html.Div(id="topics_info",
-                                 children="Click on any position on the heatmaps avobe to see the topic information of the selected topic for each submodel."),
+                                 children="Click on any position on the heatmaps above to see the topic information of the selected topic for each submodel."),
                         html.Br(),
                         html.Div(id="table_keys"),
                     ],
@@ -284,7 +305,6 @@ def update_first_level_tm_input(selected_value):
     df_corpus = df[df.corpus == selected_value]
     options = df_corpus[df_corpus.model_type == "first"].model.unique()
     return options
-
 
 @app.callback(
     Output('root_cohr_graph', 'figure'),
@@ -648,4 +668,4 @@ def generate_topics_tables(click_data, radio_items_value, radio_metrics_value):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8055)
+    app.run_server(debug=True, port=8055, host='0.0.0.0')
