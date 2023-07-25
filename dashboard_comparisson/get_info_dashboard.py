@@ -4,7 +4,7 @@ import os
 import pathlib
 import sys
 from itertools import combinations
-
+import random
 import numpy as np
 import pandas as pd
 
@@ -29,13 +29,18 @@ def update_df_info(path_to_root_model: str,
     dfs.append(get_model_info(path_to_root_model, corpus, True))
 
     # Iterate over submodels
+    counter = 0
     for entry in path_to_root_model.iterdir():
-         if entry.joinpath('TMmodel/alphas.npy').is_file():
-             dfs.append(get_model_info(entry, corpus))
+        if counter < 30:
+            if entry.joinpath('TMmodel/alphas.npy').is_file():
+                print(entry.as_posix())
+                dfs.append(get_model_info(entry, corpus))
+                counter += 1
 
     # Concatenate all dfs
     df = pd.concat(dfs, ignore_index=True)
     df = df.sort_values(by=['corpus'])
+    print(df)
     return df
 
 
@@ -49,7 +54,6 @@ def update_sims_wmd(df, df_sims, corpus, root_model):
     df_corpus = df[df.corpus == corpus]
     submodels = df_corpus[(df_corpus.father_model ==
                            root_model.stem)].model.unique()
-
     al = Alignment()
     for (sub1, sub2) in list(combinations(submodels, 2)):
         print(sub1, sub2)
@@ -70,7 +74,6 @@ def update_sims_wmd(df, df_sims, corpus, root_model):
     # Concatenate all dfs
     df = pd.concat(dfs, ignore_index=True)
     df = df.sort_values(by=['model_1'])
-
     return df
 
 
@@ -115,7 +118,15 @@ def get_model_info(path: pathlib.Path,
     with open(path.joinpath('TMmodel/tpc_descriptions.txt'), "r") as file:
         lines = file.readlines()
     keywords = [line.strip().split(", ") for line in lines]
-
+    
+    betas = np.load(path.joinpath('TMmodel/betas.npy'))
+    all_props = [[int(betas[i][idx2]*1000) for idx2 in np.argsort(betas[i])[::-1][0:10]] for i in range(len(betas))]
+    
+    with path.joinpath('TMmodel/tpc_coords.txt').open('r', encoding='utf8') as fin:
+        coords = \
+            [tuple(map(float, line.strip()[1:-1].split(', ')))
+                for line in fin]
+    
     if root:
         model_type = "first"
         father_model = None
@@ -136,6 +147,8 @@ def get_model_info(path: pathlib.Path,
          'cohrs_cv': cohrs_cv,
          'entropies': entropies,
          'keywords': [keywords],
+         'props': [all_props],
+         'coords': [coords]
          }, index=[0])
 
 
@@ -149,21 +162,31 @@ def main():
 
     # Get config with path to data
     cf = configparser.ConfigParser()
-    current_path = \
-        os.path.dirname(os.path.dirname(os.getcwd()))
-    cf.read(os.path.join(current_path, 'UserInLoopHTM',
-            'dashboard_comparisson', 'config', 'config.cf'))
+    # Get path to project
+    if os.path.dirname(os.path.dirname(os.getcwd())).endswith('UserInLoopHTM'):
+        path_dir = os.path.dirname(os.path.dirname(os.getcwd()))
+    else:
+        path_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.getcwd())),
+            'UserInLoopHTM'
+        )
+    cf.read(os.path.join(path_dir,
+                        'dashboard_comparisson',
+                        'config',
+                        'config.cf'))
 
     # Update df_info
-    df_info = unpickler(cf.get("paths", "path_df_info"))
+    #df_info = unpickler(os.path.join(path_dir,cf.get("paths", "path_df_info")))
+    df_info = None
     df_info = update_df_info(args.path_to_root_model, args.corpus, df_info)
-    pickler(cf.get("paths", "path_df_info"), df_info)
+    pickler(os.path.join(path_dir,cf.get("paths", "path_df_info")),df_info)
 
     # Update df_sims
-    df_sims_wmds = unpickler(cf.get("paths", "path_df_sims"))
+    #df_sims_wmds = unpickler(os.path.join(path_dir,cf.get("paths", "path_df_sims")))
+    df_sims_wmds = None
     df_sims_wmds = update_sims_wmd(
         df_info, df_sims_wmds, args.corpus, args.path_to_root_model)
-    pickler(cf.get("paths", "path_df_sims"), df_sims_wmds)
+    pickler(os.path.join(path_dir,cf.get("paths", "path_df_sims")),df_sims_wmds)
 
 
 if __name__ == "__main__":

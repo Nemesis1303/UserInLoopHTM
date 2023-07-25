@@ -52,6 +52,7 @@ class Alignment(object):
 
         # Initialize matrix of dims (n_topics, n_words)
         exp_matrix = np.zeros(init_size, dtype=np.float64)
+        print("The shape after explote is: ", exp_matrix.shape)
 
         # Get idx of the words in initial vocabulary (id2token2) that are in the new vocabulary (id2token1)
         matching_ids = [
@@ -131,8 +132,8 @@ class Alignment(object):
         return all_dist
 
     def do_one_to_one_matching(self,
-                               tmModel1: str = "/Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/Scholar_AI_mallet_5_topics/HTM-WS_submodel_from_topic4_10_topics",
-                               tmModel2: str = "/Users/lbartolome/Documents/GitHub/UserInLoopHTM/data/Scholar_AI_mallet_5_topics/HTM-DS_submodel_from_topic4_10_topics",
+                               tmModel1: str,
+                               tmModel2: str,
                                father: bool = False,
                                method: str = "sim_word_comp"):
 
@@ -153,13 +154,15 @@ class Alignment(object):
                     TMmodel(pathlib.Path(tmModel1).parent.joinpath("TMmodel"))
 
             distrib1 = tm1.get_betas()
+            print("The shape of distrib1 is: ", distrib1.shape)
             distrib1 = self._explote_matrix(
                 matrix=distrib1,
-                init_size=(len(distrib1), tmModelFather.get_betas().shape[1]),
+                init_size=(len(distrib1), tmModelFather.get_betas().shape[1]), # ntopics child x nwords father
                 id2token1=tm1.get_vocab(),
                 id2token2=tmModelFather.get_vocab())
 
             distrib2 = tm2.get_betas()
+            print("The shape of distrib2 is: ", distrib2.shape)
             distrib2 = self._explote_matrix(
                 matrix=distrib2,
                 init_size=(len(distrib2), tmModelFather.get_betas().shape[1]),

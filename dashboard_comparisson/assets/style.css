@@ -17,7 +17,7 @@ body {
 }
 
 hr {
-    margin: 0.3rem 0rem;
+    margin: 0.1rem 0rem;
 }
 
 .banner {
@@ -43,7 +43,7 @@ H5, H3 {
 }
 
 #left-column {
-    margin-top: 20px;
+    margin-top: 2.5px;
     padding: 0rem 2rem;
     display: flex;
     flex-direction: column;
@@ -104,6 +104,139 @@ H5, H3 {
     background-color: #f2f2f2;
 }
 
+.alert {
+    --bs-alert-bg: transparent;
+    --bs-alert-padding-x: 1rem;
+    --bs-alert-padding-y: 1rem;
+    --bs-alert-margin-bottom: 1rem;
+    --bs-alert-color: inherit;
+    --bs-alert-border-color: transparent;
+    --bs-alert-border: var(--bs-border-width) solid var(--bs-alert-border-color);
+    --bs-alert-border-radius: var(--bs-border-radius);
+    --bs-alert-link-color: inherit;
+    position: relative;
+    padding: var(--bs-alert-padding-y) var(--bs-alert-padding-x);
+    margin-bottom: var(--bs-alert-margin-bottom);
+    color: var(--bs-alert-color);
+    background-color: var(--bs-alert-bg);
+    border: var(--bs-alert-border);
+    border-radius: var(--bs-alert-border-radius);
+  }
+  
+  .alert-heading {
+    color: inherit;
+  }
+  
+  .alert-link {
+    font-weight: 700;
+    color: var(--bs-alert-link-color);
+  }
+  
+  .alert-dismissible {
+    padding-right: 3rem;
+  }
+  .alert-dismissible .btn-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    padding: 1.25rem 1rem;
+  }
+  
+  .alert-primary {
+    --bs-alert-color: var(--bs-primary-text-emphasis);
+    --bs-alert-bg: var(--bs-primary-bg-subtle);
+    --bs-alert-border-color: var(--bs-primary-border-subtle);
+    --bs-alert-link-color: var(--bs-primary-text-emphasis);
+  }
+  
+  .alert-secondary {
+    --bs-alert-color: var(--bs-secondary-text-emphasis);
+    --bs-alert-bg: var(--bs-secondary-bg-subtle);
+    --bs-alert-border-color: var(--bs-secondary-border-subtle);
+    --bs-alert-link-color: var(--bs-secondary-text-emphasis);
+  }
+  
+  .alert-success {
+    --bs-alert-color: var(--bs-success-text-emphasis);
+    --bs-alert-bg: var(--bs-success-bg-subtle);
+    --bs-alert-border-color: var(--bs-success-border-subtle);
+    --bs-alert-link-color: var(--bs-success-text-emphasis);
+  }
+  
+  .alert-info {
+    --bs-alert-color: var(--bs-info-text-emphasis);
+    --bs-alert-bg: var(--bs-info-bg-subtle);
+    --bs-alert-border-color: var(--bs-info-border-subtle);
+    --bs-alert-link-color: var(--bs-info-text-emphasis);
+  }
+  
+  .alert-warning {
+    --bs-alert-color: var(--bs-warning-text-emphasis);
+    --bs-alert-bg: var(--bs-warning-bg-subtle);
+    --bs-alert-border-color: var(--bs-warning-border-subtle);
+    --bs-alert-link-color: var(--bs-warning-text-emphasis);
+  }
+  
+  .alert-danger {
+    --bs-alert-color: var(--bs-danger-text-emphasis);
+    --bs-alert-bg: var(--bs-danger-bg-subtle);
+    --bs-alert-border-color: var(--bs-danger-border-subtle);
+    --bs-alert-link-color: var(--bs-danger-text-emphasis);
+  }
+  
+  .alert-light {
+    --bs-alert-color: var(--bs-light-text-emphasis);
+    --bs-alert-bg: var(--bs-light-bg-subtle);
+    --bs-alert-border-color: var(--bs-light-border-subtle);
+    --bs-alert-link-color: var(--bs-light-text-emphasis);
+  }
+  
+  .alert-dark {
+    --bs-alert-color: var(--bs-dark-text-emphasis);
+    --bs-alert-bg: var(--bs-dark-bg-subtle);
+    --bs-alert-border-color: var(--bs-dark-border-subtle);
+    --bs-alert-link-color: var(--bs-dark-text-emphasis);
+  }
+
+  .alert {
+    color: #fff;
+    border: none;
+  }
+  .alert a,
+  .alert .alert-link {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .alert-primary {
+    background-color: #2c3e50;
+  }
+  .alert-secondary {
+    background-color: #95a5a6;
+  }
+  .alert-success {
+    background-color: #18bc9c;
+  }
+  .alert-info {
+    background-color: #3498db;
+  }
+  .alert-warning {
+    background-color: #f39c12;
+  }
+  .alert-danger {
+    background-color: #e74c3c;
+  }
+  .alert-light {
+    background-color: #ecf0f1;
+  }
+  .alert-dark {
+    background-color: #7b8a8b;
+  }
+  .alert-light,
+  .alert-light a,
+  .alert-light .alert-link {
+    color: #212529;
+  }
 /*
   ##Device = Most of the Smartphones Mobiles / ipad (Portrait)
   */
