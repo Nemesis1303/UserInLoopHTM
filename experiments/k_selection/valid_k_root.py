@@ -11,10 +11,17 @@ from sklearn.model_selection import RepeatedKFold, train_test_split
 
 # Add src to path and make imports
 sys.path.append('../..')
-from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
-from src.tmWrapper.tm_wrapper import TMWrapper
 from src.utils.misc import (
     corpus_df_to_mallet, mallet_corpus_to_df, read_config_experiments)
+from src.tmWrapper.tm_wrapper import TMWrapper
+from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
+
+# Auxiliary functions
+def save_values_to_file(filename, values):
+    with open(filename, 'w') as file:
+        for value in values:
+            file.write(str(value) + '\n')
+
 
 def run_k_fold(models_folder: str,
                trainer: str,
@@ -113,6 +120,9 @@ def run_k_fold(models_folder: str,
                     aggregated=True,
                 )
 
+                save_values_to_file(model_path.joinpath("TMmodel").joinpath(
+                    "fold_config.txt"), grid_params_iter_lst[comb_idx] + (cohr,))
+
                 fold_scores.append(cohr)
 
                 # Delete train file
@@ -141,7 +151,7 @@ def run_k_fold(models_folder: str,
     df = df.drop('hyperparameters', axis=1)
     df = df.reset_index(drop=True)
     df.to_csv(pathlib.Path(models_folder).joinpath("results.csv"))
-    
+
     # Define style for figures
     fig_width = 6.9  # inches
     fig_height = 3.5  # inches
@@ -150,10 +160,10 @@ def run_k_fold(models_folder: str,
     plt.rcParams.update({
         'figure.figsize': (fig_width, fig_height),
         'figure.dpi': fig_dpi,
-        
+
         # Fonts
         'font.size': 10,
-        
+
         # Axes
         'axes.labelsize': 10,
         'axes.titlesize': 10,
@@ -162,7 +172,7 @@ def run_k_fold(models_folder: str,
         'grid.linestyle': ':',
         'grid.linewidth': 0.5,
         'grid.color': 'gray',
-        
+
         # Legend
         'legend.fontsize': 8,
         'legend.frameon': True,
@@ -173,13 +183,13 @@ def run_k_fold(models_folder: str,
         'legend.borderaxespad': 0.5,
         'legend.borderpad': 0.4,
         'legend.labelspacing': 0.5,
-        
+
         # Lines
-        'lines.linewidth': 1.0, 
-        'lines.markersize': 4, 
-        'axes.labelsize': 10, 
-        'axes.titlesize': 12, 
-        'xtick.labelsize': 8, 
+        'lines.linewidth': 1.0,
+        'lines.markersize': 4,
+        'axes.labelsize': 10,
+        'axes.titlesize': 12,
+        'xtick.labelsize': 8,
         'ytick.labelsize': 8,
     })
 
@@ -211,7 +221,7 @@ def run_k_fold(models_folder: str,
     plt.tight_layout()
     plt.show()
     plt.savefig(pathlib.Path(models_folder).joinpath("plot2.png"))
-    
+
     # Print results
     print("Best hyperparameter values:")
     print(f"Number of Topics (ntopics): {best_params['ntopics']}")
@@ -220,6 +230,7 @@ def run_k_fold(models_folder: str,
     print(f"Best coherence: {best_score}")
 
     return
+
 
 def main():
 
@@ -256,9 +267,9 @@ def main():
 
     grid_params = [
         [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150],
-        [0.1, 0.5, 1, 5, 10, 20, 50],
-        [0, 10]
-     ]
+        [5],
+        [10]
+    ]
 
     run_k_fold(
         models_folder=args.models_folder,
