@@ -121,7 +121,7 @@ def run_k_fold(models_folder: str,
                 )
 
                 save_values_to_file(model_path.joinpath("TMmodel").joinpath(
-                    "fold_config.txt"), grid_params_iter_lst[comb_idx] + (cohr,))
+                    "fold_config.txt"), (ntopics, alpha, opt_int) + (cohr,))
 
                 fold_scores.append(cohr)
 
