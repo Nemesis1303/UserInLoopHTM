@@ -50,14 +50,21 @@ def run_k_fold(models_folder: str,
     # Read corpus as df
     corpusFile = pathlib.Path(corpusFile)
     corpus_df = mallet_corpus_to_df(corpusFile)
-
-    # Create validation corpus and save it to folder with original corpus
-    print("-- -- Creating validation corpus")
-    corpus_train, corpus_val = train_test_split(
-        corpus_df, test_size=val_size, random_state=42)
-    corpus_train.reset_index(drop=True, inplace=True)
-    outFile = corpusFile.parent.joinpath('corpus_val.txt')
-    corpus_df_to_mallet(corpus_val, outFile)
+    
+    outFile_val = corpusFile.parent.joinpath('corpus_val.txt')
+    if not os.path.exists(outFile_val):
+        # Create validation corpus and save it to folder with original corpus
+        print("-- -- Creating validation corpus")
+        corpus_train, corpus_val = train_test_split(
+            corpus_df, test_size=val_size, random_state=42)
+        corpus_train.reset_index(drop=True, inplace=True)
+        outFile = corpusFile.parent.joinpath('corpus_val.txt')
+        corpus_df_to_mallet(corpus_val, outFile)
+    else:
+        # Read validation corpus
+        corpus_val = mallet_corpus_to_df(outFile_val)
+        merged_df = corpus_df.merge(corpus_val, on="id", how="outer", indicator=True)
+        corpus_train = corpus_df[merged_df["_merge"] == "left_only"]
 
     # Initialize the RepeatedKFold cross-validation object:
     rkf = RepeatedKFold(n_splits=10, n_repeats=6, random_state=42)
@@ -266,7 +273,7 @@ def main():
     training_params = read_config_experiments(config_file)
 
     grid_params = [
-        [5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 150],
+        [90, 100, 150],
         [5],
         [10]
     ]
