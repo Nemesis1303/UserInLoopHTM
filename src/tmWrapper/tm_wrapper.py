@@ -90,7 +90,7 @@ class TMWrapper(object):
                       "hidden_sizes",
                       "activation",
                       "dropout_in",
-                      "dropout_out"
+                      "dropout_out",
                       "learn_priors",
                       "lr",
                       "momentum",
