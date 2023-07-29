@@ -21,10 +21,12 @@ values = []
 for entry in path_models.iterdir():
     if not entry.as_posix().endswith("old"):
         TMfolder = entry.joinpath("TMmodel")
-
-        ntopics = int(entry.as_posix().split("ntopics_")[1].split("_alpha")[0])
-        alpha = float(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[0])
-        opt_int = int(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[1].split("_fold_")[0])
+        
+        values_file = read_values_from_file(TMfolder.joinpath('fold_config.txt'))
+                                            
+        ntopics = int(values_file[0])
+        alpha = float(values_file[1])
+        opt_int = int(values_file[2])
         fold = int(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[1].split("_fold_")[1])
 
 
