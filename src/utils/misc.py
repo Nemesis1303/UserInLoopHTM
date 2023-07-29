@@ -271,7 +271,7 @@ def read_config_experiments(file_path):
                 
                 config_dict[option] = int(value)
             elif option in ['thetas_thr', 'doc_topic_thr',
-                            'alpha', 'dropout', 'lr',
+                            'alpha', 'dropout_in', 'dropout_out', 'lr',
                             'momentum', 'topic_prior_mean']:
                 config_dict[option] = float(value)
             elif option == "labels":
