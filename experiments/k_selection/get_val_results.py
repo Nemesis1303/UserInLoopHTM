@@ -89,16 +89,22 @@ grouped_df = df_results.groupby('ntopics').agg({'cohr': ['mean', 'std'], 'disp_p
 grouped_df.columns = ['ntopics', 'cohr_mean', 'cohr_std', 'disp_perc_mean', 'disp_perc_std']
 
 # Plotting
-plt.figure(figsize=(10, 6))
+fig, ax1 = plt.subplots(figsize=(10, 6))
 
-# Error bars represent one standard deviation above and below the mean
-plt.errorbar(grouped_df['ntopics'], grouped_df['cohr_mean'], yerr=grouped_df['cohr_std'], label='Cohr')
-plt.errorbar(grouped_df['ntopics'], grouped_df['disp_perc_mean'], yerr=grouped_df['disp_perc_std'], label='Disp_Perc')
+# Plotting 'cohr' on the left y-axis
+ax1.errorbar(grouped_df['ntopics'], grouped_df['cohr_mean'], yerr=grouped_df['cohr_std'], label='Cohr', color='b')
+ax1.set_xlabel('ntopics')
+ax1.set_ylabel('Cohr', color='b')
+ax1.tick_params(axis='y', labelcolor='b')
+ax1.grid(True)
 
-plt.xlabel('ntopics')
-plt.ylabel('Mean Value')
+# Creating a twin axis on the right side for 'disp_perc'
+ax2 = ax1.twinx()
+ax2.errorbar(grouped_df['ntopics'], grouped_df['disp_perc_mean'], yerr=grouped_df['disp_perc_std'], label='Disp_Perc', color='r')
+ax2.set_ylabel('Disp_Perc', color='r')
+ax2.tick_params(axis='y', labelcolor='r')
+
+# Title and legend
 plt.title('Mean and Standard Deviation of Cohr and Disp_Perc per ntopics')
 plt.legend()
-plt.grid(True)
-plt.show()
 plt.savefig(pathlib.Path(path_models).joinpath("plot3.png"))
