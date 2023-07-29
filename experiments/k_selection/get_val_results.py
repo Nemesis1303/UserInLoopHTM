@@ -19,21 +19,22 @@ def read_values_from_file(filename):
 
 values = []
 for entry in path_models.iterdir():
-    TMfolder = entry.joinpath("TMmodel")
+    if not entry.as_posix().endswith("old"):
+        TMfolder = entry.joinpath("TMmodel")
 
-    ntopics = int(entry.as_posix().split("ntopics_")[1].split("_alpha")[0])
-    alpha = float(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[0])
-    opt_int = int(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[1].split("_fold_")[0])
-    fold = int(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[1].split("_fold_")[1])
+        ntopics = int(entry.as_posix().split("ntopics_")[1].split("_alpha")[0])
+        alpha = float(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[0])
+        opt_int = int(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[1].split("_fold_")[0])
+        fold = int(entry.as_posix().split("ntopics_")[1].split("_alpha_")[1].split("_optint_")[1].split("_fold_")[1])
 
 
-    # Read thetas
-    thetas = sparse.load_npz(TMfolder.joinpath('thetas.npz'))
-    disp_perc = 100 * thetas.count_nonzero() / (thetas.shape[0] * thetas.shape[1])
-    
-    cohr = float(read_values_from_file(TMfolder.joinpath('fold_config.txt'))[3])
+        # Read thetas
+        thetas = sparse.load_npz(TMfolder.joinpath('thetas.npz'))
+        disp_perc = 100 * thetas.count_nonzero() / (thetas.shape[0] * thetas.shape[1])
+        
+        cohr = float(read_values_from_file(TMfolder.joinpath('fold_config.txt'))[3])
 
-    values.append([ntopics, alpha, opt_int, fold, disp_perc, cohr])
+        values.append([ntopics, alpha, opt_int, fold, disp_perc, cohr])
 
 df_results = pd.DataFrame(values, columns=['ntopics', 'alpha', 'opt_int', 'fold', 'disp_perc', 'cohr'])
 df_results.to_csv(pathlib.Path(path_models).joinpath("val_results.csv"))    
