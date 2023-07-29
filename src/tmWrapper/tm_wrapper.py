@@ -89,7 +89,8 @@ class TMWrapper(object):
                       "ctm_model_type",
                       "hidden_sizes",
                       "activation",
-                      "dropout",
+                      "dropout_in",
+                      "dropout_out"
                       "learn_priors",
                       "lr",
                       "momentum",
