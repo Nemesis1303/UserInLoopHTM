@@ -10,7 +10,6 @@ path_models = "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_val_mall
 
 path_models = pathlib.Path(path_models)
 
-
 # Read validation corpus
 corpusFile = pathlib.Path("/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus_val.txt")
 corpus = [line.rsplit(' 0 ')[1].strip() for line in open(
