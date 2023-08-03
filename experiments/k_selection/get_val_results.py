@@ -56,10 +56,10 @@ plt.rcParams.update({
     # Axes
     'axes.labelsize': 12,
     'axes.titlesize': 12,
-    'axes.linewidth': 0.5,
+    'axes.linewidth': 1,
     'axes.grid': True,
     'grid.linestyle': ':',
-    'grid.linewidth': 0.5,
+    'grid.linewidth': 1,
     'grid.color': 'gray',
 
     # Legend
@@ -74,7 +74,7 @@ plt.rcParams.update({
     'legend.labelspacing': 0.5,
 
     # Lines
-    'lines.linewidth': 2.0,
+    'lines.linewidth': 3.0,
     'lines.markersize': 4,
     'axes.labelsize': 10,
     'axes.titlesize': 12,

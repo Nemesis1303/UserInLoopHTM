@@ -156,13 +156,13 @@ def train_automatic(path_corpus: str,
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_corpus', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/S2CS-AI/models_preproc/iter_0/corpus.txt",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt",
                         help="Path to the training data.")
     parser.add_argument('--path_val_corpus', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/S2CS-AI/models_preproc/iter_0/corpus.txt",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus_val.txt",
                         help="Path to the validation training data.")
     parser.add_argument('--models_folder', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/S2CS-AI/models_preproc/iter_0",
+                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/htm_variability_models/5_tpc_root",
                         help="Path where the models are going to be saved.")
     parser.add_argument('--trainer', type=str,
                         default="mallet",
@@ -177,7 +177,7 @@ def main():
                         help="Path to the root model if it exists.")
     parser.add_argument('--only_root', default=False, required=False,
                         action='store_true', help="Flag to activate training of only one root model")
-    parser.add_argument('--ntopics_root', type=int, default=10,
+    parser.add_argument('--ntopics_root', type=int, default=5,
                         help="Number of topics in the root model.")
     args = parser.parse_args()
     
