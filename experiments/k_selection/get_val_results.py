@@ -51,11 +51,11 @@ plt.rcParams.update({
     'figure.dpi': fig_dpi,
 
     # Fonts
-    'font.size': 10,
+    'font.size': 12,
 
     # Axes
-    'axes.labelsize': 10,
-    'axes.titlesize': 10,
+    'axes.labelsize': 12,
+    'axes.titlesize': 12,
     'axes.linewidth': 0.5,
     'axes.grid': True,
     'grid.linestyle': ':',
@@ -74,7 +74,7 @@ plt.rcParams.update({
     'legend.labelspacing': 0.5,
 
     # Lines
-    'lines.linewidth': 1.0,
+    'lines.linewidth': 2.0,
     'lines.markersize': 4,
     'axes.labelsize': 10,
     'axes.titlesize': 12,
