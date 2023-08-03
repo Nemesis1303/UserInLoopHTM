@@ -44,7 +44,7 @@ df_results.to_csv(pathlib.Path(path_models).joinpath("val_results.csv"))
 # Define style for figures
 fig_width = 6.9  # inches
 fig_height = 3.5  # inches
-fig_dpi = 300
+fig_dpi = 600
 
 plt.rcParams.update({
     'figure.figsize': (fig_width, fig_height),
@@ -74,7 +74,7 @@ plt.rcParams.update({
     'legend.labelspacing': 0.5,
 
     # Lines
-    'lines.linewidth': 3.0,
+    'lines.linewidth': 4.0,
     'lines.markersize': 4,
     'axes.labelsize': 10,
     'axes.titlesize': 12,
