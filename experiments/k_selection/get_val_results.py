@@ -19,7 +19,7 @@ def read_values_from_file(filename):
 
 values = []
 for entry in path_models.iterdir():
-    if not entry.as_posix().endswith("old") and entry.is_dir():
+    if not entry.as_posix().endswith("old") and entry.is_dir() and entry.joinpath("TMmodel/fold_config.txt").is_file():
         TMfolder = entry.joinpath("TMmodel")
         
         values_file = read_values_from_file(TMfolder.joinpath('fold_config.txt'))
