@@ -5,6 +5,12 @@ import shutil
 import sys
 import time
 from subprocess import check_output
+import numpy as np
+
+import pandas as pd
+
+from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
+from src.utils.misc import mallet_corpus_to_df
 
 
 class TMWrapper(object):
@@ -272,7 +278,7 @@ class TMWrapper(object):
                            trainer: str,
                            training_params: dict,
                            expansion_topic: int,
-                           thr: float = None):
+                           thr: float = None) -> pathlib.Path:
         """Trains a second-level model according to the htm version provided (HTM-WS/DS).
 
         Parameters
@@ -291,6 +297,11 @@ class TMWrapper(object):
             Number of topics to expand from the father model
         thr : float, optional
             Threshold to use for the expansion of topics, by default None
+            
+        Returns
+        -------
+        model_path : pathlib.Path
+            Path to the folder where the submodel is saved
         """
 
         # Create folder for saving node's outputs
@@ -337,4 +348,32 @@ class TMWrapper(object):
         # Train submodel
         self._train_model(configFile)
 
+        return model_path
+    
+    def calculate_cohr_vs_ref(self,
+                              model_path: pathlib.Path,
+                              corpus_val: pathlib.Path) -> None:
+        """Calculates the topic coherence of the model with respect to a reference corpus. The model should be given as TMmodel, being model_path the path to the folder where the TMmodel is saved.
+
+        Parameters
+        ----------
+        model_path : pathlib.Path
+            Path to the folder where the TMmodel is saved
+        corpus_val : pathlib.Path
+            Path to the folder where the validation corpus is saved
+        """
+        
+        corpus_df = mallet_corpus_to_df(corpus_val)
+        corpus_df['text'] = corpus_df['text'].apply(lambda x: x.split())
+        
+        tm = TMmodel(model_path.joinpath("TMmodel"))
+        cohr = tm.calculate_topic_coherence(
+                metrics=["c_npmi"],
+                reference_text=corpus_df.text.values.tolist(),
+                aggregated=False,
+            )
+        
+        np.save(model_path.joinpath("TMmodel").joinpath(
+            'new_topic_coherence.npy'), cohr)
+                
         return

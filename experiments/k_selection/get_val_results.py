@@ -92,19 +92,35 @@ grouped_df.columns = ['ntopics', 'cohr_mean', 'cohr_std', 'disp_perc_mean', 'dis
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
 # Plotting 'cohr' on the left y-axis
-ax1.errorbar(grouped_df['ntopics'], grouped_df['cohr_mean'], yerr=grouped_df['cohr_std'], label='Cohr', color='b')
-ax1.set_xlabel('ntopics')
-ax1.set_ylabel('Cohr', color='b')
-ax1.tick_params(axis='y', labelcolor='b')
+ax1.errorbar(
+    grouped_df['ntopics'],
+    grouped_df['cohr_mean'],
+    yerr=grouped_df['cohr_std'],
+    fmt='x-',
+    ecolor='gray',
+    capsize=2,
+    lw=1,
+    color='#36AE7C',
+    label='Cohr')
+
+ax1.set_xlabel('Nr topics')
+ax1.set_ylabel('NPMI coherence', color='#36AE7C')
 ax1.grid(True)
 
 # Creating a twin axis on the right side for 'disp_perc'
 ax2 = ax1.twinx()
-ax2.errorbar(grouped_df['ntopics'], grouped_df['disp_perc_mean'], yerr=grouped_df['disp_perc_std'], label='Disp_Perc', color='r')
-ax2.set_ylabel('Disp_Perc', color='r')
-ax2.tick_params(axis='y', labelcolor='r')
+ax2.errorbar(grouped_df['ntopics'],
+             grouped_df['disp_perc_mean'],
+             yerr=grouped_df['disp_perc_std'], 
+             fmt='x-',
+             ecolor='gray',
+             capsize=2,
+             lw=1,
+             color='#187498',
+             label='Disp')
+ax2.set_ylabel('Thetas dispersion percentage', color='#187498')
 
 # Title and legend
-plt.title('Mean and Standard Deviation of Cohr and Disp_Perc per ntopics')
-plt.legend()
+plt.title('NPMI coherence and thetas dispersion percentage per nr topics in CORDIS dataset')
+#plt.legend()
 plt.savefig(pathlib.Path(path_models).joinpath("plot3.png"))
