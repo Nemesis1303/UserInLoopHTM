@@ -201,6 +201,7 @@ def main():
     training_params = read_config_experiments(config_file)
 
     train_automatic(path_corpus=args.path_corpus,
+                    path_ref_corpus=args.path_val_corpus,
                     models_folder=args.models_folder,
                     trainer=args.trainer,
                     iters=args.iters,
