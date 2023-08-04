@@ -46,10 +46,10 @@ def train_automatic(path_corpus: str,
         merged_df = corpus_df.merge(corpus_df_val, on="id", how="outer", indicator=True)
         corpus_df_train = corpus_df[merged_df["_merge"] == "left_only"]
         if trainer == "mallet":
-            path_corpus = corpus_df_val.parent.joinpath('corpus_train.txt')
+            path_corpus = pathlib.Path(path_ref_corpus).parent.joinpath('corpus_train.txt')
             corpus_df_to_mallet(corpus_df_train, path_corpus)
         elif trainer == "ctm":
-            path_corpus = corpus_df_val.parent.joinpath('corpus_train.parquet')
+            path_corpus = pathlib.Path(path_ref_corpus).parent.joinpath('corpus_train.parquet')
             corpus_df_val.to_parquet(path_corpus)
     else:
         # If no reference corpus is provided, we use the original corpus as the reference corpus (not the best option for coherence comparison, but it works)
