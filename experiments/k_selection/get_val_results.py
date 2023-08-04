@@ -133,8 +133,11 @@ def main():
                         default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_val_mallet",
                         help="Path to the trained models.")
     parser.add_argument('--corpus', type=str,
-                        default="mallet",
+                        default="Cordis",
                         help="Name the corpus used for the training.")
     args = parser.parse_args()
     
     get_results(args.path_models, args.corpus)
+    
+if __name__ == '__main__':
+    main()
