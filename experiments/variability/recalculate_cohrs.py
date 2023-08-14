@@ -47,6 +47,9 @@ def main():
                     help="Nr of topics for the root model.")
     
     args = parser.parse_args()
+    recalculate_cohr(corpus_val=args.path_val_corpus,
+                     path_models=args.path_models,
+                     root_topics=args.root_topics)
 
 if __name__ == "__main__":
     main()
