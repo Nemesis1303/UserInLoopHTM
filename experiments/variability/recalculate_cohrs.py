@@ -3,6 +3,7 @@ import os
 import sys
 from distutils.dir_util import copy_tree
 import numpy as np
+import pathlib
 
 # Add src to path and make imports
 sys.path.append('../..')
@@ -13,11 +14,11 @@ from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 def recalculate_cohr(corpus_val, path_models, root_topics):
     root_topics = root_topics.split(',')
     for root_topic in root_topics:
-        path_models = path_models.joinpath(f"{root_topic}_tpc_root")
+        path_models = pathlib.Path(path_models).joinpath(f"{root_topic}_tpc_root")
         
     print(f"-- -- Recalculating coherence for {path_models}")
     
-    corpus_df = mallet_corpus_to_df(corpus_val)
+    corpus_df = mallet_corpus_to_df(pathlib.Path(corpus_val))
     corpus_df['text'] = corpus_df['text'].apply(lambda x: x.split())
 
     for model_path in path_models.iterdir():
