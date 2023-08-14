@@ -40,20 +40,20 @@ def train_automatic(path_corpus: str,
                     ntopics_root: int = 10):
     
     # If a reference corpus is provided, we define the training corpus as the set of documents from the original corpus that are not in the reference corpus
-    if path_ref_corpus:
-        corpus_df = mallet_corpus_to_df(pathlib.Path(path_corpus))
-        corpus_df_val = mallet_corpus_to_df(pathlib.Path(path_ref_corpus))
-        merged_df = corpus_df.merge(corpus_df_val, on="id", how="outer", indicator=True)
-        corpus_df_train = corpus_df[merged_df["_merge"] == "left_only"]
-        if trainer == "mallet":
-            path_corpus = corpus_df_val.parent.joinpath('corpus_train.txt')
-            corpus_df_to_mallet(corpus_df_train, path_corpus)
-        elif trainer == "ctm":
-            path_corpus = corpus_df_val.parent.joinpath('corpus_train.parquet')
-            corpus_df_val.to_parquet(path_corpus)
-    else:
+    #if path_ref_corpus:
+    #    corpus_df = mallet_corpus_to_df(pathlib.Path(path_corpus))
+    #    corpus_df_val = mallet_corpus_to_df(pathlib.Path(path_ref_corpus))
+    #    merged_df = corpus_df.merge(corpus_df_val, on="id", how="outer", indicator=True)
+    #    corpus_df_train = corpus_df[merged_df["_merge"] == "left_only"]
+    #    if trainer == "mallet":
+    #        path_corpus = corpus_df_val.parent.joinpath('corpus_train.txt')
+    #        corpus_df_to_mallet(corpus_df_train, path_corpus)
+    #    elif trainer == "ctm":
+    #        path_corpus = corpus_df_val.parent.joinpath('corpus_train.parquet')
+    #        corpus_df_val.to_parquet(path_corpus)
+    #else:
         # If no reference corpus is provided, we use the original corpus as the reference corpus (not the best option for coherence comparison, but it works)
-        path_ref_corpus = path_corpus
+    path_ref_corpus = path_corpus
     
     tm_wrapper = TMWrapper()
 
@@ -201,6 +201,7 @@ def main():
     training_params = read_config_experiments(config_file)
 
     train_automatic(path_corpus=args.path_corpus,
+                   path_ref_corpus=args.path_val_corpus,
                     models_folder=args.models_folder,
                     trainer=args.trainer,
                     iters=args.iters,
