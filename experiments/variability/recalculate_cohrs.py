@@ -14,26 +14,26 @@ from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 def recalculate_cohr(corpus_val, path_models, root_topics):
     root_topics = root_topics.split(',')
     for root_topic in root_topics:
-        path_models = pathlib.Path(path_models).joinpath(f"{root_topic}_tpc_root")
+        path_models_tpc = pathlib.Path(path_models).joinpath(f"{root_topic}_tpc_root")
         
-    print(f"-- -- Recalculating coherence for {path_models}")
-    
-    corpus_df = mallet_corpus_to_df(pathlib.Path(corpus_val))
-    corpus_df['text'] = corpus_df['text'].apply(lambda x: x.split())
+        print(f"-- -- Recalculating coherence for {path_models_tpc}")
+        
+        corpus_df = mallet_corpus_to_df(pathlib.Path(corpus_val))
+        corpus_df['text'] = corpus_df['text'].apply(lambda x: x.split())
 
-    for model_path in path_models.iterdir():
-        tm = TMmodel(model_path.joinpath("TMmodel"))
-        cohr = tm.calculate_topic_coherence(
-                metrics=["c_npmi"],
-                reference_text=corpus_df.text.values.tolist(),
-                aggregated=False,
-            )
-        if os.path.exists(model_path.joinpath("TMmodel").joinpath(
-            'new_topic_coherence.npy').as_posix()):
-            os.remove(model_path.joinpath("TMmodel").joinpath(
-            'new_topic_coherence.npy').as_posix())
-        np.save(model_path.joinpath("TMmodel").joinpath(
-            'new_topic_coherence.npy'), cohr)
+        for model_path in path_models_tpc.iterdir():
+            tm = TMmodel(model_path.joinpath("TMmodel"))
+            cohr = tm.calculate_topic_coherence(
+                    metrics=["c_npmi"],
+                    reference_text=corpus_df.text.values.tolist(),
+                    aggregated=False,
+                )
+            if os.path.exists(model_path.joinpath("TMmodel").joinpath(
+                'new_topic_coherence.npy').as_posix()):
+                os.remove(model_path.joinpath("TMmodel").joinpath(
+                'new_topic_coherence.npy').as_posix())
+            np.save(model_path.joinpath("TMmodel").joinpath(
+                'new_topic_coherence.npy'), cohr)
     
 def main():
     parser = argparse.ArgumentParser()
