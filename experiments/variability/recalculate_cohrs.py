@@ -20,8 +20,8 @@ def recalculate_cohr(corpus_val, path_models, root_topics):
         
         corpus_df = mallet_corpus_to_df(pathlib.Path(corpus_val))
         corpus_df['text'] = corpus_df['text'].apply(lambda x: x.split())
-
-        for model_path in path_models_tpc.iterdir():
+        
+        def get_cohrs(model_path):
             tm = TMmodel(model_path.joinpath("TMmodel"))
             cohr = tm.calculate_topic_coherence(
                     metrics=["c_npmi"],
@@ -34,6 +34,13 @@ def recalculate_cohr(corpus_val, path_models, root_topics):
                 'new_topic_coherence.npy').as_posix())
             np.save(model_path.joinpath("TMmodel").joinpath(
                 'new_topic_coherence.npy'), cohr)
+        
+        for entry in path_models.iterdir():
+            get_cohrs(entry)
+            for entry_ in entry.iterdir():
+                if entry_.joinpath('TMmodel/alphas.npy').is_file() and not entry_.as_posix().endswith("old"):
+                    get_cohrs(entry_)
+            
     
 def main():
     parser = argparse.ArgumentParser()
