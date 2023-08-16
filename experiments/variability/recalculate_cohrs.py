@@ -10,7 +10,6 @@ sys.path.append('../..')
 from src.utils.misc import mallet_corpus_to_df
 from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 
-
 def recalculate_cohr(corpus_val, path_models, root_topics):
     root_topics = root_topics.split(',')
     for root_topic in root_topics:
@@ -21,11 +20,9 @@ def recalculate_cohr(corpus_val, path_models, root_topics):
         corpus_df = mallet_corpus_to_df(pathlib.Path(corpus_val))
         corpus_df['text'] = corpus_df['text'].apply(lambda x: x.split())
         
-        
         def get_cohrs(model_path):
             if np.load(model_path.joinpath("TMmodel").joinpath(
                 'new_topic_coherence.npy'), allow_pickle=True).tolist() is None:
-                
                 tm = TMmodel(model_path.joinpath("TMmodel"))
                 cohr = tm.calculate_topic_coherence(
                         metrics=["c_npmi"],
@@ -43,8 +40,7 @@ def recalculate_cohr(corpus_val, path_models, root_topics):
             get_cohrs(entry)
             for entry_ in entry.iterdir():
                 if entry_.joinpath('TMmodel/alphas.npy').is_file() and not entry_.as_posix().endswith("old"):
-                    get_cohrs(entry_)
-            
+                    get_cohrs(entry_)            
     
 def main():
     parser = argparse.ArgumentParser()
