@@ -21,21 +21,25 @@ def recalculate_cohr(corpus_val, path_models, root_topics):
         corpus_df = mallet_corpus_to_df(pathlib.Path(corpus_val))
         corpus_df['text'] = corpus_df['text'].apply(lambda x: x.split())
         
-        def get_cohrs(model_path):
-            tm = TMmodel(model_path.joinpath("TMmodel"))
-            cohr = tm.calculate_topic_coherence(
-                    metrics=["c_npmi"],
-                    reference_text=corpus_df.text.values.tolist(),
-                    aggregated=False,
-                )
-            if os.path.exists(model_path.joinpath("TMmodel").joinpath(
-                'new_topic_coherence.npy').as_posix()):
-                os.remove(model_path.joinpath("TMmodel").joinpath(
-                'new_topic_coherence.npy').as_posix())
-            np.save(model_path.joinpath("TMmodel").joinpath(
-                'new_topic_coherence.npy'), cohr)
         
-        for entry in path_models.iterdir():
+        def get_cohrs(model_path):
+            if np.load(model_path.joinpath("TMmodel").joinpath(
+                'new_topic_coherence.npy'), allow_pickle=True).tolist() is None:
+                
+                tm = TMmodel(model_path.joinpath("TMmodel"))
+                cohr = tm.calculate_topic_coherence(
+                        metrics=["c_npmi"],
+                        reference_text=corpus_df.text.values.tolist(),
+                        aggregated=False,
+                    )
+                if os.path.exists(model_path.joinpath("TMmodel").joinpath(
+                    'new_topic_coherence.npy').as_posix()):
+                    os.remove(model_path.joinpath("TMmodel").joinpath(
+                    'new_topic_coherence.npy').as_posix())
+                np.save(model_path.joinpath("TMmodel").joinpath(
+                    'new_topic_coherence.npy'), cohr)
+        
+        for entry in path_models_tpc.iterdir():
             get_cohrs(entry)
             for entry_ in entry.iterdir():
                 if entry_.joinpath('TMmodel/alphas.npy').is_file() and not entry_.as_posix().endswith("old"):
