@@ -44,7 +44,6 @@ def train_automatic(path_corpus: str,
     if path_ref_corpus:
         if trainer == "mallet":
             corpus_df = mallet_corpus_to_df(pathlib.Path(path_corpus))
-            
         elif trainer == "ctm":
             corpus_df = pd.read_parquet(pathlib.Path(path_corpus))
             corpus_df['id'] = corpus_df['id'].apply(str)

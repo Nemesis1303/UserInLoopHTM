@@ -213,7 +213,7 @@ class TMWrapper(object):
             Path to the corpus file to be used for training. This corpus has already been preprocessed in the format required by the topicmodeler
         trainer : str
             Trainer to use. Either 'mallet' or 'ctm'
-        training_params : str
+        training_params : dict
             Dictionary with the parameters for the trainer
 
         Returns
@@ -244,7 +244,7 @@ class TMWrapper(object):
             sys.exit(
                 "The provided corpus file does not exist.")
 
-        if corpusFile.is_dir():
+        if training_params["trainer"] == "ctm":
             self._logger.info(f'-- -- Copying corpus.parquet.')
             dest = shutil.copytree(
                 corpusFile, model_path.joinpath("corpus.parquet"))
