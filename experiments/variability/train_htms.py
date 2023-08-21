@@ -44,11 +44,15 @@ def train_automatic(path_corpus: str,
     if path_ref_corpus:
         if trainer == "mallet":
             corpus_df = mallet_corpus_to_df(pathlib.Path(path_corpus))
+            
         elif trainer == "ctm":
             corpus_df = pd.read_parquet(pathlib.Path(path_corpus))
+            corpus_df['id'] = corpus_df['id'].apply(str)
+            corpus_df.rename(columns={'bow_text': 'text'}, inplace=True)
         corpus_df_val = mallet_corpus_to_df(pathlib.Path(path_ref_corpus))
         merged_df = corpus_df.merge(corpus_df_val, on="id", how="outer", indicator=True)
         corpus_df_train = corpus_df[merged_df["_merge"] == "left_only"]
+        corpus_df_train.rename(columns={'text': 'bow_text'}, inplace=True)
         if trainer == "mallet":
             path_corpus = pathlib.Path(path_ref_corpus).parent.joinpath('corpus_train.txt')
             corpus_df_to_mallet(corpus_df_train, path_corpus)
