@@ -246,8 +246,11 @@ class TMWrapper(object):
 
         if trainer == "ctm":
             self._logger.info(f'-- -- Copying corpus.parquet.')
-            dest = shutil.copytree(
-                corpusFile, model_path.joinpath("corpus.parquet"))
+            if corpusFile.is_dir():
+                dest = shutil.copytree(
+                    corpusFile, model_path.joinpath("corpus.parquet"))
+            else: 
+                dest = shutil.copy(corpusFile, model_path.joinpath("corpus.parquet"))
         else:
             dest = shutil.copy(corpusFile, model_path.joinpath("corpus.txt"))
         self._logger.info(f'-- -- Corpus file copied in {dest}')
