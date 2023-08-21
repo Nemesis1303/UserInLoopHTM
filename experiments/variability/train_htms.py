@@ -56,7 +56,7 @@ def train_automatic(path_corpus: str,
             path_corpus = pathlib.Path(path_ref_corpus).parent.joinpath('corpus_train.txt')
             corpus_df_to_mallet(corpus_df_train, path_corpus)
         elif trainer == "ctm":
-            path_corpus = pathlib.Path(path_ref_corpus).parent.joinpath('corpus_train.parquet')
+            path_corpus = pathlib.Path(path_corpus).parent.joinpath('corpus_train.parquet')
             corpus_df_val.to_parquet(path_corpus)
     else:
         # If no reference corpus is provided, we use the original corpus as the reference corpus (not the best option for coherence comparison, but it works)
