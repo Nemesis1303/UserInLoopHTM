@@ -244,7 +244,7 @@ class TMWrapper(object):
             sys.exit(
                 "The provided corpus file does not exist.")
 
-        if training_params["trainer"] == "ctm":
+        if trainer == "ctm":
             self._logger.info(f'-- -- Copying corpus.parquet.')
             dest = shutil.copytree(
                 corpusFile, model_path.joinpath("corpus.parquet"))
