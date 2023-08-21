@@ -7,6 +7,7 @@ import pathlib
 import sys
 from distutils.dir_util import copy_tree
 import numpy as np
+import pandas as pd
 
 # Add src to path and make imports
 sys.path.append('../..')
@@ -41,7 +42,10 @@ def train_automatic(path_corpus: str,
     
     # If a reference corpus is provided, we define the training corpus as the set of documents from the original corpus that are not in the reference corpus
     if path_ref_corpus:
-        corpus_df = mallet_corpus_to_df(pathlib.Path(path_corpus))
+        if trainer == "mallet":
+            corpus_df = mallet_corpus_to_df(pathlib.Path(path_corpus))
+        elif trainer == "ctm":
+            corpus_df = pd.read_parquet(pathlib.Path(path_corpus))
         corpus_df_val = mallet_corpus_to_df(pathlib.Path(path_ref_corpus))
         merged_df = corpus_df.merge(corpus_df_val, on="id", how="outer", indicator=True)
         corpus_df_train = corpus_df[merged_df["_merge"] == "left_only"]
