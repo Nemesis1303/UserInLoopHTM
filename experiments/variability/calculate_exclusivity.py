@@ -1,14 +1,13 @@
 import argparse
 import os
 import sys
-from distutils.dir_util import copy_tree
 import numpy as np
 import pathlib
 
 # Add src to path and make imports
 sys.path.append('../..')
-from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 from src.utils.misc import mallet_corpus_to_df
+from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 
 def recalculate_cohr(corpus_val, path_models, root_topics):
     root_topics = root_topics.split(',')
@@ -41,15 +40,33 @@ def recalculate_cohr(corpus_val, path_models, root_topics):
             tm = TMmodel(model_path.joinpath("TMmodel"))
             rbo = tm.calculate_rbo()
             print(rbo)
+            if os.path.exists(model_path.joinpath("TMmodel").joinpath(
+                    'rbo.npy').as_posix()):
+                os.remove(model_path.joinpath("TMmodel").joinpath(
+                    'rbo.npy').as_posix())
             np.save(model_path.joinpath("TMmodel").joinpath(
                     'rbo.npy'), rbo)
             return
 
+        def get_td(model_path):
+            tm = TMmodel(model_path.joinpath("TMmodel"))
+            td = tm.calculate_topic_diversity()
+            print(td)
+            if os.path.exists(model_path.joinpath("TMmodel").joinpath(
+                    'td.npy').as_posix()):
+                os.remove(model_path.joinpath("TMmodel").joinpath(
+                    'td.npy').as_posix())
+            np.save(model_path.joinpath("TMmodel").joinpath(
+                    'td.npy'), td)
+            return
+
         for entry in path_models_tpc.iterdir():
             get_rbo(entry)
+            get_td(entry)
             for entry_ in entry.iterdir():
                 if entry_.joinpath('TMmodel/alphas.npy').is_file() and not entry_.as_posix().endswith("old"):
                     get_rbo(entry_)
+                    get_td(entry_)
 
 
 def main():
