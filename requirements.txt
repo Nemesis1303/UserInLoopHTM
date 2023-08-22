@@ -22,4 +22,4 @@ contractions~=0.1.73
 spacy~=3.4.4
 Cython==0.29.34
 sparse-dot-topn==0.3.1
-
+rbo==0.1.3
