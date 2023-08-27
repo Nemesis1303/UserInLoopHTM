@@ -4,6 +4,7 @@ import logging
 import multiprocessing as mp
 import os
 import pathlib
+import shutil
 import sys
 from distutils.dir_util import copy_tree
 import numpy as np
@@ -138,26 +139,33 @@ def train_automatic(path_corpus: str,
                         else:
                             logger.info("Generating submodel with HTM-DS")
                             for thr in np.arange(0.1, 1, 0.1):
-
-                                thr_f = "{:.1f}".format(thr)
-                                name = f"submodel_{version}_thr_{thr_f}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}"
-
-                                submodel_path = tm_wrapper.train_htm_submodel(
-                                    version=version,
-                                    father_model_path=model_path_parent,
-                                    name=name,
-                                    trainer=trainer,
-                                    training_params=training_params,
-                                    expansion_topic=i,
-                                    thr=thr
-                                )
                                 
-                                # Recalculate coherence vs ref corpus
-                                logger.info(
-                                    f"Recalculating coherence vs ref corpus")
-                                tm_wrapper.calculate_cohr_vs_ref(
-                                    model_path=submodel_path,
-                                    corpus_val=pathlib.Path(path_ref_corpus))
+                                try:
+                                    thr_f = "{:.1f}".format(thr)
+                                    name = f"submodel_{version}_thr_{thr_f}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}"
+
+                                    submodel_path = tm_wrapper.train_htm_submodel(
+                                        version=version,
+                                        father_model_path=model_path_parent,
+                                        name=name,
+                                        trainer=trainer,
+                                        training_params=training_params,
+                                        expansion_topic=i,
+                                        thr=thr
+                                    )
+                                
+                                    # Recalculate coherence vs ref corpus
+                                    logger.info(
+                                        f"Recalculating coherence vs ref corpus")
+                                    tm_wrapper.calculate_cohr_vs_ref(
+                                        model_path=submodel_path,
+                                        corpus_val=pathlib.Path(path_ref_corpus))
+                                except:
+                                    print(f"Error with thr {thr}")
+                                    this_submodel_path = pathlib.Path(model_path_parent).joinpath(name)
+                                    if this_submodel_path.is_dir():
+                                        shutil.rmtree(this_submodel_path)
+                                    
 
 
 def main():
