@@ -14,15 +14,15 @@ def remove_duplicates(path_models, root_topics):
             directories = []
             for item in os.listdir(directory_path):
                 item_path = os.path.join(directory_path, item)
-                if os.path.isdir(item_path):
+                if os.path.isdir(item_path) and item.startswith("submodel"):
                     directories.append(item)
             return directories
         
         # Iter over root models
         for entry in path_models_tpc.iterdir():
             directories_list = list_directories(entry)
-            models_date = [int(x.split("_")[-1][-2]) for x in directories_list]
-            models_name = [x.split("_")[:-1] for x in directories_list]
+            models_date = [int(x.split("_")[-1][-2:]) for x in directories_list ]
+            models_name = ["_".join(x.split("_")[:-1]) for x in directories_list]
             
             for i, model_name in enumerate(models_name):
                 for j, model_name_ in enumerate(models_name):
