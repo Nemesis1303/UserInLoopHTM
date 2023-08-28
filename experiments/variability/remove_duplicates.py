@@ -1,7 +1,7 @@
 import argparse
 import os
-import shutil
 import pathlib
+import shutil
 
 def remove_duplicates(path_models, root_topics):
     root_topics = root_topics.split(',')
@@ -31,11 +31,11 @@ def remove_duplicates(path_models, root_topics):
                             if models_date[i] > models_date[j]:
                                 print("Removing", entry.joinpath(directories_list[j]))
                                 print("Keeping", entry.joinpath(directories_list[i]))
-                               #shutil.rmtree(entry.joinpath(directories_list[j]))
+                                shutil.rmtree(entry.joinpath(directories_list[j]))
                             else:
                                 print("Removing", entry.joinpath(directories_list[i]))
                                 print("Keeping", entry.joinpath(directories_list[j]))
-                                #shutil.rmtree(entry.joinpath(directories_list[i]))
+                                shutil.rmtree(entry.joinpath(directories_list[i]))
 
 def main():
     parser = argparse.ArgumentParser()
