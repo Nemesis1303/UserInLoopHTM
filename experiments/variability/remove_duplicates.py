@@ -29,13 +29,21 @@ def remove_duplicates(path_models, root_topics):
                     if i != j:
                         if model_name == model_name_:
                             if models_date[i] > models_date[j]:
-                                print("Removing", entry.joinpath(directories_list[j]))
-                                print("Keeping", entry.joinpath(directories_list[i]))
-                                shutil.rmtree(entry.joinpath(directories_list[j]))
+                                try:
+                                    shutil.rmtree(entry.joinpath(directories_list[j]))
+                                    print("Removing", entry.joinpath(directories_list[j]))
+                                    print("Keeping", entry.joinpath(directories_list[i]))
+                                except:
+                                    print("Could not be removed", entry.joinpath(directories_list[j]))
+                                
                             else:
-                                print("Removing", entry.joinpath(directories_list[i]))
-                                print("Keeping", entry.joinpath(directories_list[j]))
-                                shutil.rmtree(entry.joinpath(directories_list[i]))
+                                try:
+                                    shutil.rmtree(entry.joinpath(directories_list[i]))
+                                    print("Removing", entry.joinpath(directories_list[i]))
+                                    print("Keeping", entry.joinpath(directories_list[j]))
+                                except:
+                                    print("Could not be removed", entry.joinpath(directories_list[i]))
+                                
 
 def main():
     parser = argparse.ArgumentParser()
