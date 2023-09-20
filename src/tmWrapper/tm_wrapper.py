@@ -227,14 +227,15 @@ class TMWrapper(object):
 
         if model_path.exists():
             # Remove current backup folder, if it exists
-            old_model_dir = pathlib.Path(str(model_path) + '_old/')
-            if old_model_dir.exists():
-                shutil.rmtree(old_model_dir)
+            #old_model_dir = pathlib.Path(str(model_path) + '_old/')
+            #if old_model_dir.exists():
+            #    shutil.rmtree(old_model_dir)
+            shutil.rmtree(model_path)
 
             # Copy current model folder to the backup folder.
-            shutil.move(model_path, old_model_dir)
-            self._logger.info(
-                f'-- -- Creating backup of existing model in {old_model_dir}')
+            #shutil.move(model_path, old_model_dir)
+            #self._logger.info(
+            #    f'-- -- Creating backup of existing model in {old_model_dir}')
 
         model_path.mkdir(parents=True, exist_ok=True)
 
@@ -379,4 +380,20 @@ class TMWrapper(object):
         np.save(model_path.joinpath("TMmodel").joinpath(
             'new_topic_coherence.npy'), cohr)
                 
+        return
+
+    def calculate_rbo(self, model_path):
+        tm = TMmodel(model_path.joinpath("TMmodel"))
+        rbo = tm.calculate_rbo()
+        
+        np.save(model_path.joinpath("TMmodel").joinpath(
+                'rbo.npy'), rbo)
+        return
+
+    def calculate_td(self, model_path):
+        tm = TMmodel(model_path.joinpath("TMmodel"))
+        td = tm.calculate_topic_diversity()
+        
+        np.save(model_path.joinpath("TMmodel").joinpath(
+                'td.npy'), td)
         return
