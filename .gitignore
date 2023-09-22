@@ -140,3 +140,5 @@ src/evaluateNN/_train.pkl
 src/evaluateNN/_val.pkl
 src/evaluateNN/checkpoint.pt
 notebooks/csv
+experiments/optimize_ntms/experiments/optimize_ntms/checkpoint.pt
+aux_scripts/scopus_01.parquet
