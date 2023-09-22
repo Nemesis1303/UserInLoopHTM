@@ -1,0 +1,10 @@
+{
+    "name": "S2CSAI_stopwords",
+    "description": "Hand picked stopwords for Cancer",
+    "valid_for": "stopwords",
+    "visibility": "Public",
+    "wordlist": [
+      "year_old"
+    ],
+    "creation_date": "2023-20-09 21:06:15.685231"
+  }
