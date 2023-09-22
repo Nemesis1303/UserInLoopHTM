@@ -139,3 +139,4 @@ src/evaluateNN/_test.pkl
 src/evaluateNN/_train.pkl
 src/evaluateNN/_val.pkl
 src/evaluateNN/checkpoint.pt
+notebooks/csv
