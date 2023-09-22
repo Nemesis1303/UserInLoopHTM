@@ -168,3 +168,6 @@ if __name__ == "__main__":
         trainer=args.trainer,
         nw=args.nw,
         iter_=args.iter_)
+
+
+# TODO: Añadir wordlists a aux_scripts dentrod e carpeta preprocessing y añadir parámetro a los args para las wordlists
