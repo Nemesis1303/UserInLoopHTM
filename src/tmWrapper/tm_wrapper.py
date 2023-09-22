@@ -5,9 +5,8 @@ import shutil
 import sys
 import time
 from subprocess import check_output
-import numpy as np
 
-import pandas as pd
+import numpy as np
 
 from src.topicmodeler.src.topicmodeling.manageModels import TMmodel
 from src.utils.misc import mallet_corpus_to_df
@@ -15,7 +14,7 @@ from src.utils.misc import mallet_corpus_to_df
 
 class TMWrapper(object):
 
-    def __init__(self, logger=None) -> None:
+    def __init__(self, path_tm = None, logger=None) -> None:
         if logger:
             self._logger = logger
         else:
@@ -23,9 +22,14 @@ class TMWrapper(object):
             logging.basicConfig(level=logging.INFO)
             self._logger = logging.getLogger("TMWrapper")
 
-        if os.path.dirname(os.path.dirname(os.getcwd())).endswith('UserInLoopHTM'):
+        if path_tm:
+            path_dir = path_tm
+        else:
+            path_dir = os.path.dirname(os.path.dirname(os.getcwd()))
+            
+        if path_dir.endswith('UserInLoopHTM'):
             self._path_topic_modeler = os.path.join(
-                os.path.dirname(os.path.dirname(os.getcwd())),
+                path_dir,
                 'src',
                 'topicmodeler',
                 'src',
@@ -34,7 +38,7 @@ class TMWrapper(object):
             )
         else:
             self._path_topic_modeler = os.path.join(
-                os.path.dirname(os.path.dirname(os.getcwd())),
+                path_dir,
                 'UserInLoopHTM',
                 'src',
                 'topicmodeler',
@@ -42,6 +46,7 @@ class TMWrapper(object):
                 'topicmodeling',
                 'topicmodeling.py'
             )
+    
         self._logger.info(self._path_topic_modeler)
 
     def _get_model_config(self,
@@ -213,7 +218,7 @@ class TMWrapper(object):
             Path to the corpus file to be used for training. This corpus has already been preprocessed in the format required by the topicmodeler
         trainer : str
             Trainer to use. Either 'mallet' or 'ctm'
-        training_params : str
+        training_params : dict
             Dictionary with the parameters for the trainer
 
         Returns
@@ -227,14 +232,15 @@ class TMWrapper(object):
 
         if model_path.exists():
             # Remove current backup folder, if it exists
-            old_model_dir = pathlib.Path(str(model_path) + '_old/')
-            if old_model_dir.exists():
-                shutil.rmtree(old_model_dir)
+            # old_model_dir = pathlib.Path(str(model_path) + '_old/')
+            # if old_model_dir.exists():
+            #    shutil.rmtree(old_model_dir)
+            shutil.rmtree(model_path)
 
             # Copy current model folder to the backup folder.
-            shutil.move(model_path, old_model_dir)
-            self._logger.info(
-                f'-- -- Creating backup of existing model in {old_model_dir}')
+            # shutil.move(model_path, old_model_dir)
+            # self._logger.info(
+            #    f'-- -- Creating backup of existing model in {old_model_dir}')
 
         model_path.mkdir(parents=True, exist_ok=True)
 
@@ -244,10 +250,14 @@ class TMWrapper(object):
             sys.exit(
                 "The provided corpus file does not exist.")
 
-        if corpusFile.is_dir():
+        if trainer == "ctm":
             self._logger.info(f'-- -- Copying corpus.parquet.')
-            dest = shutil.copytree(
-                corpusFile, model_path.joinpath("corpus.parquet"))
+            if corpusFile.is_dir():
+                dest = shutil.copytree(
+                    corpusFile, model_path.joinpath("corpus.parquet"))
+            else:
+                dest = shutil.copy(
+                    corpusFile, model_path.joinpath("corpus.parquet"))
         else:
             dest = shutil.copy(corpusFile, model_path.joinpath("corpus.txt"))
         self._logger.info(f'-- -- Corpus file copied in {dest}')
@@ -297,7 +307,7 @@ class TMWrapper(object):
             Number of topics to expand from the father model
         thr : float, optional
             Threshold to use for the expansion of topics, by default None
-            
+
         Returns
         -------
         model_path : pathlib.Path
@@ -349,10 +359,11 @@ class TMWrapper(object):
         self._train_model(configFile)
 
         return model_path
-    
+
     def calculate_cohr_vs_ref(self,
                               model_path: pathlib.Path,
-                              corpus_val: pathlib.Path) -> None:
+                              corpus_val: pathlib.Path,
+                              type: str='c_npmi') -> None:
         """Calculates the topic coherence of the model with respect to a reference corpus. The model should be given as TMmodel, being model_path the path to the folder where the TMmodel is saved.
 
         Parameters
@@ -362,18 +373,34 @@ class TMWrapper(object):
         corpus_val : pathlib.Path
             Path to the folder where the validation corpus is saved
         """
-        
+
         corpus_df = mallet_corpus_to_df(corpus_val)
         corpus_df['text'] = corpus_df['text'].apply(lambda x: x.split())
-        
+
         tm = TMmodel(model_path.joinpath("TMmodel"))
         cohr = tm.calculate_topic_coherence(
-                metrics=["c_npmi"],
-                reference_text=corpus_df.text.values.tolist(),
-                aggregated=False,
-            )
-        
+            metrics=[type],
+            reference_text=corpus_df.text.values.tolist(),
+            aggregated=False,
+        )
+
         np.save(model_path.joinpath("TMmodel").joinpath(
-            'new_topic_coherence.npy'), cohr)
-                
+            f"{type}_ref_coherence.npy"), cohr)
+
+        return
+
+    def calculate_rbo(self, model_path):
+        tm = TMmodel(model_path.joinpath("TMmodel"))
+        rbo = tm.calculate_rbo()
+
+        np.save(model_path.joinpath("TMmodel").joinpath(
+                'rbo.npy'), rbo)
+        return
+
+    def calculate_td(self, model_path):
+        tm = TMmodel(model_path.joinpath("TMmodel"))
+        td = tm.calculate_topic_diversity()
+
+        np.save(model_path.joinpath("TMmodel").joinpath(
+                'td.npy'), td)
         return

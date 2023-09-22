@@ -4,9 +4,11 @@ import logging
 import multiprocessing as mp
 import os
 import pathlib
+import shutil
 import sys
 from distutils.dir_util import copy_tree
 import numpy as np
+import pandas as pd
 
 # Add src to path and make imports
 sys.path.append('../..')
@@ -40,20 +42,26 @@ def train_automatic(path_corpus: str,
                     ntopics_root: int = 10):
     
     # If a reference corpus is provided, we define the training corpus as the set of documents from the original corpus that are not in the reference corpus
-    #if path_ref_corpus:
-    #    corpus_df = mallet_corpus_to_df(pathlib.Path(path_corpus))
-    #    corpus_df_val = mallet_corpus_to_df(pathlib.Path(path_ref_corpus))
-    #    merged_df = corpus_df.merge(corpus_df_val, on="id", how="outer", indicator=True)
-    #    corpus_df_train = corpus_df[merged_df["_merge"] == "left_only"]
-    #    if trainer == "mallet":
-    #        path_corpus = corpus_df_val.parent.joinpath('corpus_train.txt')
-    #        corpus_df_to_mallet(corpus_df_train, path_corpus)
-    #    elif trainer == "ctm":
-    #        path_corpus = corpus_df_val.parent.joinpath('corpus_train.parquet')
-    #        corpus_df_val.to_parquet(path_corpus)
-    #else:
+    if path_ref_corpus:
+        if trainer == "mallet":
+            corpus_df = mallet_corpus_to_df(pathlib.Path(path_corpus))
+        elif trainer == "ctm":
+            corpus_df = pd.read_parquet(pathlib.Path(path_corpus))
+            corpus_df['id'] = corpus_df['id'].apply(str)
+            corpus_df.rename(columns={'bow_text': 'text'}, inplace=True)
+        corpus_df_val = mallet_corpus_to_df(pathlib.Path(path_ref_corpus))
+        merged_df = corpus_df.merge(corpus_df_val, on="id", how="outer", indicator=True)
+        corpus_df_train = corpus_df[merged_df["_merge"] == "left_only"]
+        if trainer == "mallet":
+            path_corpus = pathlib.Path(path_ref_corpus).parent.joinpath('corpus_train.txt')
+            corpus_df_to_mallet(corpus_df_train, path_corpus)
+        elif trainer == "ctm":
+            corpus_df_train.rename(columns={'text': 'bow_text'}, inplace=True)
+            path_corpus = pathlib.Path(path_corpus).parent.joinpath('corpus_train.parquet')
+            corpus_df_train.to_parquet(path_corpus)
+    else:
         # If no reference corpus is provided, we use the original corpus as the reference corpus (not the best option for coherence comparison, but it works)
-    path_ref_corpus = path_corpus
+        path_ref_corpus = path_corpus
     
     tm_wrapper = TMWrapper()
 
@@ -131,26 +139,33 @@ def train_automatic(path_corpus: str,
                         else:
                             logger.info("Generating submodel with HTM-DS")
                             for thr in np.arange(0.1, 1, 0.1):
-
-                                thr_f = "{:.1f}".format(thr)
-                                name = f"submodel_{version}_thr_{thr_f}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}"
-
-                                submodel_path = tm_wrapper.train_htm_submodel(
-                                    version=version,
-                                    father_model_path=model_path_parent,
-                                    name=name,
-                                    trainer=trainer,
-                                    training_params=training_params,
-                                    expansion_topic=i,
-                                    thr=thr
-                                )
                                 
-                                # Recalculate coherence vs ref corpus
-                                logger.info(
-                                    f"Recalculating coherence vs ref corpus")
-                                tm_wrapper.calculate_cohr_vs_ref(
-                                    model_path=submodel_path,
-                                    corpus_val=pathlib.Path(path_ref_corpus))
+                                try:
+                                    thr_f = "{:.1f}".format(thr)
+                                    name = f"submodel_{version}_thr_{thr_f}_from_topic_{str(i)}_train_with_{str(j)}_{DT.datetime.now().strftime('%Y%m%d')}"
+
+                                    submodel_path = tm_wrapper.train_htm_submodel(
+                                        version=version,
+                                        father_model_path=model_path_parent,
+                                        name=name,
+                                        trainer=trainer,
+                                        training_params=training_params,
+                                        expansion_topic=i,
+                                        thr=thr
+                                    )
+                                
+                                    # Recalculate coherence vs ref corpus
+                                    logger.info(
+                                        f"Recalculating coherence vs ref corpus")
+                                    tm_wrapper.calculate_cohr_vs_ref(
+                                        model_path=submodel_path,
+                                        corpus_val=pathlib.Path(path_ref_corpus))
+                                except:
+                                    print(f"Error with thr {thr}")
+                                    this_submodel_path = pathlib.Path(model_path_parent).joinpath(name)
+                                    if this_submodel_path.is_dir():
+                                        shutil.rmtree(this_submodel_path)
+                                    
 
 
 def main():
@@ -159,8 +174,8 @@ def main():
                         default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt",
                         help="Path to the training data.")
     parser.add_argument('--path_val_corpus', type=str,
-                        default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus_val.txt",
-                        help="Path to the validation training data.")
+                        
+                        help="Path to the validation training data.")#default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus_val.txt",
     parser.add_argument('--models_folder', type=str,
                         default="/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/htm_variability_models/5_tpc_root",
                         help="Path where the models are going to be saved.")
@@ -201,7 +216,7 @@ def main():
     training_params = read_config_experiments(config_file)
 
     train_automatic(path_corpus=args.path_corpus,
-                   path_ref_corpus=args.path_val_corpus,
+                    path_ref_corpus=args.path_val_corpus,
                     models_folder=args.models_folder,
                     trainer=args.trainer,
                     iters=args.iters,
