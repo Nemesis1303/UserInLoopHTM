@@ -105,6 +105,8 @@ celerybeat.pid
 .env
 .venv
 .venv2
+.venv_kumo
+.venv_kumo01
 env/
 venv/
 ENV/
