@@ -315,7 +315,7 @@ class TMWrapper(object):
         """
 
         # Create folder for saving node's outputs
-        model_path = pathlib.Path(father_model_path).joinpath(name)
+        model_path = father_model_path.joinpath(name)
 
         if model_path.exists():
             # Remove current backup folder, if it exists

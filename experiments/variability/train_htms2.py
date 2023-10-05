@@ -168,7 +168,7 @@ def train_automatic(path_corpus: str,
         ## Generate submodels #
         #######################
         # Save father's model path
-        model_path_parent = model_path
+        model_path_parent = pathlib.Path(model_path)
 
         # Train submodels
         num_topics_sub = num_topics_sub.split(",")
@@ -229,15 +229,14 @@ def train_automatic(path_corpus: str,
                 for exp_tpc in range(ntopics_root):
                     for tr_tpc in num_topics_sub:
                         for thr in np.arange(0.1, 1, 0.1):
-
+                            logger.info(f"-- -- Generating submodel with HTM-DS thr {thr} and {tr_tpc} topics")
                             try:
                                 thr_f = "{:.1f}".format(thr)
-
                                 name = f"submodel_{version}_thr_{thr_f}_from_topic_{str(exp_tpc)}_train_with_{str(tr_tpc)}_iter_{iter_}_{DT.datetime.now().strftime('%Y%m%d')}"
-
+                               
                                 submodel_path = tm_wrapper.train_htm_submodel(
                                     version=version,
-                                    father_model_path=model_path_parent,
+                                    father_model_path=pathlib.Path(model_path_parent),
                                     name=name,
                                     trainer=trainer,
                                     training_params=training_params,
@@ -258,8 +257,9 @@ def train_automatic(path_corpus: str,
                                     f"Calculating RBO and TD")
                                 tm_wrapper.calculate_rbo(submodel_path)
                                 tm_wrapper.calculate_td(submodel_path)
-                            except:
+                            except Exception as error:
                                 logger.error(f"Error with thr {thr}")
+                                logger.error(error)
                                 this_submodel_path = pathlib.Path(
                                     model_path_parent).joinpath(name)
                                 if this_submodel_path.is_dir():
