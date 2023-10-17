@@ -324,6 +324,9 @@ def main():
             'dft_params.cf',
         )
     training_params = read_config_experiments(config_file)
+    
+    print("This are the training params")
+    print(training_params)
 
     train_automatic(path_corpus=args.path_corpus,
                     path_ref_corpus=args.path_val_corpus,

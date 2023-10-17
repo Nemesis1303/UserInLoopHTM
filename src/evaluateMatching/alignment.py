@@ -69,7 +69,7 @@ class Alignment(object):
     def _sim_word_comp(self,
                        betas1: np.array,
                        betas2: np.array,
-                       npairs: int,
+                       npairs: int = 2,
                        thr: float = 1e-3):  # -> list(tuple(int, int, float)):
         """Calculates similarities between word distributions of two topic models based on their word composition using Jensen-Shannon distance.
 
@@ -129,6 +129,17 @@ class Alignment(object):
         all_dist[np.isinf(all_dist)] = 2
 
         # distances = np.mean(all_dist, axis=0)
+        return all_dist
+    
+    def wmd_two_tpcs(self, topics1, topics2, n_words=10):
+        import gensim.downloader as api
+        model = api.load('word2vec-google-news-300')
+        
+        all_dist = np.zeros((len(topics1), len(topics2)))
+        for idx1, tpc1 in enumerate(topics1):
+            for idx2, tpc2 in enumerate(topics2):
+                all_dist[idx1, idx2] = model.wmdistance(
+                    tpc1[:n_words], tpc2[:n_words])
         return all_dist
 
     def do_one_to_one_matching(self,

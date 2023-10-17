@@ -267,7 +267,7 @@ def read_config_experiments(file_path):
             # Retrieve the value of each option
             value = config.get(section, option)
             # Store the option-value pair in the section dictionary
-            if option in ['ntopics', 'num_iterations', 'batch_size', 'num_threads', 'optimize_interval', 'num_epochs', 'num_samples', 'num_data_loader_workers']:
+            if option in ['ntopics', 'num_iterations', 'batch_size', 'num_threads', 'optimize_interval', 'num_epochs', 'num_samples', 'num_data_loader_workers', 'max_features', 'contextual_size']:
                 
                 config_dict[option] = int(value)
             elif option in ['thetas_thr', 'doc_topic_thr',
@@ -284,5 +284,6 @@ def read_config_experiments(file_path):
                 config_dict[option] = tuple(map(int, value[1:-1].split(',')))
             else:
                 config_dict[option] = value
-            
+    
+    print(config_dict)     
     return config_dict

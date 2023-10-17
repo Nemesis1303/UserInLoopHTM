@@ -112,7 +112,9 @@ class TMWrapper(object):
                       "topic_prior_mean",
                       "topic_prior_variance",
                       "num_samples",
-                      "num_data_loader_workers"]
+                      "num_data_loader_workers",
+                      "contextual_size",
+                      "max_features"]
 
         params = {"trainer": trainer,
                   "TMparam": {t: TMparam[t] for t in fields},

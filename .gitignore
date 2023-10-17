@@ -144,3 +144,6 @@ src/evaluateNN/checkpoint.pt
 notebooks/csv
 experiments/optimize_ntms/experiments/optimize_ntms/checkpoint.pt
 aux_scripts/scopus_01.parquet
+experiments/hlda/.venv_tomotopy
+experiments/hlda/output
+experiments/word_intrusion/output
