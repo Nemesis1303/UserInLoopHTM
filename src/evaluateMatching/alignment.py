@@ -157,32 +157,35 @@ class Alignment(object):
         # Create TMmodel objects
         tm1 = TMmodel(pathlib.Path(tmModel1).joinpath("TMmodel"))
         tm2 = TMmodel(pathlib.Path(tmModel2).joinpath("TMmodel"))
-
+        
         # Load betas or thetas according to the method chosen
         if method == "sim_word_comp":
             if not father:
                 tmModelFather = \
                     TMmodel(pathlib.Path(tmModel1).parent.joinpath("TMmodel"))
-
-            distrib1 = tm1.get_betas()
+            
+            [tm._load_betas() for tm in [tm1,tm2,tmModelFather]]
+            [tm._load_vocab_dicts() for tm in [tm1,tm2,tmModelFather]]
+            distrib1 = tm1._betas
             print("The shape of distrib1 is: ", distrib1.shape)
             distrib1 = self._explote_matrix(
                 matrix=distrib1,
-                init_size=(len(distrib1), tmModelFather.get_betas().shape[1]), # ntopics child x nwords father
-                id2token1=tm1.get_vocab(),
-                id2token2=tmModelFather.get_vocab())
+                init_size=(len(distrib1), tmModelFather._betas.shape[1]), # ntopics child x nwords father
+                id2token1=tm1._vocab_id2w,
+                id2token2=tmModelFather._vocab_id2w)
 
-            distrib2 = tm2.get_betas()
+            distrib2 = tm2._betas
             print("The shape of distrib2 is: ", distrib2.shape)
             distrib2 = self._explote_matrix(
                 matrix=distrib2,
-                init_size=(len(distrib2), tmModelFather.get_betas().shape[1]),
-                id2token1=tm2.get_vocab(),
-                id2token2=tmModelFather.get_vocab())
+                init_size=(len(distrib2), tmModelFather._betas.shape[1]),
+                id2token1=tm2._vocab_id2w,
+                id2token2=tmModelFather._vocab_id2w)
         else:
             self._logger.error(
                 "Method for calculating similarity not supported")
 
+        """
         # Get topic descriptions
         topic_desc1 = [el[1].split(', ')
                        for el in tm1.get_tpc_word_descriptions()]
@@ -191,11 +194,11 @@ class Alignment(object):
 
         wmd1 = self._wmd(topic_desc1, n_words=15)
         wmd2 = self._wmd(topic_desc2, n_words=15)
-
+        """
         # Calculate similarity
         # Between both submodels
         vs_sims = self._sim_word_comp(betas1=distrib1,
                                       betas2=distrib2,
                                       npairs=len(distrib1))
 
-        return vs_sims, wmd1, wmd2
+        return vs_sims#, wmd1, wmd2

@@ -17,7 +17,7 @@ logger.addHandler(handler)
 
 
 path_corpus = pathlib.Path(
-    "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc/iter_0/corpus.txt")
+    "/export/usuarios_ml4ds/lbartolome/Datasets/Cancer/models_preproc/iter_0/corpus_train.txt")
 df = mallet_corpus_to_df(path_corpus)
 df_lemas = df[["text"]].values.tolist()
 
@@ -26,7 +26,7 @@ tw = tp.TermWeight.ONE  # term weighting scheme in TermWeight
 min_cf = 0             # minimum collection frequency of words.
 min_df = 0             # minimum document frequency of words.
 rm_top = 0             # the number of top words to be removed.
-depth = 4              # the maximum depth level of hierarchy between 2 ~ 32767
+depth = 2              # the maximum depth level of hierarchy between 2 ~ 32767
 alpha = 10.0           # document-depth level Dirichlet hyperparameter
 eta = 0.1              # hyperparameter of Dirichlet distribution for topic-word
 gamma = 1.0            # concentration coeficient of Dirichlet Process
@@ -50,7 +50,7 @@ print('Num docs:{}, Num Vocabs:{}, Total Words:{}'.format(
 
 # Let's train the model
 logger.info(f"-- -- Training HLDA model...")
-for i in tqdm(range(0, 1000, 20)):
+for i in tqdm(range(0, 100, 20)):
     print('Iteration: {:04}, LL per word: {:.4}'.format(i, mdl.ll_per_word))
     mdl.train(20)
 print('Iteration: {:04}, LL per word: {:.4}'.format(1000, mdl.ll_per_word))
@@ -66,6 +66,6 @@ for k in range(mdl.k):
     print(mdl.get_topic_words(k, top_n=15))
 
 # Save model
-path_save = pathlib.Path(
-    "/Volumes/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/experiments/hlda/output/hlda_cordis.bin")
+path_save = "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/experiments/hlda/output/hlda_cancer.bin"
 mdl.save(path_save)
+

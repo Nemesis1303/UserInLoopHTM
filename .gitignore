@@ -146,4 +146,6 @@ experiments/optimize_ntms/experiments/optimize_ntms/checkpoint.pt
 aux_scripts/scopus_01.parquet
 experiments/hlda/.venv_tomotopy
 experiments/hlda/output
-experiments/word_intrusion/output
+experiments/human_evaluation/task1/output
+experiments/human_evaluation/task2/output
+experiments/human_evaluation/task3/output
