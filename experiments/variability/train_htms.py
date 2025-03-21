@@ -90,7 +90,7 @@ def train_automatic(path_corpus: str,
             # If model_path exists we already have the root model
             old_model_path = pathlib.Path(model_path)
 
-            # Create folder for saving HTM (root models and its descendents)
+            # Create folder for saving HTM (root models and its descendants)
             model_path = pathlib.Path(models_folder).joinpath(
                 f"root_model_{str(iter_)}_{DT.datetime.now().strftime('%Y%m%d')}")
 

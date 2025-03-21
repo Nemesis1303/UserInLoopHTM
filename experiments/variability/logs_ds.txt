@@ -1,0 +1,46 @@
+2024-12-19 10:04:49 - Starting htm-ds on CORDIS (Iteration 1)...
+Executing command: python "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/experiments/variability/train_htms_performance.py" --path_corpus "/export/usuarios_ml4ds/lbartolome/Datasets/CORDIS/models_preproc_ctm/iter_0/corpus.parquet" --version "htm-ds" --start "1" --ntopics_root "6" --models_folder "/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/data/our_models_ctm/htm-ds/cordis"
+#####################
+1461580
+#####################
+{'thetas_thr': 0.003, 'ntopics': 10, 'doc_topic_thr': 0.0, 'mallet_path': '/export/usuarios_ml4ds/lbartolome/mallet-2.0.8/bin/mallet', 'token_regexp': '[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{P}]*\\p{L}', 'alpha': 5.0, 'num_iterations': 1000, 'activation': 'softplus', 'batch_size': 64, 'dropout_in': 0.2, 'dropout_out': 0.2, 'hidden_sizes': (50, 50), 'labels': '', 'learn_priors': True, 'lr': 0.002, 'momentum': 0.99, 'num_data_loader_workers': 8, 'num_threads': 4, 'optimize_interval': 10, 'reduce_on_plateau': False, 'sbert_model_to_load': 'paraphrase-distilroberta-base-v1', 'solver': 'adam', 'topic_prior_mean': 0.0, 'topic_prior_variance': None, 'ctm_model_type': 'CombinedTM', 'model_type': 'prodLDA', 'num_epochs': 100, 'num_samples': 20, 'max_features': 2000, 'contextual_size': 768}
+/export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeler/src/topicmodeling/topicmodeling.py
+-- -- Running iter 1
+-- -- Copying corpus.parquet.
+-- -- Corpus file copied in /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/data/our_models_ctm/htm-ds/cordis/root_model_1_20241219/corpus.parquet
+python /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeler/src/topicmodeling/topicmodeling.py --train --config /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/data/our_models_ctm/htm-ds/cordis/root_model_1_20241219/config.json
+-- -- Running command python /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeler/src/topicmodeling/topicmodeling.py --train --config /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/data/our_models_ctm/htm-ds/cordis/root_model_1_20241219/config.json
+Total training time --> 401.98310717381537
+#############################
+Generating submodels
+Generating submodel with HTM-DS
+LLEGA 1
+python /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/topicmodeler/src/topicmodeling/topicmodeling.py --hierarchical --config /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/data/our_models_ctm/htm-ds/cordis/root_model_1_20241219/config.json --config_child /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/data/our_models_ctm/htm-ds/cordis/root_model_1_20241219/submodel_htm-ds_thr_0.1_from_topic_3_train_with_10_20241219/config.json
+> /export/usuarios_ml4ds/lbartolome/Repos/my_repos/UserInLoopHTM/src/tmWrapper/tm_wrapper.py(348)train_htm_submodel()
+-> try:
+(Pdb) (Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) (Pdb) (Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) (Pdb) (Pdb) (Pdb) (Pdb) (Pdb) (Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) (Pdb) (Pdb) (Pdb) (Pdb) (Pdb) (Pdb) 

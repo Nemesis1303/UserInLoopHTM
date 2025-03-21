@@ -1,0 +1,11 @@
+,5e551bdb4f51d6000b8eb12a,5f8f52ffd211991aba7ecd1f,5ebee8581f3004103ad74b5a,5fbfc811235b1d1533a892eb,605b2ced9d63e5c4590f2280,5cd959b304748d001819f233,6497e970e2621e753513a695,614ee8ddba7641d7696ab82a,60fe54550c56a36a9a0558cd,61574d498a935593d413947f,6171b75b3c2b59f8487b4814,5f1c5d097881234e5034cb12,60b880518b31da36270782eb,5df6304773d724428a9cff45,5fb2727f2942a58418fd0d2b
+99,neuro_fuzzy,membership_function,inference,t_s_method,membership_function,t_s_method,inference,inference,tomography,tomography,inference,inference,inference,membership_function,tomography
+155,chatbot,chatbot,chatbot,chatbot,ae,star,ae,damage,ae,star,ae,ae,chatbot,chatbot,chatbot
+293,prediction,speech_recognition,speech_recognition,speech_recognition,prediction,prediction,prediction,prediction,prediction,prediction,speech_recognition,speech_recognition,prediction,speech_recognition,speech_recognition
+291,ehr,patient,color,nlp,ehr,ehr,color,color,color,color,color,ehr,patient,color,color
+109,virtual_reality,virtual_reality,pca,human,pca,pca,virtual_reality,healthcare,pca,game,human,pca,pca,game,healthcare
+55,gan,coronary_artery,loss,coronary_artery,loss,deep_learning,loss,deep_learning,coronary_artery,coronary_artery,coronary_artery,coronary_artery,loss,coronary_artery,coronary_artery
+277,biomarker,biomarker,storage,biomarker,biomarker,biomarker,biomarker,biomarker,biomarker,biomarker,biomarker,biomarker,biomarker,biomarker,biomarker
+43,stochastic_gradient,convex,rate,patient,convex,rate,patient,optimization,patient,patient,patient,patient,patient,patient,convex
+297,vaccination,spatial,spatial,spatial,cost,spatial,effectiveness,cost,incremental,cost,tuberculosis,tuberculosis,tuberculosis,spatial,incremental
+261,quantization,inference,cnn,accelerator,accelerator,cnn,inference,quantization,cnn,gene,cnn,cnn,gene,accelerator,gene

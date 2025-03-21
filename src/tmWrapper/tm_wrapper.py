@@ -136,7 +136,7 @@ class TMWrapper(object):
         Returns
         -------
         output : str
-            Output of the command
+            Output of the commands
         """
 
         t_start = time.perf_counter()
@@ -202,12 +202,13 @@ class TMWrapper(object):
 
         return
 
-    def train_root_model(self,
-                         models_folder: str,
-                         name: str,
-                         path_corpus: str,
-                         trainer: str,
-                         training_params: str) -> pathlib.Path:
+    def train_root_model(
+        self,
+        models_folder: str,
+        name: str,
+        path_corpus: str,
+        trainer: str,
+        training_params: str) -> pathlib.Path:
         """Trains a (root) topic model according to the algorithm specified by 'trainer'. For doing so, it creates a folder for the model with location 'models_folder/name' and copies the corpus to it. It also creates a config file with the training parameters and an object of the class TMmodel to store the model.
 
         Parameters
@@ -233,17 +234,7 @@ class TMWrapper(object):
         model_path = pathlib.Path(models_folder).joinpath(name)
 
         if model_path.exists():
-            # Remove current backup folder, if it exists
-            # old_model_dir = pathlib.Path(str(model_path) + '_old/')
-            # if old_model_dir.exists():
-            #    shutil.rmtree(old_model_dir)
             shutil.rmtree(model_path)
-
-            # Copy current model folder to the backup folder.
-            # shutil.move(model_path, old_model_dir)
-            # self._logger.info(
-            #    f'-- -- Creating backup of existing model in {old_model_dir}')
-
         model_path.mkdir(parents=True, exist_ok=True)
 
         # Copy training corpus (already preprocessed) to folder
@@ -283,14 +274,15 @@ class TMWrapper(object):
 
         return model_path
 
-    def train_htm_submodel(self,
-                           version: str,
-                           father_model_path: pathlib.Path,
-                           name: str,
-                           trainer: str,
-                           training_params: dict,
-                           expansion_topic: int,
-                           thr: float = None) -> pathlib.Path:
+    def train_htm_submodel(
+        self,
+        version: str,
+        father_model_path: pathlib.Path,
+        name: str,
+        trainer: str,
+        training_params: dict,
+        expansion_topic: int,
+        thr: float = None) -> pathlib.Path:
         """Trains a second-level model according to the htm version provided (HTM-WS/DS).
 
         Parameters
@@ -318,6 +310,7 @@ class TMWrapper(object):
 
         # Create folder for saving node's outputs
         model_path = father_model_path.joinpath(name)
+        print("LLEGA 1")
 
         if model_path.exists():
             # Remove current backup folder, if it exists
@@ -362,10 +355,11 @@ class TMWrapper(object):
 
         return model_path
 
-    def calculate_cohr_vs_ref(self,
-                              model_path: pathlib.Path,
-                              corpus_val: pathlib.Path,
-                              type: str='c_npmi') -> None:
+    def calculate_cohr_vs_ref(
+        self,
+        model_path: pathlib.Path,
+        corpus_val: pathlib.Path,
+        type: str='c_npmi') -> None:
         """Calculates the topic coherence of the model with respect to a reference corpus. The model should be given as TMmodel, being model_path the path to the folder where the TMmodel is saved.
 
         Parameters

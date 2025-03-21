@@ -149,3 +149,11 @@ experiments/hlda/output
 experiments/human_evaluation/task1/output
 experiments/human_evaluation/task2/output
 experiments/human_evaluation/task3/output
+data/models
+.venv_baseline
+.vscode
+gpu_env
+data
+checkgpu_baseline.csv
+checkcpu_baseline.csv
+Task_2_Test.json

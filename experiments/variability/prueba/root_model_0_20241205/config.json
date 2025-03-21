@@ -1,0 +1,19 @@
+{
+  "trainer": "mallet",
+  "TMparam": {
+    "ntopics": 5,
+    "labels": "",
+    "thetas_thr": 0.003,
+    "mallet_path": "/export/usuarios_ml4ds/lbartolome/mallet-2.0.8/bin/mallet",
+    "alpha": 5.0,
+    "optimize_interval": 10,
+    "num_threads": 4,
+    "num_iterations": 1000,
+    "doc_topic_thr": 0.0,
+    "token_regexp": "[\\p{L}\\p{N}][\\p{L}\\p{N}\\p{P}]*\\p{L}"
+  },
+  "hierarchy-level": 0,
+  "htm-version": null,
+  "expansion_tpc": null,
+  "thr": null
+}

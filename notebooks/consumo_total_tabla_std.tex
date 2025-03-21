@@ -1,0 +1,14 @@
+\begin{table}
+\caption{Consumo total promedio de CPU con desviación estándar y tiempo de ejecución por modelo y dataset}
+\label{tab:cpu_usage_with_std}
+\begin{tabular}{lllllll}
+\toprule
+ & \multicolumn{3}{r}{cpu_usage} & \multicolumn{3}{r}{avg_time} \\
+dataset & cancer & cordis & s2cs-ai & cancer & cordis & s2cs-ai \\
+algorithm &  &  &  &  &  &  \\
+\midrule\n\cmidrule(lr){2-4} % Línea debajo de CPU Usage
+HTM-DS & 403.92 ± 301.68 & 357.41 ± 252.75 & 457.3 ± 462.3 & 159.450000 & 18.420000 & 160.570000 \\
+HTM-WS & 376.35 ± 204.91 & 368.8 ± 196.45 & 383.21 ± 210.43 & 113.330000 & 8.400000 & 118.000000 \\
+\cmidrule(lr){2-4} % Línea debajo de Time (min)\n\bottomrule
+\end{tabular}
+\end{table}

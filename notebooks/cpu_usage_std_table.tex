@@ -1,0 +1,17 @@
+\begin{table}
+\caption{Consumo total promedio de CPU con desviación estándar y tiempo de ejecución por modelo y dataset}
+\label{tab:cpu_usage_with_std}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llrlrlr}
+\toprule
+ & \multicolumn{2}{c}{cordis} & \multicolumn{2}{c}{cancer} & \multicolumn{2}{c}{s2cs-ai} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+ & CPU Usage & GPU Usage & Time (min) & CPU Usage & GPU Usage & Time (min) & CPU Usage & GPU Usage & Time (min) \\
+\midrule
+HTM-DS & 318.1 ± 115.2 & 0.0 ± 0.0 & 15.1 ± 8.7 & 360.6 ± 350.6 & 0.0 ± 0.0 & 188.9 ± 814.9 & 398.8 ± 352.3 & 0.0 ± 0.0 & 164.8 ± 32.0 \\
+HTM-WS & 261.6 ± 41.4 & 0.0 ± 0.0 & 8.6 ± 0.2 & 288.5 ± 71.4 & 0.0 ± 0.0 & 109.9 ± 8.7 & 291.8 ± 85.5 & 0.0 ± 0.0 & 110.9 ± 38.1 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
